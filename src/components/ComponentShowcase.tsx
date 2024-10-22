@@ -5,6 +5,7 @@ import NextImage from 'next/image';
 import { Menu } from 'lucide-react';
 import { Button } from "@/components/button";
 import { Toggle } from '@/components/Toggle';
+import { Tag } from '@/components/Tag';
 import {
   Sheet,
   SheetContent,
@@ -23,6 +24,31 @@ const ComponentShowcase = () => {
   const menuItems = ['Components', 'Documentation', 'Examples', 'Github'];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
 
+  // Interactive example component
+const TagList = () => {
+  const [tags, setTags] = React.useState([
+    { id: 1, text: 'React' },
+    { id: 2, text: 'TypeScript' },
+    { id: 3, text: 'Tailwind CSS' },
+  ]);
+
+  const handleDelete = (id: number) => {
+    setTags(tags.filter(tag => tag.id !== id));
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tags.map(tag => (
+        <Tag
+          key={tag.id}
+          text={tag.text}
+          onDelete={() => handleDelete(tag.id)}
+        />
+      ))}
+    </div>
+  );
+};
+  
   const ToggleExample = ({ 
     variant, 
     label, 
@@ -57,6 +83,80 @@ const ComponentShowcase = () => {
           <h3 className="heading-3">Card Component</h3>
           <p>Example of our card component with image and content.</p>
         </Card>
+      )
+    },
+    {
+      title: "Tags",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Tag Components</h3>
+          
+          {/* Primary Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Primary Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag 
+                text="Active Tag" 
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Long Tag Name That Should Truncate" 
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Read Only Tag" 
+              />
+            </div>
+          </div>
+    
+          {/* CTA Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">CTA Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag 
+                text="Active Tag" 
+                variant="cta"
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Long Tag Name That Should Truncate" 
+                variant="cta"
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Read Only Tag" 
+                variant="cta"
+              />
+            </div>
+          </div>
+    
+          {/* Secondary Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Secondary Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag 
+                text="Active Tag" 
+                variant="secondary"
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Long Tag Name That Should Truncate" 
+                variant="secondary"
+                onDelete={() => console.log('Delete clicked')}
+              />
+              <Tag 
+                text="Read Only Tag" 
+                variant="secondary"
+              />
+            </div>
+          </div>
+    
+          {/* Interactive Example */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Interactive Example</h4>
+            <TagList />
+          </div>
+        </div>
       )
     },
     {
