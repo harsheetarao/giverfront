@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import NextImage from 'next/image'; 
 import { Menu } from 'lucide-react';
 import { Button } from "@/components/button";
+import { Toggle } from '@/components/Toggle';
 import {
   Sheet,
   SheetContent,
@@ -14,31 +15,239 @@ import { CustomButton } from "@/components/CustomButton";
 import { Progress } from "@/components/Progress";
 import { MessageBubble } from "@/components/MessageBubble";
 import { SwipeCardDeck } from '@/components/SwipeCardDeck';
+import { FormDropdown } from '@/components/FormDropdown';
+import { FormInput } from '@/components/FormInput';
 
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const menuItems = ['Components', 'Documentation', 'Examples', 'Github'];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
 
+  const ToggleExample = ({ 
+    variant, 
+    label, 
+    disabled = false, 
+    initialChecked = false 
+  }: { 
+    variant: 'primary' | 'cta' | 'secondary';
+    label: string;
+    disabled?: boolean;
+    initialChecked?: boolean;
+  }) => {
+    const [checked, setChecked] = React.useState(initialChecked);
+    
+    return (
+      <div className="flex items-center gap-3">
+        <Toggle
+          checked={checked}
+          onChange={setChecked}
+          variant={variant}
+          disabled={disabled}
+        />
+        <span className="text-sm text-gray-600">{label}</span>
+      </div>
+    );
+  };
+
   const contentItems = [
     {
       title: "Cards Example",
       content: (
         <Card imageUrl="https://gone.com/assets/img/photo1.webp" alt="Example card">
-          <h3 className="text-xl font-bold mb-2">Card Component</h3>
+          <h3 className="heading-3">Card Component</h3>
           <p>Example of our card component with image and content.</p>
         </Card>
       )
     },
     {
-      title: "Buttons Example",
+      title: "Button Variants",
       content: (
-        <div className="space-y-4">
-          <h3 className="text-xl font-bold mb-2">Button Components</h3>
+        <div className="space-y-6">
+          <h3 className="heading-3">Button Components</h3>
+          
+          {/* Primary Buttons */}
           <div className="space-y-2">
-            <CustomButton onClick={() => console.log('clicked')}>
-              Primary Button
-            </CustomButton>
+            <h4 className="font-semibold text-sm text-gray-600">Primary</h4>
+            <div className="flex flex-wrap gap-4">
+              <CustomButton variant="primary" size="sm">
+                Small Primary
+              </CustomButton>
+              <CustomButton variant="primary">
+                Default Primary
+              </CustomButton>
+              <CustomButton variant="primary" size="lg">
+                Large Primary
+              </CustomButton>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">CTA</h4>
+            <div className="flex flex-wrap gap-4">
+              <CustomButton variant="cta" size="sm">
+                Small CTA
+              </CustomButton>
+              <CustomButton variant="cta">
+                Default CTA
+              </CustomButton>
+              <CustomButton variant="cta" size="lg">
+                Large CTA
+              </CustomButton>
+            </div>
+          </div>
+
+          {/* Secondary Buttons */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Secondary</h4>
+            <div className="flex flex-wrap gap-4">
+              <CustomButton variant="secondary" size="sm">
+                Small Secondary
+              </CustomButton>
+              <CustomButton variant="secondary">
+                Default Secondary
+              </CustomButton>
+              <CustomButton variant="secondary" size="lg">
+                Large Secondary
+              </CustomButton>
+            </div>
+          </div>
+
+          {/* Disabled State */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Disabled State</h4>
+            <div className="flex flex-wrap gap-4">
+              <CustomButton variant="primary" disabled>
+                Disabled Primary
+              </CustomButton>
+              <CustomButton variant="cta" disabled>
+                Disabled CTA
+              </CustomButton>
+              <CustomButton variant="secondary" disabled>
+                Disabled Secondary
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Form Components",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Form Components</h3>
+    
+          {/* Text Fields */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-sm text-gray-600">Text Fields</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormInput
+                label="Normal Input"
+                placeholder="Enter text here"
+                hint="This is a normal text input"
+                state="normal"
+              />
+              <FormInput
+                label="Completed Input"
+                placeholder="Enter text here"
+                value="Completed value"
+                hint="This input has been completed"
+                state="completed"
+              />
+              <FormInput
+                label="Error Input"
+                placeholder="Enter text here"
+                value="Invalid value"
+                hint="This input has an error"
+                state="error"
+              />
+              <FormInput
+                label="Required Input"
+                placeholder="Enter text here"
+                hint="This input is required"
+                state="required"
+              />
+              <FormInput
+                label="Blank Required Input"
+                placeholder="Enter text here"
+                hint="This required input is blank"
+                state="blankRequired"
+              />
+              <FormInput
+                label="Disabled Input"
+                placeholder="Enter text here"
+                hint="This input is disabled"
+                disabled
+              />
+            </div>
+          </div>
+    
+          {/* Dropdowns */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-sm text-gray-600">Dropdowns</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormDropdown
+                label="Normal Dropdown"
+                hint="This is a normal dropdown"
+                state="normal"
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+              <FormDropdown
+                label="Completed Dropdown"
+                hint="This dropdown has a selection"
+                state="completed"
+                value="1"
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+              <FormDropdown
+                label="Error Dropdown"
+                hint="This dropdown has an error"
+                state="error"
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+              <FormDropdown
+                label="Required Dropdown"
+                hint="This dropdown is required"
+                state="required"
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+              <FormDropdown
+                label="Blank Required Dropdown"
+                hint="This required dropdown is blank"
+                state="blankRequired"
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+              <FormDropdown
+                label="Disabled Dropdown"
+                hint="This dropdown is disabled"
+                disabled
+                options={[
+                  { value: '', label: 'Select an option' },
+                  { value: '1', label: 'Option 1' },
+                  { value: '2', label: 'Option 2' },
+                ]}
+              />
+            </div>
           </div>
         </div>
       )
@@ -47,7 +256,7 @@ const ComponentShowcase = () => {
       title: "Progress Example",
       content: (
         <div className="space-y-4">
-          <h3 className="text-xl font-bold mb-2">Progress Component</h3>
+          <h3 className="heading-3">Progress Component</h3>
           <Progress steps={steps} currentStep={currentStep} />
           <div className="flex gap-2">
             <CustomButton 
@@ -67,10 +276,81 @@ const ComponentShowcase = () => {
       )
     },
     {
+      title: "Toggle Switches",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Toggle Components</h3>
+          
+          {/* Primary Toggles */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Primary</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ToggleExample 
+                variant="primary"
+                label="Off State"
+              />
+              <ToggleExample 
+                variant="primary"
+                initialChecked={true}
+                label="On State"
+              />
+              <ToggleExample 
+                variant="primary"
+                disabled
+                label="Disabled"
+              />
+            </div>
+          </div>
+    
+          {/* CTA Toggles */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">CTA</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ToggleExample 
+                variant="cta"
+                label="Off State"
+              />
+              <ToggleExample 
+                variant="cta"
+                initialChecked={true}
+                label="On State"
+              />
+              <ToggleExample 
+                variant="cta"
+                disabled
+                label="Disabled"
+              />
+            </div>
+          </div>
+    
+          {/* Secondary Toggles */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Secondary</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ToggleExample 
+                variant="secondary"
+                label="Off State"
+              />
+              <ToggleExample 
+                variant="secondary"
+                initialChecked={true}
+                label="On State"
+              />
+              <ToggleExample 
+                variant="secondary"
+                disabled
+                label="Disabled"
+              />
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
       title: "Message Bubbles Example",
       content: (
         <div className="space-y-4">
-          <h3 className="text-xl font-bold mb-2">Message Bubble Components</h3>
+          <h3 className="heading-3">Message Bubble Components</h3>
           <MessageBubble state="primary">
             Primary message bubble
           </MessageBubble>
@@ -88,12 +368,12 @@ const ComponentShowcase = () => {
       title: "Swipe Cards Example",
       content: (
         <div className="space-y-4">
-          <h3 className="text-xl font-bold mb-2">Swipe Card Component</h3>
+          <h3 className="heading-3">Swipe Card Component</h3>
           <SwipeCardDeck
             cards={[
               {
                 id: 1,
-                imageUrl: "/api/placeholder/250/250",
+                imageUrl: "https://gone.com/assets/img/photo2.webp",
                 alt: "Card 1",
                 content: (
                   <div>
@@ -104,7 +384,7 @@ const ComponentShowcase = () => {
               },
               {
                 id: 2,
-                imageUrl: "/api/placeholder/250/250",
+                imageUrl: "https://gone.com/assets/img/photo3.webp",
                 alt: "Card 2",
                 content: (
                   <div>

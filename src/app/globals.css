@@ -47,6 +47,9 @@
 
 /* Custom component styles */
 @layer components {
+  .heading-3 {
+    @apply font-poppins font-semibold text-2xl text-[#4B7163];
+  }
   /* Card Component */
   .card-custom {
     @apply bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col items-center;
