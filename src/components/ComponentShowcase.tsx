@@ -21,6 +21,8 @@ import { FormDropdown } from '@/components/FormDropdown';
 import { FormInput } from '@/components/FormInput';
 import { PickupRequestManager } from '@/components/PickupRequestManager';
 import { ShoppingCart } from '@/components/ShoppingCart';
+import { PickupRequestForm } from '@/components/PickupRequestForm';
+
 import Logo from '@/styles/ui/logos/gone.svg';
 
 const ComponentShowcase = () => {
@@ -152,6 +154,20 @@ const TagList = () => {
             onCheckout={() => 
               console.log('Proceed to checkout')
             }
+          />
+        </div>
+      )
+    },
+    {
+      title: "Pickup Request Form",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Pickup Request Form</h3>
+          
+          <PickupRequestForm
+            onSubmit={(data) => {
+              console.log('Form submitted:', data);
+            }}
           />
         </div>
       )
