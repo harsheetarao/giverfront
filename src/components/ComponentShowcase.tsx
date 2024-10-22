@@ -13,6 +13,7 @@ import { Card } from "@/components/Card";
 import { CustomButton } from "@/components/CustomButton";
 import { Progress } from "@/components/Progress";
 import { MessageBubble } from "@/components/MessageBubble";
+import { SwipeCardDeck } from '@/components/SwipeCardDeck';
 
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -79,6 +80,45 @@ const ComponentShowcase = () => {
           <MessageBubble state="tertiary">
             Tertiary message bubble
           </MessageBubble>
+        </div>
+      )
+    },
+
+    {
+      title: "Swipe Cards Example",
+      content: (
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold mb-2">Swipe Card Component</h3>
+          <SwipeCardDeck
+            cards={[
+              {
+                id: 1,
+                imageUrl: "/api/placeholder/250/250",
+                alt: "Card 1",
+                content: (
+                  <div>
+                    <h4 className="font-bold mb-1">Card One</h4>
+                    <p>Swipe right to approve, left to reject</p>
+                  </div>
+                )
+              },
+              {
+                id: 2,
+                imageUrl: "/api/placeholder/250/250",
+                alt: "Card 2",
+                content: (
+                  <div>
+                    <h4 className="font-bold mb-1">Card Two</h4>
+                    <p>Another swipeable card example</p>
+                  </div>
+                )
+              },
+              // Add more cards as needed
+            ]}
+            onSwipeLeft={(card) => console.log('Rejected:', card)}
+            onSwipeRight={(card) => console.log('Approved:', card)}
+            onEmpty={() => console.log('No more cards!')}
+          />
         </div>
       )
     }
