@@ -21,6 +21,7 @@ import { FormDropdown } from '@/components/FormDropdown';
 import { FormInput } from '@/components/FormInput';
 import { PickupRequestManager } from '@/components/PickupRequestManager';
 import { ShoppingCart } from '@/components/ShoppingCart';
+import Logo from '@/styles/ui/logos/gone.svg';
 
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -623,11 +624,11 @@ const TagList = () => {
             {/* Logo */}
             <div className="flex shrink-0 items-center">
               <NextImage
-                src="https://gone.com/assets/img/logo.png"
+                src={Logo}
                 alt="Gone Logo"
-                width={100}  // Adjust these values based on the actual logo size
-                height={40}  // Adjust these values based on the actual logo size
-                className="h-8 w-auto"  // This maintains aspect ratio while fitting in header
+                width={300}  // Adjust these values based on the actual logo size
+                height={75}  // Adjust these values based on the actual logo size
+                className="h-16 w-auto"  // This maintains aspect ratio while fitting in header
                 priority  // This ensures the logo loads quickly as it's above the fold
               />
             </div>
