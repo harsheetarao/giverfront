@@ -1,9 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+@font-face {
+  font-family: 'Rockwell';
+  src: url('/fonts/Rockwell.woff2') format('woff2'),
+       url('/fonts/Rockwell.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -41,14 +50,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground font-sourceSans;
   }
 }
 
 /* Custom component styles */
 @layer components {
   .heading-3 {
-    @apply font-poppins font-semibold text-2xl text-[#4B7163];
+    @apply font-rockwell font-semibold text-2xl text-[#4B7163];
   }
   /* Card Component */
   .card-custom {
@@ -57,13 +66,13 @@
   }
 
   .card-custom-image {
-    @apply w-[250px] h-[250px] overflow-hidden mb-4;
+    @apply h-[250px] overflow-hidden mb-4;
     border-radius: 16px;
   }
 
   /* Button Component */
   .button-custom {
-    @apply font-poppins text-base text-white transition-colors duration-200;
+    @apply font-sourceSans text-base text-white transition-colors duration-200;
     background-color: #6AB098;
     border: none;
     box-shadow: none;
@@ -91,7 +100,7 @@
 
   /* Message Bubble Component */
   .message-bubble {
-    @apply font-poppins text-base relative;
+    @apply font-sourceSans text-base relative;
     border-radius: 8px;
   }
 

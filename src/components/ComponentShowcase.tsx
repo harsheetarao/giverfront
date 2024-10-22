@@ -12,12 +12,15 @@ import {
   SheetTrigger,
 } from "@/components/sheet";
 import { Card } from "@/components/Card";
+import { ProductCard } from '@/components/ProductCard';
 import { CustomButton } from "@/components/CustomButton";
 import { Progress } from "@/components/Progress";
 import { MessageBubble } from "@/components/MessageBubble";
 import { SwipeCardDeck } from '@/components/SwipeCardDeck';
 import { FormDropdown } from '@/components/FormDropdown';
 import { FormInput } from '@/components/FormInput';
+import { PickupRequestManager } from '@/components/PickupRequestManager';
+import { ShoppingCart } from '@/components/ShoppingCart';
 
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -83,6 +86,113 @@ const TagList = () => {
           <h3 className="heading-3">Card Component</h3>
           <p>Example of our card component with image and content.</p>
         </Card>
+      )
+    },
+    {
+      title: "Product Cards",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Product Card Component</h3>
+          
+          {/* Changed to vertical layout with full width cards */}
+          <div className="flex flex-col gap-8">
+            <ProductCard
+              imageUrl="https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg"
+              title="Ergonomic Office Chair"
+              category="Office Furniture"
+              description="High-quality ergonomic office chair with lumbar support, adjustable height, and breathable mesh back for maximum comfort during long work hours."
+              price={299.99}
+              attributes={[
+                "Ergonomic",
+                "Adjustable",
+                "Mesh Back",
+                "5-Year Warranty"
+              ]}
+              onAddToCart={() => console.log('Added to cart')}
+              className="w-full max-w-none" // Remove max-width constraint
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Shopping Cart",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Shopping Cart</h3>
+          
+          <ShoppingCart
+            items={[
+              {
+                id: '1',
+                name: 'Victorian Mahogany Sideboard',
+                description: 'Circa 1860, beautiful carved details, original brass hardware, excellent condition',
+                price: 2499.99,
+                imageUrl: 'https://assets.wfcdn.com/im/08420312/resize-h500-w500%5Ecompr-r85/1221/122147167/67%27%27+Solid+Wood+Sideboard.jpg'
+              },
+              {
+                id: '2',
+                name: 'Art Deco Crystal Chandelier',
+                description: 'Original 1920s, restored wiring, pristine crystals, statement piece',
+                price: 3899.99,
+                imageUrl: 'https://assets.wfcdn.com/im/51641869/resize-h500-w500%5Ecompr-r85/2286/228662642/Imma+Crystal+Empire+Chandelier+with+Crystal+Accents.jpg'
+              },
+              {
+                id: '3',
+                name: 'Chinese Qing Dynasty Vase',
+                description: '19th century, blue and white porcelain, perfect condition, museum quality',
+                price: 5899.99,
+                imageUrl: 'https://assets.wfcdn.com/im/50716500/resize-h500-w500%5Ecompr-r85/1283/128302625/Handmade+Ceramic+%2F+Porcelain+Table+Vase.jpg'
+              }
+            ]}
+            onRemoveItem={(itemId) => 
+              console.log('Remove item:', itemId)
+            }
+            onCheckout={() => 
+              console.log('Proceed to checkout')
+            }
+          />
+        </div>
+      )
+    },
+    {
+      title: "Pickup Request Manager",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Pickup Request Management</h3>
+          
+          <PickupRequestManager
+            customerName="John Smith"
+            customerEmail="john.smith@example.com"
+            customerPhone="(555) 123-4567"
+            items={[
+              {
+                id: '1',
+                imageUrl: 'https://assets.wfcdn.com/im/08459533/resize-h500-w500%5Ecompr-r85/2305/230541502/default_name.jpg',
+                description: 'Brown leather sofa in good condition. Minor wear on armrests.',
+                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
+                availableDates: ['Mon 2/12 PM', 'Wed 2/14 AM', 'Fri 2/16 PM']
+              },
+              {
+                id: '2',
+                imageUrl: 'https://assets.wfcdn.com/im/42307461/resize-h500-w500%5Ecompr-r85/2351/235194307/Lashbrook+7+-+Piece+Dining+Set.jpg',
+                description: 'Wooden dining table with 6 chairs. All pieces intact.',
+                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
+                availableDates: ['Tue 2/13 AM', 'Thu 2/15 PM', 'Sat 2/17 AM']
+              },
+              {
+                id: '3',
+                imageUrl: 'https://assets.wfcdn.com/im/18394722/resize-h500-w500%5Ecompr-r85/2636/263626880/default_name.jpg',
+                description: 'Queen size mattress and box spring. 2 years old.',
+                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
+                availableDates: ['Mon 2/12 AM', 'Wed 2/14 PM', 'Fri 2/16 AM']
+              }
+            ]}
+            onAcceptItem={(id) => console.log('Accepted item:', id)}
+            onRejectItem={(id) => console.log('Rejected item:', id)}
+            onSendMessage={(message) => console.log('Sending message:', message)}
+          />
+        </div>
       )
     },
     {

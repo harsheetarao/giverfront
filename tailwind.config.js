@@ -9,8 +9,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
-        poppins: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+        sans: ['Source Sans Pro', 'system-ui', 'sans-serif'],
+        sourceSans: ['Source Sans Pro', 'system-ui', 'sans-serif'],
+        rockwell: ['Rockwell', 'serif'],
       },
       screens: {
         'sm': '640px',
