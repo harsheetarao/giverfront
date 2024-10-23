@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/button"
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/sheet"
 
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
