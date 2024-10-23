@@ -14,6 +14,16 @@ interface PickupItem {
   location: string;
 }
 
+interface PickupRequestManagerProps {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  items: PickupItem[];
+  onAcceptItem: (itemId: string) => void;
+  onRejectItem: (itemId: string) => void;
+  onSendMessage: (message: string) => void;
+}
+
 interface Message {
   id: string;
   type: 'incoming' | 'outgoing';
