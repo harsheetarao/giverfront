@@ -25,9 +25,18 @@ import { PickupRequestForm } from '@/components/PickupRequestForm';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
+import { Header } from './Header';
+import { Footer } from './Footer';
+import { Page } from './page';
+
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const menuItems = ['Components', 'Documentation', 'Examples', 'Github'];
+  const menuItems = [
+    { label: 'Components', href: '#components' },
+    { label: 'Documentation', href: '#documentation' },
+    { label: 'Examples', href: '#examples' },
+    { label: 'Github', href: 'https://github.com/Get-it-Gone/ComponentLibrary' }
+  ];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
 
   // Interactive example component
@@ -632,74 +641,12 @@ const TagList = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-[#4B7163] text-white shadow-lg">
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-16 flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex shrink-0 items-center">
-              <NextImage
-                src={Logo}
-                alt="Gone Logo"
-                width={300}  // Adjust these values based on the actual logo size
-                height={75}  // Adjust these values based on the actual logo size
-                className="h-16 w-auto"  // This maintains aspect ratio while fitting in header
-                priority  // This ensures the logo loads quickly as it's above the fold
-              />
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="flex md:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-white hover:bg-[#5a8575]"
-                  >
-                    <Menu className="h-6 w-6" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent 
-                  side="right" 
-                  className="w-[80%] sm:w-[400px] bg-[#4B7163] border-l-white/20"
-                >
-                  <nav className="flex flex-col space-y-4 mt-8">
-                    {menuItems.map((item) => (
-                      <a 
-                        key={item} 
-                        href={`#${item.toLowerCase()}`} 
-                        className="text-white text-lg hover:text-white/80 transition-colors p-2"
-                      >
-                        {item}
-                      </a>
-                    ))}
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            </div>
-
-            {/* Desktop Menu */}
-            <nav className="hidden md:flex items-center space-x-8">
-              {menuItems.map((item) => (
-                <a 
-                  key={item} 
-                  href={`#${item.toLowerCase()}`} 
-                  className="text-sm font-medium hover:text-gray-300 transition-colors"
-                >
-                  {item}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </header>
-
+    <Page>
+      <Header menuItems={menuItems} />
+      
       {/* Main Content */}
       <main className="flex-grow w-full">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Responsive Grid */}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
             {contentItems.map((item, index) => (
               <div 
@@ -713,13 +660,8 @@ const TagList = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-[#4B7163] text-white py-6 mt-auto">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center">© 2024 gone.com Component Library. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+      <Footer />
+    </Page>
   );
 };
 
