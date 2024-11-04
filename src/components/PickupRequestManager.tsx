@@ -9,6 +9,7 @@ import { Mail, Phone, Calendar, MapPin, X, Check, MessageCircle } from 'lucide-r
 interface PickupItem {
   id: string;
   imageUrl: string;
+  title?: string;
   description: string;
   availableDates: string[];
   location: string;
@@ -115,6 +116,7 @@ export const PickupRequestManager = ({
             <SwipeCard
               key={item.id}
               imageUrl={item.imageUrl}
+              alt={item.title || 'Pickup request item'}
               isVisible={index === items.length - 1}
               onSwipe={(direction) => handleSwipe(direction, item)}
             >

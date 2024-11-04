@@ -9,32 +9,39 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/sheet";
-import Logo from '@/styles/ui/logos/gone.svg';
 
-interface MenuItem {
+export type MenuItem = {
   label: string;
   href: string;
-}
+};
 
 interface HeaderProps {
   menuItems: MenuItem[];
+  logo?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
 }
 
-export const Header: React.FC<HeaderProps> = ({ menuItems }) => {
+export const Header: React.FC<HeaderProps> = ({ menuItems, logo }) => {
   return (
     <header className="sticky top-0 z-50 w-full bg-[#4B7163] text-white shadow-lg">
       <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex shrink-0 items-center">
-            <NextImage
-              src={Logo}
-              alt="Gone Logo"
-              width={300}
-              height={75}
-              className="h-16 w-auto"
-              priority
-            />
+            {logo && (
+              <NextImage
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.width || 300}
+                height={logo.height || 75}
+                className="h-16 w-auto"
+                priority
+              />
+            )}
           </div>
 
           {/* Mobile Menu */}

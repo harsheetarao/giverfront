@@ -6,12 +6,14 @@ import { Check, X, AlertCircle, ChevronDown } from 'lucide-react';
 
 type DropdownState = 'normal' | 'completed' | 'error' | 'required' | 'blankRequired' | 'disabled';
 
-interface FormDropdownProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface FormDropdownProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange'> {
   label: string;
   hint?: string;
   state?: DropdownState;
   options: Array<{ value: string; label: string; }>;
   className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const stateStyles = {
@@ -51,7 +53,7 @@ const stateStyles = {
 };
 
 export const FormDropdown = React.forwardRef<HTMLSelectElement, FormDropdownProps>(
-  ({ label, hint, state = 'normal', options, className, disabled, ...props }, ref) => {
+  ({ label, hint, state = 'normal', options, className, disabled, value, onChange, ...props }, ref) => {
     const currentState = disabled ? 'disabled' : state;
     const styles = stateStyles[currentState];
 
@@ -70,6 +72,8 @@ export const FormDropdown = React.forwardRef<HTMLSelectElement, FormDropdownProp
           <select
             ref={ref}
             disabled={disabled}
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
             className={cn(
               'w-full px-3 py-2 pr-10',
               'rounded-[4px]',

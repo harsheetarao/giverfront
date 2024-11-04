@@ -380,8 +380,10 @@ const TagList = () => {
               <FormInput
                 label="Normal Input"
                 placeholder="Enter text here"
+                value=""
                 hint="This is a normal text input"
                 state="normal"
+                onChange={(value) => console.log(value)}
               />
               <FormInput
                 label="Completed Input"
@@ -389,32 +391,35 @@ const TagList = () => {
                 value="Completed value"
                 hint="This input has been completed"
                 state="completed"
-              />
+                onChange={(value) => console.log(value)}              />
               <FormInput
                 label="Error Input"
                 placeholder="Enter text here"
                 value="Invalid value"
                 hint="This input has an error"
                 state="error"
-              />
+                onChange={(value) => console.log(value)}              />
               <FormInput
                 label="Required Input"
                 placeholder="Enter text here"
+                value=""
                 hint="This input is required"
                 state="required"
-              />
+                onChange={(value) => console.log(value)}              />
               <FormInput
                 label="Blank Required Input"
                 placeholder="Enter text here"
+                value=""
                 hint="This required input is blank"
                 state="blankRequired"
-              />
+                onChange={(value) => console.log(value)}              />
               <FormInput
                 label="Disabled Input"
                 placeholder="Enter text here"
+                value=""
                 hint="This input is disabled"
                 disabled
-              />
+                onChange={(value) => console.log(value)}              />
             </div>
           </div>
     

@@ -129,7 +129,7 @@ export const PickupRequestForm = ({
                     label="Item Description"
                     placeholder="Describe the item, including condition and any relevant details"
                     value={item.description || ''}
-                    onChange={(e) => handleItemDescription(item.id, e.target.value)}
+                    onChange={(value: string) => handleItemDescription(item.id, value)}
                   />
                 </div>
               </div>
@@ -178,7 +178,7 @@ export const PickupRequestForm = ({
                 label="Pickup Address"
                 placeholder="Enter the complete address where items will be picked up"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(value: string) => setAddress(value)}
               />
               <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
                 <Info className="h-4 w-4" />

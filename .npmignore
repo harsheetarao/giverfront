@@ -1,0 +1,11 @@
+src
+.next
+node_modules
+.env*
+.eslintrc
+.prettierrc
+tsconfig.json
+next.config.js
+postcss.config.js
+public
+app 

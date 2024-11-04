@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface CardProps {
+export interface CardProps {
   imageUrl: string;
   alt: string;
   children: React.ReactNode;
