@@ -22,12 +22,64 @@ import { FormInput } from '@/components/FormInput';
 import { PickupRequestManager } from '@/components/PickupRequestManager';
 import { ShoppingCart } from '@/components/ShoppingCart';
 import { PickupRequestForm } from '@/components/PickupRequestForm';
+import { Modal } from '@/components/Modal';
+import { MessageThread } from '@/components/MessageThread';
+import { Dashboard } from './Dashboard';
+import { AcceptedRequestManager } from '@/components/AcceptedRequestManager';
+import { MapModal } from '@/components/MapModal';
+import { MapPin } from 'lucide-react';
+import { InventoryProcessing } from '@/components/InventoryProcessing';
+import { ImageUpload } from '@/components/ImageUpload';
+import { PickupItemQueue } from '@/components/PickupItemQueue';
+import { InventoryItemProcessing } from '@/components/InventoryItemProcessing';
+import { ProcessingQueue } from '@/components/ProcessingQueue';
+import { InventoryProcessingManager } from '@/components/InventoryProcessingManager';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Page } from './page';
+
+// Add this near the top with other interfaces
+interface Message {
+  id: string;
+  content: string;
+  timestamp: Date;
+  isRead: boolean;
+  sender: 'user' | 'admin';
+}
+
+interface AcceptedPickupItem {
+  id: string;
+  name: string;
+  description: string;
+  status: 'pending' | 'verified' | 'incorrect' | 'picked_up' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled';
+  verificationPhotos: Array<{
+    id: string;
+    imageUrl: string;
+    timestamp: Date;
+    note?: string;
+  }>;
+  scheduledDate?: string;
+  imageUrl: string;
+  availableDates: Array<{
+    date: string;
+    requestCount: number;
+  }>;
+  location: string;
+}
+
+interface AcceptedRequest {
+  id: string;
+  items: AcceptedPickupItem[];
+  messages: Message[];
+  status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  address: string;
+}
 
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -38,6 +90,117 @@ const ComponentShowcase = () => {
     { label: 'Github', href: 'https://github.com/Get-it-Gone/ComponentLibrary' }
   ];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
+
+  // Add this sample data
+  const pickupRequests = [
+    {
+      id: '1',
+      items: [
+        {
+          id: 'item1',
+          name: 'Vintage Chair',
+          status: 'pending' as const,
+          imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+          description: 'Beautiful vintage chair',
+          availableDates: [{ 
+            date: '2024-12-31',
+            requestCount: 0 
+          }],
+          location: '123 Main St'
+        }
+      ],
+      messages: [],
+      status: 'pending' as const,
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      address: '123 Main St',
+      pickupPhoto: '',
+      pickupDate: new Date('2024-12-31'),
+      pickupAddress: '123 Main St'
+    }
+  ];
+
+  // Add near other mock data
+  const sampleMessages: Message[] = [
+    {
+      id: '1',
+      content: 'Hello! I have a question about pickup services.',
+      timestamp: new Date(Date.now() - 86400000), // 1 day ago
+      isRead: true,
+      sender: 'user'
+    },
+    {
+      id: '2',
+      content: 'Of course! How can I help you today?',
+      timestamp: new Date(Date.now() - 82800000), // 23 hours ago
+      isRead: true,
+      sender: 'admin'
+    },
+    {
+      id: '3',
+      content: 'Is it possible to schedule a pickup for next week?',
+      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+      isRead: false,
+      sender: 'user'
+    }
+  ];
+
+  const acceptedRequests: AcceptedRequest[] = [
+    {
+      id: '1',
+      items: [{
+        id: 'item1',
+        name: 'Vintage Chair',
+        description: 'Beautiful vintage chair in excellent condition',
+        status: 'pending',
+        verificationPhotos: [{
+          id: 'photo1',
+          imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+          timestamp: new Date(),
+          note: 'Front view'
+        }],
+        scheduledDate: '2024-03-20',
+        imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+        availableDates: [{
+          date: '2024-03-19',
+          requestCount: 0
+        }],
+        location: '123 Main St'
+      }],
+      messages: sampleMessages,
+      status: 'pending',
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      address: '123 Main St'
+    }
+  ];
+
+  // Add this to your mock data section
+  const samplePickupRequest = {
+    id: '1',
+    status: 'completed' as const,
+    pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+    pickupDate: new Date('2024-03-20'),
+    pickupAddress: '123 Main St',
+    items: [
+      {
+        id: 'item1',
+        name: 'Vintage Chair',
+        description: 'Beautiful vintage chair',
+        status: 'pending' as const,
+        imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+        availableDates: [{ date: '2024-03-19', requestCount: 0 }],
+        location: '123 Main St'
+      }
+    ],
+    messages: [],
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St'
+  };
 
   // Interactive example component
 const TagList = () => {
@@ -89,6 +252,84 @@ const TagList = () => {
       </div>
     );
   };
+
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const newContentItems = [
+    {
+      title: "Modal Component",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Modal Component</h3>
+          <CustomButton onClick={() => setShowDemoModal(true)}>
+            Open Modal
+          </CustomButton>
+          
+          {showDemoModal && (
+            <Modal onClose={() => setShowDemoModal(false)}>
+              <div className="p-6">
+                <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">
+                  Demo Modal
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  This is an example of our reusable modal component. It can be used for various purposes like confirmations, forms, or detailed information display.
+                </p>
+                <div className="flex justify-end">
+                  <CustomButton onClick={() => setShowDemoModal(false)}>
+                    Close Modal
+                  </CustomButton>
+                </div>
+              </div>
+            </Modal>
+          )}
+        </div>
+      )
+    },
+    {
+      title: "Message Thread",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Message Thread Component</h3>
+          
+          <MessageThread
+            messages={sampleMessages}
+            onSendMessage={(message) => console.log('New message:', message)}
+            onMessageRead={(messageId) => console.log('Message read:', messageId)}
+            className="border border-gray-200"
+          />
+        </div>
+      )
+    },
+    {
+      title: "Map Modal",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Map Modal Component</h3>
+          <div className="flex flex-col gap-4">
+            <p className="text-gray-600">
+              Click the button below to see the map modal with a sample address:
+            </p>
+            
+            <CustomButton 
+              onClick={() => setShowMapModal(true)}
+              className="flex items-center gap-2"
+            >
+              <MapPin className="h-4 w-4" />
+              View Location
+            </CustomButton>
+            
+            {showMapModal && (
+              <MapModal
+                address="123 Main Street, New York, NY 10001"
+                onClose={() => setShowMapModal(false)}
+              />
+            )}
+          </div>
+        </div>
+      )
+    }
+  ];
 
   const contentItems = [
     {
@@ -188,35 +429,12 @@ const TagList = () => {
           <h3 className="heading-3">Pickup Request Management</h3>
           
           <PickupRequestManager
-            customerName="John Smith"
-            customerEmail="john.smith@example.com"
-            customerPhone="(555) 123-4567"
-            items={[
-              {
-                id: '1',
-                imageUrl: 'https://assets.wfcdn.com/im/08459533/resize-h500-w500%5Ecompr-r85/2305/230541502/default_name.jpg',
-                description: 'Brown leather sofa in good condition. Minor wear on armrests.',
-                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
-                availableDates: ['Mon 2/12 PM', 'Wed 2/14 AM', 'Fri 2/16 PM']
-              },
-              {
-                id: '2',
-                imageUrl: 'https://assets.wfcdn.com/im/42307461/resize-h500-w500%5Ecompr-r85/2351/235194307/Lashbrook+7+-+Piece+Dining+Set.jpg',
-                description: 'Wooden dining table with 6 chairs. All pieces intact.',
-                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
-                availableDates: ['Tue 2/13 AM', 'Thu 2/15 PM', 'Sat 2/17 AM']
-              },
-              {
-                id: '3',
-                imageUrl: 'https://assets.wfcdn.com/im/18394722/resize-h500-w500%5Ecompr-r85/2636/263626880/default_name.jpg',
-                description: 'Queen size mattress and box spring. 2 years old.',
-                location: '5522 SE Alameda Ave., Yarrow Gulch, WA',
-                availableDates: ['Mon 2/12 AM', 'Wed 2/14 PM', 'Fri 2/16 AM']
-              }
-            ]}
-            onAcceptItem={(id) => console.log('Accepted item:', id)}
-            onRejectItem={(id) => console.log('Rejected item:', id)}
-            onSendMessage={(message) => console.log('Sending message:', message)}
+            requests={pickupRequests}
+            onAcceptItem={(requestId, itemId) => console.log('Accept:', requestId, itemId)}
+            onRejectItem={(requestId, itemId) => console.log('Reject:', requestId, itemId)}
+            onSendMessage={(requestId, message) => console.log('Message:', requestId, message)}
+            onMessageRead={(requestId, messageId) => console.log('Read:', requestId, messageId)}
+            className="w-full"
           />
         </div>
       )
@@ -610,39 +828,262 @@ const TagList = () => {
       content: (
         <div className="space-y-4">
           <h3 className="heading-3">Swipe Card Component</h3>
-          <SwipeCardDeck
-            cards={[
+          <div className="h-[400px] w-full relative">
+            <SwipeCardDeck
+              cards={[
+                {
+                  id: 1,
+                  imageUrl: "https://gone.com/assets/img/photo2.webp",
+                  alt: "Card 1",
+                  content: (
+                    <div>
+                      <h4 className="font-bold mb-1">Card One</h4>
+                      <p>Swipe right to approve, left to reject</p>
+                    </div>
+                  )
+                },
+                {
+                  id: 2,
+                  imageUrl: "https://gone.com/assets/img/photo3.webp",
+                  alt: "Card 2",
+                  content: (
+                    <div>
+                      <h4 className="font-bold mb-1">Card Two</h4>
+                      <p>Another swipeable card example</p>
+                    </div>
+                  )
+                },
+                // Add more cards as needed
+              ]}
+              onSwipeLeft={(card) => console.log('Rejected:', card)}
+              onSwipeRight={(card) => console.log('Approved:', card)}
+              onEmpty={() => console.log('No more cards!')}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Dashboard",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Dashboard Component</h3>
+          <Dashboard
+            pickupRequests={[
               {
-                id: 1,
-                imageUrl: "https://gone.com/assets/img/photo2.webp",
-                alt: "Card 1",
-                content: (
-                  <div>
-                    <h4 className="font-bold mb-1">Card One</h4>
-                    <p>Swipe right to approve, left to reject</p>
-                  </div>
-                )
+                id: '1',
+                status: 'pending',
+                lastStatusChange: new Date(Date.now() - 3600000),
+                messages: [
+                  {
+                    id: 'm1',
+                    content: 'When can you pick up my items?',
+                    timestamp: new Date(Date.now() - 7200000),
+                    isRead: false,
+                    sender: 'user'
+                  }
+                ]
               },
               {
-                id: 2,
-                imageUrl: "https://gone.com/assets/img/photo3.webp",
-                alt: "Card 2",
-                content: (
-                  <div>
-                    <h4 className="font-bold mb-1">Card Two</h4>
-                    <p>Another swipeable card example</p>
-                  </div>
-                )
-              },
-              // Add more cards as needed
+                id: '2',
+                status: 'completed',
+                lastStatusChange: new Date(Date.now() - 7200000),
+                messages: [
+                  {
+                    id: 'm2',
+                    content: 'Your items have been picked up!',
+                    timestamp: new Date(Date.now() - 3600000),
+                    isRead: true,
+                    sender: 'admin'
+                  }
+                ]
+              }
             ]}
-            onSwipeLeft={(card) => console.log('Rejected:', card)}
-            onSwipeRight={(card) => console.log('Approved:', card)}
-            onEmpty={() => console.log('No more cards!')}
+            acceptedRequests={acceptedRequests}
+            availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
+            onRequestClick={(requestId) => console.log('Clicked request:', requestId)}
+            onUpdateItemStatus={(requestId, itemId, status) => 
+              console.log('Status updated:', requestId, itemId, status)}
+            onAddPhoto={(requestId, itemId, photo, note) => 
+              console.log('Photo added:', requestId, itemId, photo, note)}
+            onReschedule={(requestId, newDate) => 
+              console.log('Rescheduled:', requestId, newDate)}
+            onCompletePickup={(requestId) => 
+              console.log('Pickup completed:', requestId)}
+            onSendMessage={(requestId, message) => 
+              console.log('Message sent:', requestId, message)}
+            onMessageRead={(requestId, messageId) => 
+              console.log('Message read:', requestId, messageId)}
           />
         </div>
       )
-    }
+    },
+    {
+      title: "Accepted Request Manager",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Accepted Request Manager</h3>
+          <AcceptedRequestManager
+            requests={acceptedRequests}
+            onUpdateItemStatus={(requestId, itemId, status) => 
+              console.log('Status updated:', requestId, itemId, status)}
+            onAddPhoto={(requestId, itemId, photo, note) => 
+              console.log('Photo added:', requestId, itemId, photo, note)}
+            onReschedule={(requestId, newDate) => 
+              console.log('Rescheduled:', requestId, newDate)}
+            onCompletePickup={(requestId) => 
+              console.log('Pickup completed:', requestId)}
+            onSendMessage={(requestId, message) => 
+              console.log('Message sent:', requestId, message)}
+            onMessageRead={(requestId, messageId) => 
+              console.log('Message read:', requestId, messageId)}
+            availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Inventory Processing",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Inventory Processing Component</h3>
+          
+          <InventoryProcessing
+            request={samplePickupRequest}
+            onUpdateStatus={(status) => console.log('Status updated:', status)}
+            onUpdateDetails={(details) => console.log('Details updated:', details)}
+            onAddProcessingPhotos={(photos) => console.log('Photos added:', photos)}
+            onConfirmReceipt={() => console.log('Receipt confirmed')}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Image Upload",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Image Upload Component</h3>
+          <ImageUpload 
+            onUpload={(photos) => console.log('Uploaded photos:', photos)}
+            maxFiles={3}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Pickup Item Queue",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Pickup Item Queue</h3>
+        <PickupItemQueue
+          items={[
+            {
+              id: '1',
+              name: 'Vintage Desk',
+              description: 'Mid-century modern desk in walnut finish',
+              imageUrl: 'https://example.com/desk.jpg',
+              status: 'pending'
+            }
+          ]}
+          onReceiveItem={(id) => console.log('Received item:', id)}
+          onRejectItem={(id) => console.log('Rejected item:', id)}
+          onUpdateStatus={(id, status) => console.log('Status updated:', id, status)}
+          onUpdateDetails={(id, details) => console.log('Details updated:', id, details)}
+          onAddProcessingPhotos={(id, photos) => console.log('Photos added:', id, photos)}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Inventory Item Processing",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Inventory Item Processing</h3>
+          
+          <InventoryItemProcessing
+            items={[
+              {
+                id: '1',
+                productId: 'PROD-001',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDescription: 'Vintage wooden chair in good condition',
+                receivedDate: new Date(),
+                status: 'in_inventory',
+                customerName: 'John Doe'
+              }
+            ]}
+            onUpdateDetails={(itemId, details) => console.log('Details updated:', itemId, details)}
+            onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
+            onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Inventory Processing Manager",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Inventory Processing Manager</h3>
+          
+          <InventoryProcessingManager
+            items={[
+              {
+                id: '1',
+                productId: 'PROD-001',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDescription: 'Vintage wooden chair in excellent condition',
+                receivedDate: new Date(),
+                customerName: 'John Doe'
+              },
+              {
+                id: '2',
+                productId: 'PROD-002',
+                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
+                pickupDescription: 'Mid-century modern desk lamp, working condition',
+                receivedDate: new Date(Date.now() - 86400000),
+                customerName: 'Jane Smith'
+              }
+            ]}
+            onUpdateDetails={(itemId, details) => console.log('Details updated:', itemId, details)}
+            onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
+            onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
+            className="w-full"
+          />
+        </div>
+      )
+    },
+    {
+      title: "Processing Queue",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Processing Queue</h3>
+          
+          <ProcessingQueue
+            items={[
+              {
+                id: '1',
+                productId: 'PROD-001',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDescription: 'Vintage wooden chair in excellent condition',
+                receivedDate: new Date(),
+                customerName: 'John Doe'
+              },
+              {
+                id: '2',
+                productId: 'PROD-002',
+                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
+                pickupDescription: 'Mid-century modern desk lamp, working condition',
+                receivedDate: new Date(Date.now() - 86400000), // 1 day ago
+                customerName: 'Jane Smith'
+              }
+            ]}
+            onSelectItem={(itemId) => console.log('Selected item:', itemId)}
+            className="w-full"
+          />
+        </div>
+      )
+    },
+    ...newContentItems
   ];
 
   return (

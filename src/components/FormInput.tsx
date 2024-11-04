@@ -6,13 +6,16 @@ import { Check, X, AlertCircle } from 'lucide-react';
 
 type InputState = 'normal' | 'completed' | 'error' | 'required' | 'blankRequired' | 'disabled';
 
-interface FormInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface FormInputProps {
   label: string;
   hint?: string;
   state?: InputState;
   className?: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const stateStyles = {
@@ -52,7 +55,7 @@ const stateStyles = {
 };
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, hint, state = 'normal', className, disabled, value, onChange, ...props }, ref) => {
+  ({ label, hint, state = 'normal', className, disabled, value, onChange, placeholder, ...props }, ref) => {
     // If disabled prop is true, override state to 'disabled'
     const currentState = disabled ? 'disabled' : state;
     const styles = stateStyles[currentState];
@@ -87,6 +90,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
             )}
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
             {...props}
           />
           

@@ -10,6 +10,35 @@ function _array_with_holes(arr) {
 function _array_without_holes(arr) {
     if (Array.isArray(arr)) return _array_like_to_array(arr);
 }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+function _async_to_generator(fn) {
+    return function() {
+        var self = this, args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(undefined);
+        });
+    };
+}
 function _define_property(obj, key, value) {
     if (key in obj) {
         Object.defineProperty(obj, key, {
@@ -135,6 +164,101 @@ function _unsupported_iterable_to_array(o, minLen) {
     if (n === "Object" && o.constructor) n = o.constructor.name;
     if (n === "Map" || n === "Set") return Array.from(n);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array(o, minLen);
+}
+function _ts_generator(thisArg, body) {
+    var f, y, t, g, _ = {
+        label: 0,
+        sent: function() {
+            if (t[0] & 1) throw t[1];
+            return t[1];
+        },
+        trys: [],
+        ops: []
+    };
+    return g = {
+        next: verb(0),
+        "throw": verb(1),
+        "return": verb(2)
+    }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+        return this;
+    }), g;
+    function verb(n) {
+        return function(v) {
+            return step([
+                n,
+                v
+            ]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while(_)try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [
+                op[0] & 2,
+                t.value
+            ];
+            switch(op[0]){
+                case 0:
+                case 1:
+                    t = op;
+                    break;
+                case 4:
+                    _.label++;
+                    return {
+                        value: op[1],
+                        done: false
+                    };
+                case 5:
+                    _.label++;
+                    y = op[1];
+                    op = [
+                        0
+                    ];
+                    continue;
+                case 7:
+                    op = _.ops.pop();
+                    _.trys.pop();
+                    continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                        _ = 0;
+                        continue;
+                    }
+                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                        _.label = op[1];
+                        break;
+                    }
+                    if (op[0] === 6 && _.label < t[1]) {
+                        _.label = t[1];
+                        t = op;
+                        break;
+                    }
+                    if (t && _.label < t[2]) {
+                        _.label = t[2];
+                        _.ops.push(op);
+                        break;
+                    }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop();
+                    continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) {
+            op = [
+                6,
+                e
+            ];
+            y = 0;
+        } finally{
+            f = t = 0;
+        }
+        if (op[0] & 5) throw op[1];
+        return {
+            value: op[0] ? op[1] : void 0,
+            done: true
+        };
+    }
 }
 import * as React2 from "react";
 import { Slot } from "@radix-ui/react-slot";
@@ -463,14 +587,15 @@ var stateStyles2 = {
     }
 };
 var FormInput = React7.forwardRef(function(_param, ref) {
-    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, props = _object_without_properties(_param, [
+    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, placeholder = _param.placeholder, props = _object_without_properties(_param, [
         "label",
         "hint",
         "state",
         "className",
         "disabled",
         "value",
-        "onChange"
+        "onChange",
+        "placeholder"
     ]);
     var currentState = disabled ? "disabled" : state;
     var styles = stateStyles2[currentState];
@@ -487,7 +612,8 @@ var FormInput = React7.forwardRef(function(_param, ref) {
         value: value,
         onChange: function(e) {
             return onChange(e.target.value);
-        }
+        },
+        placeholder: placeholder
     }, props)), styles.icon && /* @__PURE__ */ React7.createElement("div", {
         className: cn("absolute right-3 top-1/2 -translate-y-1/2", "rounded-full w-4 h-4", "flex items-center justify-center", styles.iconBg)
     }, styles.icon)), hint && /* @__PURE__ */ React7.createElement("p", {
@@ -521,46 +647,117 @@ import { Check as Check3 } from "lucide-react";
 var Progress = function(param) {
     var steps = param.steps, currentStep = param.currentStep;
     return /* @__PURE__ */ React9.createElement("div", {
-        className: "relative flex items-center justify-between w-full max-w-2xl mx-auto px-[12.5px]"
+        className: "relative flex items-center justify-between w-full max-w-3xl mx-auto py-4 px-6"
     }, /* @__PURE__ */ React9.createElement("div", {
-        className: "absolute top-[12.5px] left-[37.5px] right-[37.5px] h-[3px] z-0",
+        className: "absolute top-[-10px] left-[12.5px] right-[12.5px] h-[3px] z-0",
         style: {
-            backgroundColor: "rgba(90, 124, 111, 1.0)"
+            backgroundColor: "rgba(90, 124, 111, 0.3)"
         }
     }), /* @__PURE__ */ React9.createElement("div", {
-        className: "absolute top-[12.5px] left-[37.5px] h-[3px] z-0 transition-all duration-300 ease-in-out",
+        className: "absolute top-[-10px] left-[12.5px] h-[3px] z-0 transition-all duration-300 ease-in-out",
         style: {
             backgroundColor: "#5A7C6F",
             width: "".concat(Math.max(0, Math.min(100, (currentStep - 1) / (steps.length - 1) * 100)), "%"),
             maxWidth: "calc(100% - ".concat(25, "px)")
         }
     }), /* @__PURE__ */ React9.createElement("div", {
-        className: "relative z-10 flex items-center justify-between w-full"
+        className: "relative z-10 flex items-center justify-between w-full px-[12.5px]"
     }, steps.map(function(step, index) {
         return /* @__PURE__ */ React9.createElement("div", {
             key: index,
-            className: "flex flex-col items-center"
+            className: "absolute",
+            style: {
+                left: "".concat(index / (steps.length - 1) * 100, "%")
+            }
         }, /* @__PURE__ */ React9.createElement("div", {
-            className: "\n                w-[25px] h-[25px] rounded-full \n                flex items-center justify-center\n                border-[3px] border-[#5A7C6F]\n                transition-colors duration-300 ease-in-out\n                ".concat(index < currentStep ? "bg-[#5A7C6F]" : "bg-white", "\n              ")
+            className: "flex flex-col items-center -translate-x-1/2"
+        }, /* @__PURE__ */ React9.createElement("div", {
+            className: "\n                  w-[25px] h-[25px] rounded-full \n                  flex items-center justify-center\n                  border-[3px] border-[#5A7C6F]\n                  transition-colors duration-300 ease-in-out\n                  ".concat(index < currentStep ? "bg-[#5A7C6F]" : "bg-white", "\n                ")
         }, index < currentStep && /* @__PURE__ */ React9.createElement(Check3, {
             className: "w-4 h-4 text-white"
         })), /* @__PURE__ */ React9.createElement("span", {
-            className: "mt-2 text-sm text-center"
-        }, step));
+            className: "mt-2 text-sm text-center hidden sm:block h-10 max-w-[80px]"
+        }, step)));
     })));
 };
 // src/components/PickupRequestForm.tsx
 import { Upload, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import usePlacesAutocomplete from "use-places-autocomplete";
+// src/components/Modal.tsx
+import { X as X4 } from "lucide-react";
+var Modal = function(param) {
+    var children = param.children, onClose = param.onClose;
+    return /* @__PURE__ */ React.createElement("div", {
+        className: "fixed inset-0 z-50 flex items-center justify-center"
+    }, /* @__PURE__ */ React.createElement("div", {
+        className: "absolute inset-0 bg-black/50",
+        onClick: onClose
+    }), /* @__PURE__ */ React.createElement("div", {
+        className: "relative bg-white rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+    }, /* @__PURE__ */ React.createElement("button", {
+        onClick: onClose,
+        className: "absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+    }, /* @__PURE__ */ React.createElement(X4, {
+        className: "h-6 w-6"
+    })), children));
+};
+// src/components/PickupRequestForm.tsx
+var PlacesAutocomplete = function(param) {
+    var value = param.value, onChange = param.onChange, onSelect = param.onSelect;
+    var _usePlacesAutocomplete = usePlacesAutocomplete({
+        requestOptions: {
+            componentRestrictions: {
+                country: "us"
+            }
+        },
+        debounce: 300,
+        defaultValue: value
+    }), ready = _usePlacesAutocomplete.ready, data = _usePlacesAutocomplete.suggestions.data, setValue = _usePlacesAutocomplete.setValue, clearSuggestions = _usePlacesAutocomplete.clearSuggestions;
+    return /* @__PURE__ */ React10.createElement("div", {
+        className: "relative"
+    }, /* @__PURE__ */ React10.createElement(FormInput, {
+        label: "Pickup Address",
+        value: value,
+        onChange: function(val) {
+            setValue(val);
+            onChange(val);
+        },
+        disabled: !ready
+    }), data.length > 0 && /* @__PURE__ */ React10.createElement("ul", {
+        className: "absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg"
+    }, data.map(function(suggestion) {
+        return /* @__PURE__ */ React10.createElement("li", {
+            key: suggestion.place_id,
+            className: "px-4 py-2 hover:bg-gray-100 cursor-pointer",
+            onClick: function() {
+                onChange(suggestion.description);
+                onSelect(suggestion.description);
+                clearSuggestions();
+            }
+        }, suggestion.description);
+    })));
+};
 var PickupRequestForm = function(param) {
     var onSubmit = param.onSubmit, className = param.className;
     var _useState = _sliced_to_array(useState(1), 2), currentStep = _useState[0], setCurrentStep = _useState[1];
     var _useState1 = _sliced_to_array(useState([]), 2), uploadedItems = _useState1[0], setUploadedItems = _useState1[1];
     var _useState2 = _sliced_to_array(useState([]), 2), availableTimes = _useState2[0], setAvailableTimes = _useState2[1];
     var _useState3 = _sliced_to_array(useState(""), 2), address = _useState3[0], setAddress = _useState3[1];
+    var _useState4 = _sliced_to_array(useState({
+        fullName: "",
+        contact: ""
+    }), 2), contactInfo = _useState4[0], setContactInfo = _useState4[1];
+    var _useState5 = _sliced_to_array(useState(false), 2), showTerms = _useState5[0], setShowTerms = _useState5[1];
+    var _useState6 = _sliced_to_array(useState({
+        ownership: false,
+        address: false,
+        terms: false
+    }), 2), confirmations = _useState6[0], setConfirmations = _useState6[1];
     var steps = [
-        "Upload Photos",
-        "Item Details",
-        "Pickup Time",
+        "Contact",
+        "Photos",
+        "Details",
+        "Dates",
         "Location"
     ];
     var handleFileUpload = function(event) {
@@ -599,6 +796,43 @@ var PickupRequestForm = function(param) {
                 return /* @__PURE__ */ React10.createElement("div", {
                     className: "space-y-6"
                 }, /* @__PURE__ */ React10.createElement("div", {
+                    className: "bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ React10.createElement("p", {
+                    className: "text-[#4B7163] mb-4"
+                }, "To better serve you, we need:"), /* @__PURE__ */ React10.createElement("ul", {
+                    className: "list-disc ml-6 mb-4"
+                }, /* @__PURE__ */ React10.createElement("li", null, "Your name"), /* @__PURE__ */ React10.createElement("li", null, "Either an email address or mobile number")), /* @__PURE__ */ React10.createElement("p", {
+                    className: "text-[#4B7163]"
+                }, "This allows us to send service updates through your preferred contact method. We'll only use these details to communicate about your specific request."), /* @__PURE__ */ React10.createElement("div", {
+                    className: "mt-6"
+                }, /* @__PURE__ */ React10.createElement(FormInput, {
+                    label: "Full Name",
+                    value: contactInfo.fullName,
+                    onChange: function(value) {
+                        return setContactInfo(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                fullName: value
+                            });
+                        });
+                    }
+                }), /* @__PURE__ */ React10.createElement("div", {
+                    className: "mt-6"
+                }, /* @__PURE__ */ React10.createElement(FormInput, {
+                    label: "Email Address or Mobile Number",
+                    value: contactInfo.contact,
+                    onChange: function(value) {
+                        return setContactInfo(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                contact: value
+                            });
+                        });
+                    },
+                    hint: "Choose the contact method you check most frequently for fastest updates."
+                })))));
+            case 2:
+                return /* @__PURE__ */ React10.createElement("div", {
+                    className: "space-y-6"
+                }, /* @__PURE__ */ React10.createElement("div", {
                     className: "border-2 border-dashed border-[#5A7C6F] rounded-xl p-8 text-center"
                 }, /* @__PURE__ */ React10.createElement("input", {
                     type: "file",
@@ -630,7 +864,7 @@ var PickupRequestForm = function(param) {
                         className: "w-full h-full object-cover"
                     }));
                 })));
-            case 2:
+            case 3:
                 return /* @__PURE__ */ React10.createElement("div", {
                     className: "space-y-6"
                 }, uploadedItems.map(function(item) {
@@ -654,7 +888,7 @@ var PickupRequestForm = function(param) {
                         }
                     })));
                 }));
-            case 3:
+            case 4:
                 return /* @__PURE__ */ React10.createElement("div", {
                     className: "space-y-6"
                 }, /* @__PURE__ */ React10.createElement("div", {
@@ -683,23 +917,96 @@ var PickupRequestForm = function(param) {
                         className: cn("p-3 rounded-lg border-2 font-sourceSans transition-colors", availableTimes.includes(time) ? "border-[#6AB098] bg-[#6AB098] text-white" : "border-[#5A7C6F] text-[#5A7C6F] hover:bg-[#F0F4F2]")
                     }, time);
                 }))));
-            case 4:
+            case 5:
                 return /* @__PURE__ */ React10.createElement("div", {
                     className: "space-y-6"
                 }, /* @__PURE__ */ React10.createElement("div", {
                     className: "bg-[#F8FAF9] rounded-xl p-4"
-                }, /* @__PURE__ */ React10.createElement(FormInput, {
-                    label: "Pickup Address",
-                    placeholder: "Enter the complete address where items will be picked up",
+                }, /* @__PURE__ */ React10.createElement(PlacesAutocomplete, {
                     value: address,
-                    onChange: function(value) {
-                        return setAddress(value);
-                    }
+                    onChange: setAddress,
+                    onSelect: /*#__PURE__*/ function() {
+                        var _ref = _async_to_generator(function(address2) {
+                            return _ts_generator(this, function(_state) {
+                                setAddress(address2);
+                                return [
+                                    2
+                                ];
+                            });
+                        });
+                        return function(address2) {
+                            return _ref.apply(this, arguments);
+                        };
+                    }()
                 }), /* @__PURE__ */ React10.createElement("p", {
                     className: "mt-2 text-sm text-[#5A7C6F] flex items-center gap-2"
                 }, /* @__PURE__ */ React10.createElement(Info, {
                     className: "h-4 w-4"
-                }), "Please ensure the address is accurate and items will be accessible")));
+                }), "Please ensure the address is accurate and items will be accessible at this location")), /* @__PURE__ */ React10.createElement("div", {
+                    className: "mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ React10.createElement("h3", {
+                    className: "font-rockwell text-lg text-[#4B7163] mb-4"
+                }, "Final Confirmation"), /* @__PURE__ */ React10.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ React10.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.ownership,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                ownership: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ React10.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I confirm I own this item or have permission to request service for it")), /* @__PURE__ */ React10.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ React10.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.address,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                address: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ React10.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I confirm the address provided is correct and I can receive services there")), /* @__PURE__ */ React10.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ React10.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.terms,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                terms: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ React10.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I accept the", " ", /* @__PURE__ */ React10.createElement("button", {
+                    onClick: function() {
+                        return setShowTerms(true);
+                    },
+                    className: "text-[#6AB098] underline hover:text-[#4B7163]"
+                }, "Terms of Service")))), showTerms && /* @__PURE__ */ React10.createElement(Modal, {
+                    onClose: function() {
+                        return setShowTerms(false);
+                    }
+                }, /* @__PURE__ */ React10.createElement("div", {
+                    className: "p-6"
+                }, /* @__PURE__ */ React10.createElement("h2", {
+                    className: "font-rockwell text-2xl text-[#4B7163] mb-4"
+                }, "Terms of Service"), /* @__PURE__ */ React10.createElement("div", {
+                    className: "prose prose-sm max-w-none"
+                }))));
             default:
                 return null;
         }
@@ -707,22 +1014,24 @@ var PickupRequestForm = function(param) {
     var canProceed = function() {
         switch(currentStep){
             case 1:
-                return uploadedItems.length > 0;
+                return contactInfo.fullName.trim().length > 0 && contactInfo.contact.trim().length > 0;
             case 2:
-                return uploadedItems.every(function(item) {
-                    return item.description;
-                });
+                return uploadedItems.length > 0;
             case 3:
-                return availableTimes.length > 0;
+                return true;
             case 4:
-                return address.trim().length > 0;
+                return availableTimes.length > 0;
+            case 5:
+                return address.trim().length > 0 && confirmations.ownership && confirmations.address && confirmations.terms;
             default:
                 return false;
         }
     };
     var handleNext = function() {
-        if (currentStep === 4) {
+        if (currentStep === 5) {
             onSubmit({
+                fullName: contactInfo.fullName,
+                contact: contactInfo.contact,
                 items: uploadedItems,
                 availableTimes: availableTimes,
                 address: address
@@ -734,7 +1043,7 @@ var PickupRequestForm = function(param) {
         }
     };
     return /* @__PURE__ */ React10.createElement("div", {
-        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", className)
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8", className)
     }, /* @__PURE__ */ React10.createElement("div", {
         className: "mb-8"
     }, /* @__PURE__ */ React10.createElement(Progress, {
@@ -760,7 +1069,7 @@ var PickupRequestForm = function(param) {
         onClick: handleNext,
         disabled: !canProceed(),
         className: "flex items-center gap-2 ml-auto"
-    }, currentStep === 4 ? "Submit Request" : "Continue", currentStep < 4 && /* @__PURE__ */ React10.createElement(ChevronRight, {
+    }, currentStep === 5 ? "Submit Request" : "Continue", currentStep < 5 && /* @__PURE__ */ React10.createElement(ChevronRight, {
         className: "h-4 w-4"
     }))));
 };
@@ -769,7 +1078,7 @@ import React12, { useState as useState3 } from "react";
 // src/components/SwipeCard.tsx
 import React11, { useState as useState2 } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { Check as Check4, X as X4 } from "lucide-react";
+import { Check as Check4, X as X5 } from "lucide-react";
 var SwipeCard = function(param) {
     var imageUrl = param.imageUrl, alt = param.alt, children = param.children, onSwipe = param.onSwipe, _param_isVisible = param.isVisible, isVisible = _param_isVisible === void 0 ? true : _param_isVisible;
     var _useState2 = _sliced_to_array(useState2(0), 2), exitX = _useState2[0], setExitX = _useState2[1];
@@ -854,7 +1163,7 @@ var SwipeCard = function(param) {
         }
     }, /* @__PURE__ */ React11.createElement("div", {
         className: "absolute top-1/2 left-8 transform -translate-y-1/2"
-    }, /* @__PURE__ */ React11.createElement(X4, {
+    }, /* @__PURE__ */ React11.createElement(X5, {
         className: "w-12 h-12 text-red-500"
     }))), /* @__PURE__ */ React11.createElement("div", {
         className: "bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col items-center"
@@ -869,48 +1178,23 @@ var SwipeCard = function(param) {
     }, children)));
 };
 // src/components/PickupRequestManager.tsx
-import { Mail, Phone, Calendar as Calendar2, MapPin as MapPin2, X as X5, Check as Check5, MessageCircle } from "lucide-react";
+import { Calendar as Calendar2, MapPin as MapPin2, X as X6, Check as Check5, MessageCircle } from "lucide-react";
 var PickupRequestManager = function(param) {
-    var customerName = param.customerName, customerEmail = param.customerEmail, customerPhone = param.customerPhone, initialItems = param.items, onAcceptItem = param.onAcceptItem, onRejectItem = param.onRejectItem, onSendMessage = param.onSendMessage;
-    var _useState3 = _sliced_to_array(useState3(initialItems), 2), items = _useState3[0], setItems = _useState3[1];
-    var _useState31 = _sliced_to_array(useState3([
-        {
-            id: "1",
-            type: "incoming",
-            message: "Hi, I have several items to donate. When can you come pick them up?",
-            timestamp: /* @__PURE__ */ new Date("2024-02-10T10:00:00")
-        },
-        {
-            id: "2",
-            type: "outgoing",
-            message: "Hello! Thanks for reaching out. We'd be happy to help. I see you've listed several available dates. Would Wednesday 2/14 AM work best for you?",
-            timestamp: /* @__PURE__ */ new Date("2024-02-10T10:15:00")
-        },
-        {
-            id: "3",
-            type: "incoming",
-            message: "Yes, Wednesday morning would be perfect! What time do you typically arrive?",
-            timestamp: /* @__PURE__ */ new Date("2024-02-10T10:20:00")
-        },
-        {
-            id: "4",
-            type: "outgoing",
-            message: "We usually start pickups at 9:00 AM. We'll send you a confirmation once we've reviewed all your items. Each one looks great so far!",
-            timestamp: /* @__PURE__ */ new Date("2024-02-10T10:25:00")
-        },
-        {
-            id: "5",
-            type: "incoming",
-            message: "9:00 AM works great. I'll make sure everything is ready and easily accessible.",
-            timestamp: /* @__PURE__ */ new Date("2024-02-10T10:30:00")
-        }
-    ]), 1), messages = _useState31[0];
+    var requests = param.requests, onAcceptItem = param.onAcceptItem, onRejectItem = param.onRejectItem, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, className = param.className;
+    var _useState3 = _sliced_to_array(useState3(0), 2), currentRequestIndex = _useState3[0], setCurrentRequestIndex = _useState3[1];
+    var _useState31 = _sliced_to_array(useState3(requests[currentRequestIndex].items), 2), items = _useState31[0], setItems = _useState31[1];
     var _useState32 = _sliced_to_array(useState3(""), 2), newMessage = _useState32[0], setNewMessage = _useState32[1];
+    var _useState33 = _sliced_to_array(useState3(false), 2), isMessagesExpanded = _useState33[0], setIsMessagesExpanded = _useState33[1];
+    var unreadCount = requests[currentRequestIndex].messages.filter(function(msg) {
+        return !msg.isRead;
+    }).length;
+    var lastMessage = requests[currentRequestIndex].messages[requests[currentRequestIndex].messages.length - 1];
+    var lastMessageTime = lastMessage ? new Intl.RelativeTimeFormat("en").format(Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1e3 * 60 * 60 * 24)), "days") : null;
     var handleSwipe = function(direction, item) {
         if (direction === "right") {
-            onAcceptItem(item.id);
+            onAcceptItem(requests[currentRequestIndex].id, item.id);
         } else {
-            onRejectItem(item.id);
+            onRejectItem(requests[currentRequestIndex].id, item.id);
         }
         setItems(function(prevItems) {
             return prevItems.filter(function(i) {
@@ -918,38 +1202,49 @@ var PickupRequestManager = function(param) {
             });
         });
     };
+    var handleExpand = function() {
+        setIsMessagesExpanded(!isMessagesExpanded);
+        if (!isMessagesExpanded && onMessageRead) {
+            requests[currentRequestIndex].messages.forEach(function(msg) {
+                if (!msg.isRead) onMessageRead(requests[currentRequestIndex].id, msg.id);
+            });
+        }
+    };
+    var totalRequests = requests.length;
     return /* @__PURE__ */ React12.createElement("div", {
         className: "max-w-4xl mx-auto space-y-8"
     }, /* @__PURE__ */ React12.createElement("div", {
-        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
-    }, /* @__PURE__ */ React12.createElement("h2", {
-        className: "font-rockwell text-2xl text-[#4B7163] mb-4"
-    }, customerName), /* @__PURE__ */ React12.createElement("div", {
-        className: "grid grid-cols-1 md:grid-cols-1 gap-4"
-    }, /* @__PURE__ */ React12.createElement("div", {
-        className: "flex items-center gap-2 text-[#5A7C6F]"
-    }, /* @__PURE__ */ React12.createElement(Mail, {
-        className: "h-5 w-5"
-    }), /* @__PURE__ */ React12.createElement("span", {
-        className: "font-sourceSans"
-    }, customerEmail)), /* @__PURE__ */ React12.createElement("div", {
-        className: "flex items-center gap-2 text-[#5A7C6F]"
-    }, /* @__PURE__ */ React12.createElement(Phone, {
-        className: "h-5 w-5"
-    }), /* @__PURE__ */ React12.createElement("span", {
-        className: "font-sourceSans"
-    }, customerPhone)))), /* @__PURE__ */ React12.createElement("div", {
+        className: "flex justify-between items-center px-4"
+    }, /* @__PURE__ */ React12.createElement(CustomButton, {
+        onClick: function() {
+            return setCurrentRequestIndex(function(prev) {
+                return Math.max(0, prev - 1);
+            });
+        },
+        disabled: currentRequestIndex === 0,
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+    }, "<"), /* @__PURE__ */ React12.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163]"
+    }, currentRequestIndex + 1, " of ", totalRequests), /* @__PURE__ */ React12.createElement(CustomButton, {
+        onClick: function() {
+            return setCurrentRequestIndex(function(prev) {
+                return Math.min(totalRequests - 1, prev + 1);
+            });
+        },
+        disabled: currentRequestIndex === totalRequests - 1,
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+    }, ">")), /* @__PURE__ */ React12.createElement("div", {
         className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
     }, /* @__PURE__ */ React12.createElement("h3", {
         className: "font-rockwell text-xl text-[#4B7163] mb-4"
-    }, "Items to Review (", items.length, ")"), /* @__PURE__ */ React12.createElement("div", {
+    }, "Items to Review (", requests[currentRequestIndex].items.length, ")"), /* @__PURE__ */ React12.createElement("div", {
         className: "relative h-[500px]"
-    }, items.map(function(item, index) {
+    }, requests[currentRequestIndex].items.map(function(item, index) {
         return /* @__PURE__ */ React12.createElement(SwipeCard, {
             key: item.id,
             imageUrl: item.imageUrl,
             alt: item.title || "Pickup request item",
-            isVisible: index === items.length - 1,
+            isVisible: index === requests[currentRequestIndex].items.length - 1,
             onSwipe: function(direction) {
                 return handleSwipe(direction, item);
             }
@@ -976,56 +1271,66 @@ var PickupRequestManager = function(param) {
         className: "absolute bottom-0 left-0 right-0 flex justify-center gap-8 pb-4 text-sm text-gray-500"
     }, /* @__PURE__ */ React12.createElement("div", {
         className: "flex items-center gap-1"
-    }, /* @__PURE__ */ React12.createElement(X5, {
+    }, /* @__PURE__ */ React12.createElement(X6, {
         className: "h-4 w-4 text-red-500"
     }), " Swipe left to reject"), /* @__PURE__ */ React12.createElement("div", {
         className: "flex items-center gap-1"
     }, /* @__PURE__ */ React12.createElement(Check5, {
         className: "h-4 w-4 text-green-500"
     }), " Swipe right to accept")))), /* @__PURE__ */ React12.createElement("div", {
-        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
-    }, /* @__PURE__ */ React12.createElement("h3", {
-        className: "font-rockwell text-xl text-[#4B7163] mb-4"
-    }, "Messages"), /* @__PURE__ */ React12.createElement("div", {
-        className: "space-y-4 mb-6 max-h-[400px] overflow-y-auto"
-    }, messages.map(function(message) {
-        return /* @__PURE__ */ React12.createElement(MessageBubble, {
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", className)
+    }, /* @__PURE__ */ React12.createElement("button", {
+        onClick: handleExpand,
+        className: "w-full flex items-center justify-between p-3 rounded-lg hover:bg-[#F8FAF9]"
+    }, /* @__PURE__ */ React12.createElement("div", {
+        className: "flex items-center gap-3"
+    }, /* @__PURE__ */ React12.createElement(MessageCircle, {
+        className: "h-5 w-5 text-[#4B7163]"
+    }), /* @__PURE__ */ React12.createElement("span", {
+        className: "font-medium text-[#4B7163]"
+    }, "Messages"), unreadCount > 0 && /* @__PURE__ */ React12.createElement("span", {
+        className: "bg-[#6AB098] text-white text-sm px-2 py-1 rounded-full"
+    }, unreadCount, " new")), lastMessage && /* @__PURE__ */ React12.createElement("span", {
+        className: "text-sm text-gray-500"
+    }, "Last message ", lastMessageTime)), isMessagesExpanded && /* @__PURE__ */ React12.createElement("div", {
+        className: "mt-4 space-y-4"
+    }, requests[currentRequestIndex].messages.map(function(message) {
+        return /* @__PURE__ */ React12.createElement("div", {
             key: message.id,
-            state: message.type === "incoming" ? "secondary" : "primary"
-        }, /* @__PURE__ */ React12.createElement("div", {
-            className: "space-y-1"
+            className: cn("p-4 rounded-lg", message.sender === "admin" ? "bg-[#F8FAF9] ml-8" : "bg-[#E8F0ED] mr-8")
         }, /* @__PURE__ */ React12.createElement("p", {
-            className: "font-sourceSans"
-        }, message.message), /* @__PURE__ */ React12.createElement("div", {
-            className: "text-xs opacity-70"
-        }, message.timestamp.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        }))));
-    })), /* @__PURE__ */ React12.createElement("div", {
-        className: "space-y-4"
-    }, /* @__PURE__ */ React12.createElement("textarea", {
+            className: "text-[#4B7163]"
+        }, message.content), /* @__PURE__ */ React12.createElement("span", {
+            className: "text-sm text-gray-500 mt-2 block"
+        }, message.timestamp.toLocaleString()));
+    }), /* @__PURE__ */ React12.createElement("form", {
+        onSubmit: function(e) {
+            e.preventDefault();
+            if (newMessage.trim()) {
+                onSendMessage(requests[currentRequestIndex].id, newMessage);
+                setNewMessage("");
+            }
+        },
+        className: "flex gap-2 mt-4"
+    }, /* @__PURE__ */ React12.createElement("input", {
+        type: "text",
         value: newMessage,
         onChange: function(e) {
             return setNewMessage(e.target.value);
         },
-        className: "w-full h-24 p-3 border-2 border-[#5A7C6F] rounded-lg font-sourceSans resize-none focus:outline-none focus:ring-2 focus:ring-[#5A7C6F]",
-        placeholder: "Type your message here..."
+        placeholder: "Type your message...",
+        className: "flex-1 p-2 border-2 border-[#4B7163] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AB098]"
     }), /* @__PURE__ */ React12.createElement(CustomButton, {
-        onClick: function() {
-            onSendMessage(newMessage);
-            setNewMessage("");
-        },
-        className: "w-full"
-    }, /* @__PURE__ */ React12.createElement(MessageCircle, {
-        className: "h-4 w-4 mr-2"
-    }), "Send Message"))));
+        type: "submit",
+        disabled: !newMessage.trim(),
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg hover:bg-[#3A5A4F]"
+    }, "Send")))));
 };
 // src/components/ProductCard.tsx
 import React14 from "react";
 // src/components/Tag.tsx
 import React13 from "react";
-import { X as X6 } from "lucide-react";
+import { X as X7 } from "lucide-react";
 var variantStyles = {
     primary: {
         border: "border-[#6AB098]",
@@ -1055,7 +1360,7 @@ var Tag = function(param) {
         onClick: onDelete,
         className: cn("flex items-center justify-center", "w-5 h-5 rounded-full mr-1", "transition-colors duration-200", styles.deleteButton, "focus:outline-none focus:ring-2 focus:ring-offset-1"),
         "aria-label": "Remove ".concat(text)
-    }, /* @__PURE__ */ React13.createElement(X6, {
+    }, /* @__PURE__ */ React13.createElement(X7, {
         className: "h-3 w-3 text-white"
     }))), /* @__PURE__ */ React13.createElement("span", {
         className: "truncate"
@@ -1108,7 +1413,7 @@ var ProductCard = function(param) {
 };
 // src/components/ShoppingCart.tsx
 import React15, { useState as useState4, useEffect } from "react";
-import { X as X7 } from "lucide-react";
+import { X as X8 } from "lucide-react";
 var ShoppingCart2 = function(param) {
     var initialItems = param.items, onRemoveItem = param.onRemoveItem, onCheckout = param.onCheckout, className = param.className;
     var _useState4 = _sliced_to_array(useState4(initialItems), 2), items = _useState4[0], setItems = _useState4[1];
@@ -1154,7 +1459,7 @@ var ShoppingCart2 = function(param) {
             },
             className: "text-gray-400 hover:text-gray-600 transition-colors p-1",
             "aria-label": "Remove ".concat(item.name, " from cart")
-        }, /* @__PURE__ */ React15.createElement(X7, {
+        }, /* @__PURE__ */ React15.createElement(X8, {
             className: "h-5 w-5"
         }))), /* @__PURE__ */ React15.createElement("div", {
             className: "flex justify-end items-center mt-4"

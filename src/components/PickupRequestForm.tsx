@@ -6,6 +6,9 @@ import { CustomButton } from './CustomButton';
 import { FormInput } from './FormInput';
 import { Upload, Image as ImageIcon, Info, MapPin, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
+import { Modal } from './Modal';
+import { ImageUpload } from './ImageUpload';
 
 interface UploadedItem {
   id: string;
@@ -18,6 +21,64 @@ interface PickupRequestFormProps {
   className?: string;
 }
 
+interface ConfirmationState {
+  ownership: boolean;
+  address: boolean;
+  terms: boolean;
+}
+
+const PlacesAutocomplete = ({
+  value,
+  onChange,
+  onSelect
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (address: string) => Promise<void>;
+}) => {
+  const {
+    ready,
+    suggestions: { data },
+    setValue,
+    clearSuggestions,
+  } = usePlacesAutocomplete({
+    requestOptions: { componentRestrictions: { country: 'us' } },
+    debounce: 300,
+    defaultValue: value,
+  });
+
+  return (
+    <div className="relative">
+      <FormInput
+        label="Pickup Address"
+        value={value}
+        onChange={(val) => {
+          setValue(val);
+          onChange(val);
+        }}
+        disabled={!ready}
+      />
+      {data.length > 0 && (
+        <ul className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg">
+          {data.map((suggestion) => (
+            <li
+              key={suggestion.place_id}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                onChange(suggestion.description);
+                onSelect(suggestion.description);
+                clearSuggestions();
+              }}
+            >
+              {suggestion.description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -26,32 +87,32 @@ export const PickupRequestForm = ({
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [address, setAddress] = useState('');
+  const [contactInfo, setContactInfo] = useState({
+    fullName: '',
+    contact: ''
+  });
+  const [showTerms, setShowTerms] = useState(false);
+  const [confirmations, setConfirmations] = useState<ConfirmationState>({
+    ownership: false,
+    address: false,
+    terms: false,
+  });
 
-  const steps = [
-    'Upload Photos',
-    'Item Details',
-    'Pickup Time',
-    'Location'
-  ];
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newItems = Array.from(files).map(file => ({
-        id: Math.random().toString(36).substr(2, 9),
-        imageUrl: URL.createObjectURL(file),
-      }));
-      setUploadedItems([...uploadedItems, ...newItems]);
-    }
-  };
-
-  const handleItemDescription = (id: string, description: string) => {
-    setUploadedItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, description } : item
+  const handleItemDescription = (itemId: string, description: string) => {
+    setUploadedItems(items => 
+      items.map(item => 
+        item.id === itemId ? { ...item, description } : item
       )
     );
   };
+
+  const steps = [
+    'Contact',
+    'Photos',
+    'Details',
+    'Dates',
+    'Location'
+  ];
 
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
@@ -66,31 +127,51 @@ export const PickupRequestForm = ({
       case 1:
         return (
           <div className="space-y-6">
-            {/* Photo Upload Section */}
-            <div className="border-2 border-dashed border-[#5A7C6F] rounded-xl p-8 text-center">
-              <input
-                type="file"
-                id="photo-upload"
-                multiple
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <label 
-                htmlFor="photo-upload"
-                className="cursor-pointer space-y-4 block"
-              >
-                <Upload className="h-12 w-12 mx-auto text-[#5A7C6F]" />
-                <div className="font-sourceSans">
-                  <p className="text-lg font-semibold text-[#4B7163]">
-                    Drop photos here or click to upload
-                  </p>
-                  <p className="text-sm text-[#5A7C6F]">
-                    Upload clear photos of each item you'd like us to pick up
-                  </p>
+            <div className="bg-[#F8FAF9] rounded-xl p-4">
+              <p className="text-[#4B7163] mb-4">
+                To better serve you, we need:
+              </p>
+              <ul className="list-disc ml-6 mb-4">
+                <li>Your name</li>
+                <li>Either an email address or mobile number</li>
+              </ul>
+              <p className="text-[#4B7163]">
+                This allows us to send service updates through your preferred contact method. We'll only use these details to communicate about your specific request.
+              </p>
+              
+              <div className="mt-6">
+                <FormInput
+                  label="Full Name"
+                  value={contactInfo.fullName}
+                  onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
+                />
+                
+                <div className="mt-6">
+                  <FormInput
+                    label="Email Address or Mobile Number"
+                    value={contactInfo.contact}
+                    onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
+                    hint="Choose the contact method you check most frequently for fastest updates."
+                  />
                 </div>
-              </label>
+              </div>
             </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <ImageUpload
+              onUpload={(photos) => {
+                const newItems = photos.map(photoUrl => ({
+                  id: Math.random().toString(36).substr(2, 9),
+                  imageUrl: photoUrl,
+                }));
+                setUploadedItems([...uploadedItems, ...newItems]);
+              }}
+              maxFiles={5}
+            />
 
             {/* Uploaded Photos Preview */}
             {uploadedItems.length > 0 && (
@@ -112,7 +193,7 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             {uploadedItems.map((item) => (
@@ -137,7 +218,7 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-4">
@@ -170,21 +251,91 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <FormInput
-                label="Pickup Address"
-                placeholder="Enter the complete address where items will be picked up"
+              <PlacesAutocomplete
                 value={address}
-                onChange={(value: string) => setAddress(value)}
+                onChange={setAddress}
+                onSelect={async (address) => {
+                  setAddress(address);
+                }}
               />
               <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
                 <Info className="h-4 w-4" />
-                Please ensure the address is accurate and items will be accessible
+                Please ensure the address is accurate and items will be accessible at this location
               </p>
             </div>
+
+            <div className="mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4">
+              <h3 className="font-rockwell text-lg text-[#4B7163] mb-4">
+                Final Confirmation
+              </h3>
+              
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmations.ownership}
+                  onChange={(e) => setConfirmations(prev => ({
+                    ...prev,
+                    ownership: e.target.checked
+                  }))}
+                  className="mt-1"
+                />
+                <span className="text-sm text-[#5A7C6F]">
+                  I confirm I own this item or have permission to request service for it
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmations.address}
+                  onChange={(e) => setConfirmations(prev => ({
+                    ...prev,
+                    address: e.target.checked
+                  }))}
+                  className="mt-1"
+                />
+                <span className="text-sm text-[#5A7C6F]">
+                  I confirm the address provided is correct and I can receive services there
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmations.terms}
+                  onChange={(e) => setConfirmations(prev => ({
+                    ...prev,
+                    terms: e.target.checked
+                  }))}
+                  className="mt-1"
+                />
+                <span className="text-sm text-[#5A7C6F]">
+                  I accept the{' '}
+                  <button 
+                    onClick={() => setShowTerms(true)}
+                    className="text-[#6AB098] underline hover:text-[#4B7163]"
+                  >
+                    Terms of Service
+                  </button>
+                </span>
+              </label>
+            </div>
+
+            {showTerms && (
+              <Modal onClose={() => setShowTerms(false)}>
+                <div className="p-6">
+                  <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Terms of Service</h2>
+                  {/* Add your terms of service content here */}
+                  <div className="prose prose-sm max-w-none">
+                    {/* Terms content */}
+                  </div>
+                </div>
+              </Modal>
+            )}
           </div>
         );
 
@@ -196,21 +347,29 @@ export const PickupRequestForm = ({
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return uploadedItems.length > 0;
+        return contactInfo.fullName.trim().length > 0 && 
+               contactInfo.contact.trim().length > 0;
       case 2:
-        return uploadedItems.every(item => item.description);
+        return uploadedItems.length > 0;
       case 3:
-        return availableTimes.length > 0;
+        return true;
       case 4:
-        return address.trim().length > 0;
+        return availableTimes.length > 0;
+      case 5:
+        return address.trim().length > 0 && 
+               confirmations.ownership &&
+               confirmations.address &&
+               confirmations.terms;
       default:
         return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       onSubmit({
+        fullName: contactInfo.fullName,
+        contact: contactInfo.contact,
         items: uploadedItems,
         availableTimes,
         address
@@ -222,7 +381,7 @@ export const PickupRequestForm = ({
 
   return (
     <div className={cn(
-      'bg-white rounded-2xl border-2 border-[#4B7163] p-6',
+      'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
       {/* Progress Indicator */}
@@ -255,8 +414,8 @@ export const PickupRequestForm = ({
           disabled={!canProceed()}
           className="flex items-center gap-2 ml-auto"
         >
-          {currentStep === 4 ? 'Submit Request' : 'Continue'}
-          {currentStep < 4 && <ChevronRight className="h-4 w-4" />}
+          {currentStep === 5 ? 'Submit Request' : 'Continue'}
+          {currentStep < 5 && <ChevronRight className="h-4 w-4" />}
         </CustomButton>
       </div>
     </div>

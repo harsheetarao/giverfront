@@ -40,7 +40,7 @@ export const SwipeCard = ({
 
   return (
     <motion.div
-      className="absolute w-full"
+      className="absolute inset-0"
       style={{ x, rotate, opacity }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -69,15 +69,15 @@ export const SwipeCard = ({
       </motion.div>
 
       {/* Card Content */}
-      <div className="bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col items-center">
-        <div className="w-[250px] h-[250px] rounded-2xl overflow-hidden mb-4">
+      <div className="absolute inset-0 bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col">
+        <div className="relative w-full h-3/5 rounded-2xl overflow-hidden mb-4">
           <img 
             src={imageUrl} 
             alt={alt} 
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="w-full">
+        <div className="flex-1 overflow-auto">
           {children}
         </div>
       </div>

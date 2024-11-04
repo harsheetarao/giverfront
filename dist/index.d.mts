@@ -54,13 +54,15 @@ interface FormDropdownProps extends Omit<React__default.SelectHTMLAttributes<HTM
 declare const FormDropdown: React__default.ForwardRefExoticComponent<FormDropdownProps & React__default.RefAttributes<HTMLSelectElement>>;
 
 type InputState = 'normal' | 'completed' | 'error' | 'required' | 'blankRequired' | 'disabled';
-interface FormInputProps extends Omit<React__default.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface FormInputProps {
     label: string;
     hint?: string;
     state?: InputState;
     className?: string;
     value: string;
     onChange: (value: string) => void;
+    placeholder?: string;
+    disabled?: boolean;
 }
 declare const FormInput: React__default.ForwardRefExoticComponent<FormInputProps & React__default.RefAttributes<HTMLInputElement>>;
 
@@ -85,16 +87,32 @@ interface PickupItem {
     availableDates: string[];
     location: string;
 }
-interface PickupRequestManagerProps {
+interface Message {
+    id: string;
+    content: string;
+    timestamp: Date;
+    isRead: boolean;
+    sender: 'user' | 'admin';
+}
+interface PickupRequest {
+    id: string;
     customerName: string;
     customerEmail: string;
     customerPhone: string;
     items: PickupItem[];
-    onAcceptItem: (itemId: string) => void;
-    onRejectItem: (itemId: string) => void;
-    onSendMessage: (message: string) => void;
+    messages: Message[];
+    status: 'pending' | 'approved' | 'rejected' | 'completed';
+    address: string;
 }
-declare const PickupRequestManager: ({ customerName, customerEmail, customerPhone, items: initialItems, onAcceptItem, onRejectItem, onSendMessage, }: PickupRequestManagerProps) => React__default.JSX.Element;
+interface PickupRequestManagerProps {
+    requests: PickupRequest[];
+    onAcceptItem: (requestId: string, itemId: string) => void;
+    onRejectItem: (requestId: string, itemId: string) => void;
+    onSendMessage: (requestId: string, message: string) => void;
+    onMessageRead?: (requestId: string, messageId: string) => void;
+    className?: string;
+}
+declare const PickupRequestManager: ({ requests, onAcceptItem, onRejectItem, onSendMessage, onMessageRead, className }: PickupRequestManagerProps) => React__default.JSX.Element;
 
 interface ProductCardProps {
     imageUrl: string;

@@ -75,7 +75,8 @@ export const FormDropdown = React.forwardRef<HTMLSelectElement, FormDropdownProp
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             className={cn(
-              'w-full px-3 py-2 pr-10',
+              'w-full px-3 py-2',
+              'pr-16',
               'rounded-[4px]',
               'border-2',
               'font-poppins text-base',

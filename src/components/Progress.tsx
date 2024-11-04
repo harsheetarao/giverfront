@@ -8,15 +8,15 @@ interface ProgressProps {
 
 export const Progress = ({ steps, currentStep }: ProgressProps) => {
   return (
-    <div className="relative flex items-center justify-between w-full max-w-2xl mx-auto px-[12.5px]">
+    <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto py-4 px-6">
       {/* Connecting Lines - at 30% opacity for incomplete */}
       <div 
-        className="absolute top-[12.5px] left-[37.5px] right-[37.5px] h-[3px] z-0" 
-        style={{ backgroundColor: 'rgba(90, 124, 111, 1.0)' }}
+        className="absolute top-[-10px] left-[12.5px] right-[12.5px] h-[3px] z-0" 
+        style={{ backgroundColor: 'rgba(90, 124, 111, 0.3)' }}
       />
       {/* Active line - full opacity */}
       <div 
-        className="absolute top-[12.5px] left-[37.5px] h-[3px] z-0 transition-all duration-300 ease-in-out"
+        className="absolute top-[-10px] left-[12.5px] h-[3px] z-0 transition-all duration-300 ease-in-out"
         style={{ 
           backgroundColor: '#5A7C6F',
           width: `${Math.max(0, Math.min(100, ((currentStep - 1) / (steps.length - 1)) * 100))}%`,
@@ -25,23 +25,25 @@ export const Progress = ({ steps, currentStep }: ProgressProps) => {
       />
 
       {/* Steps */}
-      <div className="relative z-10 flex items-center justify-between w-full">
+      <div className="relative z-10 flex items-center justify-between w-full px-[12.5px]">
         {steps.map((step, index) => (
-          <div key={index} className="flex flex-col items-center">
-            <div 
-              className={`
-                w-[25px] h-[25px] rounded-full 
-                flex items-center justify-center
-                border-[3px] border-[#5A7C6F]
-                transition-colors duration-300 ease-in-out
-                ${index < currentStep ? 'bg-[#5A7C6F]' : 'bg-white'}
-              `}
-            >
-              {index < currentStep && (
-                <Check className="w-4 h-4 text-white" />
-              )}
+          <div key={index} className="absolute" style={{ left: `${(index / (steps.length - 1)) * 100}%` }}>
+            <div className="flex flex-col items-center -translate-x-1/2">
+              <div 
+                className={`
+                  w-[25px] h-[25px] rounded-full 
+                  flex items-center justify-center
+                  border-[3px] border-[#5A7C6F]
+                  transition-colors duration-300 ease-in-out
+                  ${index < currentStep ? 'bg-[#5A7C6F]' : 'bg-white'}
+                `}
+              >
+                {index < currentStep && (
+                  <Check className="w-4 h-4 text-white" />
+                )}
+              </div>
+              <span className="mt-2 text-sm text-center hidden sm:block h-10 max-w-[80px]">{step}</span>
             </div>
-            <span className="mt-2 text-sm text-center">{step}</span>
           </div>
         ))}
       </div>

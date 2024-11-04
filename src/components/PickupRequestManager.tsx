@@ -2,122 +2,104 @@
 
 import React, { useState } from 'react';
 import { SwipeCard } from './SwipeCard';
-import { MessageBubble } from './MessageBubble';
 import { CustomButton } from './CustomButton';
 import { Mail, Phone, Calendar, MapPin, X, Check, MessageCircle } from 'lucide-react';
-
-interface PickupItem {
-  id: string;
-  imageUrl: string;
-  title?: string;
-  description: string;
-  availableDates: string[];
-  location: string;
-}
+import { cn } from '@/lib/utils';
+import { MessageThread } from './MessageThread';
+import { PickupRequest } from '@/types/PickupRequest';
+import { PickupItem } from '@/types/PickupItem';
+import { Message } from '@/types/Message';
 
 interface PickupRequestManagerProps {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  items: PickupItem[];
-  onAcceptItem: (itemId: string) => void;
-  onRejectItem: (itemId: string) => void;
-  onSendMessage: (message: string) => void;
-}
-
-interface Message {
-  id: string;
-  type: 'incoming' | 'outgoing';
-  message: string;
-  timestamp: Date;
+  requests: PickupRequest[];
+  onAcceptItem: (requestId: string, itemId: string) => void;
+  onRejectItem: (requestId: string, itemId: string) => void;
+  onSendMessage: (requestId: string, message: string) => void;
+  onMessageRead?: (requestId: string, messageId: string) => void;
+  className?: string;
 }
 
 export const PickupRequestManager = ({
-  customerName,
-  customerEmail,
-  customerPhone,
-  items: initialItems,
+  requests,
   onAcceptItem,
   onRejectItem,
   onSendMessage,
+  onMessageRead,
+  className
 }: PickupRequestManagerProps) => {
-  const [items, setItems] = useState(initialItems);
-  // Example message thread
-  const [messages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'incoming',
-      message: "Hi, I have several items to donate. When can you come pick them up?",
-      timestamp: new Date('2024-02-10T10:00:00')
-    },
-    {
-      id: '2',
-      type: 'outgoing',
-      message: "Hello! Thanks for reaching out. We'd be happy to help. I see you've listed several available dates. Would Wednesday 2/14 AM work best for you?",
-      timestamp: new Date('2024-02-10T10:15:00')
-    },
-    {
-      id: '3',
-      type: 'incoming',
-      message: "Yes, Wednesday morning would be perfect! What time do you typically arrive?",
-      timestamp: new Date('2024-02-10T10:20:00')
-    },
-    {
-      id: '4',
-      type: 'outgoing',
-      message: "We usually start pickups at 9:00 AM. We'll send you a confirmation once we've reviewed all your items. Each one looks great so far!",
-      timestamp: new Date('2024-02-10T10:25:00')
-    },
-    {
-      id: '5',
-      type: 'incoming',
-      message: "9:00 AM works great. I'll make sure everything is ready and easily accessible.",
-      timestamp: new Date('2024-02-10T10:30:00')
-    }
-  ]);
+  const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
+  const [items, setItems] = useState(requests[currentRequestIndex].items);
   const [newMessage, setNewMessage] = useState('');
+  const [isMessagesExpanded, setIsMessagesExpanded] = useState(false);
+  
+  const unreadCount = requests[currentRequestIndex].messages.filter(msg => !msg.isRead).length;
+  const lastMessage = requests[currentRequestIndex].messages[requests[currentRequestIndex].messages.length - 1];
+  const lastMessageTime = lastMessage 
+    ? new Intl.RelativeTimeFormat('en').format(
+        Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+        'days'
+      )
+    : null;
 
   const handleSwipe = (direction: 'left' | 'right', item: PickupItem) => {
     if (direction === 'right') {
-      onAcceptItem(item.id);
+      onAcceptItem(requests[currentRequestIndex].id, item.id);
     } else {
-      onRejectItem(item.id);
+      onRejectItem(requests[currentRequestIndex].id, item.id);
     }
     setItems(prevItems => prevItems.filter(i => i.id !== item.id));
   };
 
+  const handleExpand = () => {
+    setIsMessagesExpanded(!isMessagesExpanded);
+    // Mark all messages as read when expanding
+    if (!isMessagesExpanded && onMessageRead) {
+      requests[currentRequestIndex].messages.forEach(msg => {
+        if (!msg.isRead) onMessageRead(requests[currentRequestIndex].id, msg.id);
+      });
+    }
+  };
+
+  const totalRequests = requests.length;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Customer Info Header */}
-      <div className="bg-white rounded-2xl border-2 border-[#4B7163] p-6">
-        <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">
-          {customerName}
+      {/* Request Navigation */}
+      <div className="flex justify-between items-center px-4">
+        <CustomButton
+          onClick={() => setCurrentRequestIndex(prev => Math.max(0, prev - 1))}
+          disabled={currentRequestIndex === 0}
+          className="bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+        >
+          &lt;
+        </CustomButton>
+        
+        <h2 className="font-rockwell text-2xl text-[#4B7163]">
+          {currentRequestIndex + 1} of {totalRequests}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <div className="flex items-center gap-2 text-[#5A7C6F]">
-            <Mail className="h-5 w-5" />
-            <span className="font-sourceSans">{customerEmail}</span>
-          </div>
-          <div className="flex items-center gap-2 text-[#5A7C6F]">
-            <Phone className="h-5 w-5" />
-            <span className="font-sourceSans">{customerPhone}</span>
-          </div>
-        </div>
+        
+        <CustomButton
+          onClick={() => setCurrentRequestIndex(prev => Math.min(totalRequests - 1, prev + 1))}
+          disabled={currentRequestIndex === totalRequests - 1}
+          className="bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+        >
+          &gt;
+        </CustomButton>
       </div>
 
       {/* Swipeable Items Section */}
       <div className="bg-white rounded-2xl border-2 border-[#4B7163] p-6">
         <h3 className="font-rockwell text-xl text-[#4B7163] mb-4">
-          Items to Review ({items.length})
+          Items to Review ({requests[currentRequestIndex].items.length})
         </h3>
         
         <div className="relative h-[500px]">
-          {items.map((item, index) => (
+          {requests[currentRequestIndex].items.map((item, index) => (
             <SwipeCard
               key={item.id}
               imageUrl={item.imageUrl}
               alt={item.title || 'Pickup request item'}
-              isVisible={index === items.length - 1}
+              isVisible={index === requests[currentRequestIndex].items.length - 1}
               onSwipe={(direction) => handleSwipe(direction, item)}
             >
               <div className="space-y-4">
@@ -131,9 +113,18 @@ export const PickupRequestManager = ({
                   </div>
                   <div className="flex items-center gap-2 text-[#5A7C6F]">
                     <Calendar className="h-4 w-4" />
-                    <span className="text-sm">
-                      Available: {item.availableDates.join(', ')}
-                    </span>
+                    <div className="text-sm">
+                      Available: 
+                      {item.availableDates.map((dateInfo, idx) => (
+                        <span key={dateInfo.date}>
+                          {idx > 0 && ', '}
+                          {dateInfo.date}
+                          <span className="text-[#6AB098] ml-1">
+                            ({dateInfo.requestCount} request{dateInfo.requestCount !== 1 ? 's' : ''})
+                          </span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -153,51 +144,12 @@ export const PickupRequestManager = ({
       </div>
 
       {/* Communication Section */}
-      <div className="bg-white rounded-2xl border-2 border-[#4B7163] p-6">
-        <h3 className="font-rockwell text-xl text-[#4B7163] mb-4">
-          Messages
-        </h3>
-        
-        {/* Message Thread */}
-        <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              state={message.type === 'incoming' ? 'secondary' : 'primary'}
-            >
-              <div className="space-y-1">
-                <p className="font-sourceSans">{message.message}</p>
-                <div className="text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </div>
-              </div>
-            </MessageBubble>
-          ))}
-        </div>
-
-        {/* Message Input */}
-        <div className="space-y-4">
-          <textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="w-full h-24 p-3 border-2 border-[#5A7C6F] rounded-lg font-sourceSans resize-none focus:outline-none focus:ring-2 focus:ring-[#5A7C6F]"
-            placeholder="Type your message here..."
-          />
-          <CustomButton
-            onClick={() => {
-              onSendMessage(newMessage);
-              setNewMessage('');
-            }}
-            className="w-full"
-          >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Send Message
-          </CustomButton>
-        </div>
-      </div>
+      <MessageThread
+        messages={requests[currentRequestIndex].messages}
+        onSendMessage={(message) => onSendMessage(requests[currentRequestIndex].id, message)}
+        onMessageRead={(messageId) => onMessageRead?.(requests[currentRequestIndex].id, messageId)}
+        className={className}
+      />
     </div>
   );
 };
