@@ -3,7 +3,7 @@ import React__default from 'react';
 import * as class_variance_authority_dist_types from 'class-variance-authority/dist/types';
 import { VariantProps } from 'class-variance-authority';
 
-interface Message$1 {
+interface Message$2 {
     id: string;
     content: string;
     timestamp: Date;
@@ -45,10 +45,10 @@ interface BasePickupRequest {
     customerName: string;
     customerEmail: string;
     customerPhone: string;
-    messages: Message$1[];
+    messages: Message$2[];
     address: string;
 }
-interface PickupRequest extends BasePickupRequest {
+interface PickupRequest$1 extends BasePickupRequest {
     items: PickupItem$1[];
     status: 'pending' | 'approved' | 'rejected' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled' | 'in_inventory' | 'ready_for_sale';
     pickupPhoto: string;
@@ -178,7 +178,7 @@ interface InventoryItemProcessingProps {
 declare const InventoryItemProcessing: ({ items, onUpdateDetails, onUpdateStatus, onSaveDraft, className }: InventoryItemProcessingProps) => React__default.JSX.Element;
 
 interface InventoryProcessingProps {
-    request: PickupRequest;
+    request: PickupRequest$1;
     onUpdateStatus: (status: RequestStatus) => void;
     onUpdateDetails: (details: ItemDetails$1) => void;
     onAddProcessingPhotos: (photos: string[]) => void;
@@ -217,7 +217,7 @@ interface MessageBubbleProps {
 }
 declare const MessageBubble: ({ children, state, className }: MessageBubbleProps) => React__default.JSX.Element;
 
-interface Message {
+interface Message$1 {
     id: string;
     content: string;
     timestamp: Date;
@@ -225,7 +225,7 @@ interface Message {
     sender: 'user' | 'admin';
 }
 interface MessageThreadProps {
-    messages: Message[];
+    messages: Message$1[];
     onSendMessage: (message: string) => void;
     onMessageRead?: (messageId: string) => void;
     className?: string;
@@ -264,7 +264,7 @@ interface PickupRequestFormProps {
 declare const PickupRequestForm: ({ onSubmit, className, }: PickupRequestFormProps) => React__default.JSX.Element;
 
 interface PickupRequestManagerProps {
-    requests: PickupRequest[];
+    requests: PickupRequest$1[];
     onAcceptItem: (requestId: string, itemId: string) => void;
     onRejectItem: (requestId: string, itemId: string) => void;
     onSendMessage: (requestId: string, message: string) => void;
@@ -354,6 +354,42 @@ interface ToggleProps {
 }
 declare const Toggle: ({ checked, onChange, variant, disabled, className }: ToggleProps) => React$1.JSX.Element;
 
+interface SwipeCardProps {
+    imageUrl: string;
+    alt: string;
+    children: React__default.ReactNode;
+    onSwipe: (direction: 'left' | 'right') => void;
+    isVisible?: boolean;
+}
+declare const SwipeCard: ({ imageUrl, alt, children, onSwipe, isVisible }: SwipeCardProps) => React__default.JSX.Element | null;
+
+interface Message {
+    id: string;
+    content: string;
+    timestamp: Date;
+    isRead: boolean;
+    sender: "user" | "admin";
+}
+interface PickupRequest {
+    id: string;
+    status: 'pending' | 'completed' | 'error';
+    messages: Message[];
+    lastStatusChange?: Date;
+}
+interface DashboardProps {
+    pickupRequests: PickupRequest[];
+    acceptedRequests: AcceptedRequest$1[];
+    onRequestClick?: (requestId: string) => void;
+    onUpdateItemStatus: (requestId: string, itemId: string, status: string) => void;
+    onAddPhoto: (requestId: string, itemId: string, photo: File, note?: string) => void;
+    onReschedule: (requestId: string, newDate: string) => void;
+    onCompletePickup: (requestId: string) => void;
+    onSendMessage: (requestId: string, message: string) => void;
+    onMessageRead?: (requestId: string, messageId: string) => void;
+    availableDates: string[];
+}
+declare const Dashboard: ({ pickupRequests, acceptedRequests, onRequestClick, onUpdateItemStatus, onAddPhoto, onReschedule, onCompletePickup, onSendMessage, onMessageRead, availableDates }: DashboardProps) => React__default.JSX.Element;
+
 type MenuItem = {
     label: string;
     href: string;
@@ -379,7 +415,7 @@ declare const Page: React.FC<PageProps>;
 interface AcceptedRequest {
     id: string;
     items: AcceptedPickupItem[];
-    messages: Message$1[];
+    messages: Message$2[];
     status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
     customerName: string;
     customerEmail: string;
@@ -391,4 +427,4 @@ interface ProcessingItem {
     id: string;
 }
 
-export { type AcceptedRequest, AcceptedRequestManager, Button, Card, type CardProps, CustomButton, type CustomButtonProps, Footer, FormDropdown, FormInput, Header, ImageUpload, InventoryItemProcessing, InventoryProcessing, InventoryProcessingManager, type ItemDetails$1 as ItemDetails, MapModal, type MenuItem, type Message$1 as Message, MessageBubble, MessageThread, Modal, Page, PickupItemQueue, PickupRequestForm, PickupRequestManager, type ProcessingItem, ProcessingQueue, ProductCard, Progress, ShoppingCart, SwipeCardDeck, Tag, Toggle };
+export { type AcceptedRequest, AcceptedRequestManager, Button, Card, type CardProps, CustomButton, type CustomButtonProps, Dashboard, Footer, FormDropdown, FormInput, Header, ImageUpload, InventoryItemProcessing, InventoryProcessing, InventoryProcessingManager, type ItemDetails$1 as ItemDetails, MapModal, type MenuItem, type Message$2 as Message, MessageBubble, MessageThread, Modal, Page, PickupItemQueue, PickupRequestForm, PickupRequestManager, type ProcessingItem, ProcessingQueue, ProductCard, Progress, ShoppingCart, SwipeCard, SwipeCardDeck, Tag, Toggle };

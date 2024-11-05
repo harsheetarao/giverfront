@@ -337,6 +337,9 @@ __export(components_exports, {
     CustomButton: function() {
         return CustomButton;
     },
+    Dashboard: function() {
+        return Dashboard;
+    },
     Footer: function() {
         return Footer;
     },
@@ -396,6 +399,9 @@ __export(components_exports, {
     },
     ShoppingCart: function() {
         return ShoppingCart2;
+    },
+    SwipeCard: function() {
+        return SwipeCard;
     },
     SwipeCardDeck: function() {
         return SwipeCardDeck;
@@ -2392,23 +2398,100 @@ var Toggle = function(param) {
         }
     }));
 };
-// src/components/Header.tsx
+// src/components/Dashboard.tsx
 var import_react24 = __toESM(require("react"));
+var Dashboard = function(param) {
+    var pickupRequests = param.pickupRequests, acceptedRequests = param.acceptedRequests, onRequestClick = param.onRequestClick, onUpdateItemStatus = param.onUpdateItemStatus, onAddPhoto = param.onAddPhoto, onReschedule = param.onReschedule, onCompletePickup = param.onCompletePickup, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, availableDates = param.availableDates;
+    var _ref = _sliced_to_array((0, import_react24.useState)({}), 2), unreadMessages = _ref[0], setUnreadMessages = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react24.useState)([]), 2), recentStatusChanges = _ref1[0], setRecentStatusChanges = _ref1[1];
+    (0, import_react24.useEffect)(function() {
+        var unreadMsgs = pickupRequests.reduce(function(acc, request) {
+            var unread = request.messages.filter(function(msg) {
+                return !msg.isRead;
+            });
+            if (unread.length > 0) {
+                acc[request.id] = unread;
+            }
+            return acc;
+        }, {});
+        setUnreadMessages(unreadMsgs);
+        var dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1e3);
+        var recentChanges = pickupRequests.filter(function(request) {
+            return request.lastStatusChange && new Date(request.lastStatusChange) > dayAgo;
+        });
+        setRecentStatusChanges(recentChanges);
+    }, [
+        pickupRequests
+    ]);
+    return /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement(AcceptedRequestManager, {
+        requests: acceptedRequests,
+        onUpdateItemStatus: onUpdateItemStatus,
+        onAddPhoto: onAddPhoto,
+        onReschedule: onReschedule,
+        onCompletePickup: onCompletePickup,
+        onSendMessage: onSendMessage,
+        onMessageRead: onMessageRead,
+        availableDates: availableDates
+    }), /* @__PURE__ */ import_react24.default.createElement("div", {
+        className: "bg-white rounded-lg shadow p-6 mx-6"
+    }, /* @__PURE__ */ import_react24.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+    }, "Unread Messages"), Object.entries(unreadMessages).length > 0 ? Object.entries(unreadMessages).map(function(param) {
+        var _param = _sliced_to_array(param, 2), requestId = _param[0], messages = _param[1];
+        return /* @__PURE__ */ import_react24.default.createElement("div", {
+            key: requestId,
+            className: "p-4 border rounded-lg mb-4 cursor-pointer hover:bg-gray-50",
+            onClick: function() {
+                return onRequestClick === null || onRequestClick === void 0 ? void 0 : onRequestClick(requestId);
+            }
+        }, /* @__PURE__ */ import_react24.default.createElement("div", {
+            className: "flex items-center justify-between"
+        }, /* @__PURE__ */ import_react24.default.createElement("span", null, "Request #", requestId), /* @__PURE__ */ import_react24.default.createElement("span", {
+            className: "bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+        }, messages.length, " unread")), /* @__PURE__ */ import_react24.default.createElement("p", {
+            className: "text-sm text-gray-600 mt-2"
+        }, "Latest: ", messages[messages.length - 1].content.substring(0, 100), "..."));
+    }) : /* @__PURE__ */ import_react24.default.createElement("p", {
+        className: "text-gray-500"
+    }, "No unread messages")), /* @__PURE__ */ import_react24.default.createElement("div", {
+        className: "bg-white rounded-lg shadow p-6 mx-6"
+    }, /* @__PURE__ */ import_react24.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+    }, "Recent Status Changes"), recentStatusChanges.length > 0 ? recentStatusChanges.map(function(request) {
+        return /* @__PURE__ */ import_react24.default.createElement("div", {
+            key: request.id,
+            className: "p-4 border rounded-lg mb-4 cursor-pointer hover:bg-gray-50",
+            onClick: function() {
+                return onRequestClick === null || onRequestClick === void 0 ? void 0 : onRequestClick(request.id);
+            }
+        }, /* @__PURE__ */ import_react24.default.createElement("div", {
+            className: "flex items-center justify-between"
+        }, /* @__PURE__ */ import_react24.default.createElement("span", null, "Request #", request.id), /* @__PURE__ */ import_react24.default.createElement("span", {
+            className: "px-2 py-1 rounded-full text-sm ".concat(request.status === "completed" ? "bg-green-100 text-green-800" : request.status === "error" ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800")
+        }, request.status)), /* @__PURE__ */ import_react24.default.createElement("p", {
+            className: "text-sm text-gray-600 mt-2"
+        }, "Status changed: ", new Date(request.lastStatusChange).toLocaleString()));
+    }) : /* @__PURE__ */ import_react24.default.createElement("p", {
+        className: "text-gray-500"
+    }, "No recent status changes")));
+};
+// src/components/Header.tsx
+var import_react25 = __toESM(require("react"));
 var import_image = __toESM(require("next/image"));
 var import_lucide_react18 = require("lucide-react");
 // src/components/sheet.tsx
-var React26 = __toESM(require("react"));
+var React27 = __toESM(require("react"));
 var SheetPrimitive = __toESM(require("@radix-ui/react-dialog"));
 var import_class_variance_authority3 = require("class-variance-authority");
 var import_lucide_react17 = require("lucide-react");
 var Sheet = SheetPrimitive.Root;
 var SheetTrigger = SheetPrimitive.Trigger;
 var SheetPortal = SheetPrimitive.Portal;
-var SheetOverlay = React26.forwardRef(function(_param, ref) {
+var SheetOverlay = React27.forwardRef(function(_param, ref) {
     var className = _param.className, props = _object_without_properties(_param, [
         "className"
     ]);
-    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Overlay, _object_spread_props(_object_spread({
+    return /* @__PURE__ */ React27.createElement(SheetPrimitive.Overlay, _object_spread_props(_object_spread({
         className: cn("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)
     }, props), {
         ref: ref
@@ -2428,22 +2511,22 @@ var sheetVariants = (0, import_class_variance_authority3.cva)("fixed z-50 gap-4 
         side: "right"
     }
 });
-var SheetContent = React26.forwardRef(function(_param, ref) {
+var SheetContent = React27.forwardRef(function(_param, ref) {
     var _param_side = _param.side, side = _param_side === void 0 ? "right" : _param_side, className = _param.className, children = _param.children, props = _object_without_properties(_param, [
         "side",
         "className",
         "children"
     ]);
-    return /* @__PURE__ */ React26.createElement(SheetPortal, null, /* @__PURE__ */ React26.createElement(SheetOverlay, null), /* @__PURE__ */ React26.createElement(SheetPrimitive.Content, _object_spread({
+    return /* @__PURE__ */ React27.createElement(SheetPortal, null, /* @__PURE__ */ React27.createElement(SheetOverlay, null), /* @__PURE__ */ React27.createElement(SheetPrimitive.Content, _object_spread({
         ref: ref,
         className: cn(sheetVariants({
             side: side
         }), className)
-    }, props), children, /* @__PURE__ */ React26.createElement(SheetPrimitive.Close, {
+    }, props), children, /* @__PURE__ */ React27.createElement(SheetPrimitive.Close, {
         className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-    }, /* @__PURE__ */ React26.createElement(import_lucide_react17.X, {
+    }, /* @__PURE__ */ React27.createElement(import_lucide_react17.X, {
         className: "h-4 w-4"
-    }), /* @__PURE__ */ React26.createElement("span", {
+    }), /* @__PURE__ */ React27.createElement("span", {
         className: "sr-only"
     }, "Close"))));
 });
@@ -2452,7 +2535,7 @@ var SheetHeader = function(_param) {
     var className = _param.className, props = _object_without_properties(_param, [
         "className"
     ]);
-    return /* @__PURE__ */ React26.createElement("div", _object_spread({
+    return /* @__PURE__ */ React27.createElement("div", _object_spread({
         className: cn("flex flex-col space-y-2 text-center sm:text-left", className)
     }, props));
 };
@@ -2461,26 +2544,26 @@ var SheetFooter = function(_param) {
     var className = _param.className, props = _object_without_properties(_param, [
         "className"
     ]);
-    return /* @__PURE__ */ React26.createElement("div", _object_spread({
+    return /* @__PURE__ */ React27.createElement("div", _object_spread({
         className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)
     }, props));
 };
 SheetFooter.displayName = "SheetFooter";
-var SheetTitle = React26.forwardRef(function(_param, ref) {
+var SheetTitle = React27.forwardRef(function(_param, ref) {
     var className = _param.className, props = _object_without_properties(_param, [
         "className"
     ]);
-    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Title, _object_spread({
+    return /* @__PURE__ */ React27.createElement(SheetPrimitive.Title, _object_spread({
         ref: ref,
         className: cn("text-lg font-semibold text-foreground", className)
     }, props));
 });
 SheetTitle.displayName = SheetPrimitive.Title.displayName;
-var SheetDescription = React26.forwardRef(function(_param, ref) {
+var SheetDescription = React27.forwardRef(function(_param, ref) {
     var className = _param.className, props = _object_without_properties(_param, [
         "className"
     ]);
-    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Description, _object_spread({
+    return /* @__PURE__ */ React27.createElement(SheetPrimitive.Description, _object_spread({
         ref: ref,
         className: cn("text-sm text-muted-foreground", className)
     }, props));
@@ -2489,46 +2572,46 @@ SheetDescription.displayName = SheetPrimitive.Description.displayName;
 // src/components/Header.tsx
 var Header = function(param) {
     var menuItems = param.menuItems, logo = param.logo;
-    return /* @__PURE__ */ import_react24.default.createElement("header", {
+    return /* @__PURE__ */ import_react25.default.createElement("header", {
         className: "sticky top-0 z-50 w-full bg-[#4B7163] text-white shadow-lg"
-    }, /* @__PURE__ */ import_react24.default.createElement("div", {
+    }, /* @__PURE__ */ import_react25.default.createElement("div", {
         className: "w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8"
-    }, /* @__PURE__ */ import_react24.default.createElement("div", {
+    }, /* @__PURE__ */ import_react25.default.createElement("div", {
         className: "h-16 flex items-center justify-between"
-    }, /* @__PURE__ */ import_react24.default.createElement("div", {
+    }, /* @__PURE__ */ import_react25.default.createElement("div", {
         className: "flex shrink-0 items-center"
-    }, logo && /* @__PURE__ */ import_react24.default.createElement(import_image.default, {
+    }, logo && /* @__PURE__ */ import_react25.default.createElement(import_image.default, {
         src: logo.src,
         alt: logo.alt,
         width: logo.width || 300,
         height: logo.height || 75,
         className: "h-16 w-auto",
         priority: true
-    })), /* @__PURE__ */ import_react24.default.createElement("div", {
+    })), /* @__PURE__ */ import_react25.default.createElement("div", {
         className: "flex md:hidden"
-    }, /* @__PURE__ */ import_react24.default.createElement(Sheet, null, /* @__PURE__ */ import_react24.default.createElement(SheetTrigger, {
+    }, /* @__PURE__ */ import_react25.default.createElement(Sheet, null, /* @__PURE__ */ import_react25.default.createElement(SheetTrigger, {
         asChild: true
-    }, /* @__PURE__ */ import_react24.default.createElement(Button, {
+    }, /* @__PURE__ */ import_react25.default.createElement(Button, {
         variant: "ghost",
         size: "icon",
         className: "text-white hover:bg-[#5a8575]"
-    }, /* @__PURE__ */ import_react24.default.createElement(import_lucide_react18.Menu, {
+    }, /* @__PURE__ */ import_react25.default.createElement(import_lucide_react18.Menu, {
         className: "h-6 w-6"
-    }))), /* @__PURE__ */ import_react24.default.createElement(SheetContent, {
+    }))), /* @__PURE__ */ import_react25.default.createElement(SheetContent, {
         side: "right",
         className: "w-[80%] sm:w-[400px] bg-[#4B7163] border-l-white/20"
-    }, /* @__PURE__ */ import_react24.default.createElement("nav", {
+    }, /* @__PURE__ */ import_react25.default.createElement("nav", {
         className: "flex flex-col space-y-4 mt-8"
     }, menuItems.map(function(item) {
-        return /* @__PURE__ */ import_react24.default.createElement("a", {
+        return /* @__PURE__ */ import_react25.default.createElement("a", {
             key: item.label,
             href: item.href,
             className: "text-white text-lg hover:text-white/80 transition-colors p-2"
         }, item.label);
-    }))))), /* @__PURE__ */ import_react24.default.createElement("nav", {
+    }))))), /* @__PURE__ */ import_react25.default.createElement("nav", {
         className: "hidden md:flex items-center space-x-8"
     }, menuItems.map(function(item) {
-        return /* @__PURE__ */ import_react24.default.createElement("a", {
+        return /* @__PURE__ */ import_react25.default.createElement("a", {
             key: item.label,
             href: item.href,
             className: "text-sm font-medium hover:text-gray-300 transition-colors"
@@ -2558,6 +2641,7 @@ var Page = function(param) {
     Button: Button,
     Card: Card,
     CustomButton: CustomButton,
+    Dashboard: Dashboard,
     Footer: Footer,
     FormDropdown: FormDropdown,
     FormInput: FormInput,
@@ -2578,6 +2662,7 @@ var Page = function(param) {
     ProductCard: ProductCard,
     Progress: Progress,
     ShoppingCart: ShoppingCart,
+    SwipeCard: SwipeCard,
     SwipeCardDeck: SwipeCardDeck,
     Tag: Tag,
     Toggle: Toggle

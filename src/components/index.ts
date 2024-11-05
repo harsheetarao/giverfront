@@ -23,6 +23,8 @@ export { ShoppingCart } from './ShoppingCart';
 export { SwipeCardDeck } from './SwipeCardDeck';
 export { Tag } from './Tag';
 export { Toggle } from './Toggle';
+export { SwipeCard } from './SwipeCard';
+export { Dashboard } from './Dashboard';
 
 // Layout Components
 export { Header } from './Header';
