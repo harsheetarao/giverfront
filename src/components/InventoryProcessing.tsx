@@ -5,6 +5,7 @@ import { FormDropdown } from '@/components/FormDropdown';
 import { ImageUpload } from '@/components/ImageUpload';
 import { Card } from '@/components/Card';
 import { PickupRequest, RequestStatus } from '@/types/PickupRequest';
+import { ItemDetails } from '@/types/PickupItem';
 
 interface InventoryProcessingProps {
   request: PickupRequest;

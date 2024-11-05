@@ -5,6 +5,7 @@ import { SwipeCardDeck } from './SwipeCardDeck';
 import { InventoryProcessing } from './InventoryProcessing';
 import { cn } from '@/lib/utils';
 import { PickupRequest, RequestStatus } from '@/types/PickupRequest';
+import { ItemDetails } from '@/types/PickupItem';
 
 interface PickupItem {
   id: string;

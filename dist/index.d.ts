@@ -1,26 +1,90 @@
-import * as class_variance_authority_dist_types from 'class-variance-authority/dist/types';
 import * as React$1 from 'react';
 import React__default from 'react';
+import * as class_variance_authority_dist_types from 'class-variance-authority/dist/types';
 import { VariantProps } from 'class-variance-authority';
-import * as SheetPrimitive from '@radix-ui/react-dialog';
+
+interface Message$1 {
+    id: string;
+    content: string;
+    timestamp: Date;
+    isRead: boolean;
+    sender: "user" | "admin";
+}
+
+interface PickupItem$1 {
+    id: string;
+    imageUrl: string;
+    title?: string;
+    description: string;
+    availableDates: Array<{
+        date: string;
+        requestCount: number;
+    }>;
+    location: string;
+}
+interface AcceptedPickupItem extends PickupItem$1 {
+    status: 'pending' | 'verified' | 'incorrect' | 'picked_up' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled';
+    verificationPhotos: Array<{
+        id: string;
+        imageUrl: string;
+        timestamp: Date;
+        note?: string;
+    }>;
+    scheduledDate?: string;
+    name: string;
+    photos?: string[];
+}
+interface ItemDetails$1 {
+    productId?: string;
+    description?: string;
+    processingPhotos?: string[];
+}
+
+interface BasePickupRequest {
+    id: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    messages: Message$1[];
+    address: string;
+}
+interface PickupRequest extends BasePickupRequest {
+    items: PickupItem$1[];
+    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled' | 'in_inventory' | 'ready_for_sale';
+    pickupPhoto: string;
+    pickupDate: Date;
+    pickupAddress: string;
+}
+interface AcceptedRequest$1 extends BasePickupRequest {
+    items: AcceptedPickupItem[];
+    status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+    pickupDate?: string;
+    email?: string;
+    phone?: string;
+}
+type RequestStatus = 'completed' | 'in_inventory' | 'ready_for_sale';
+
+interface AcceptedRequestManagerProps {
+    requests: AcceptedRequest$1[];
+    onUpdateItemStatus: (requestId: string, itemId: string, status: AcceptedPickupItem['status']) => void;
+    onAddPhoto: (requestId: string, itemId: string, photo: File, note?: string) => void;
+    onReschedule: (requestId: string, newDate: string) => void;
+    onCompletePickup: (requestId: string) => void;
+    onSendMessage: (requestId: string, message: string) => void;
+    onMessageRead?: (requestId: string, messageId: string) => void;
+    availableDates: string[];
+    className?: string;
+}
+declare const AcceptedRequestManager: ({ requests, onUpdateItemStatus, onAddPhoto, onReschedule, onCompletePickup, onSendMessage, onMessageRead, availableDates, className }: AcceptedRequestManagerProps) => React__default.JSX.Element;
 
 declare const buttonVariants$1: (props?: ({
-    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+    variant?: "default" | "secondary" | "link" | "outline" | "destructive" | "ghost" | null | undefined;
     size?: "default" | "sm" | "lg" | "icon" | null | undefined;
 } & class_variance_authority_dist_types.ClassProp) | undefined) => string;
 interface ButtonProps extends React$1.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants$1> {
     asChild?: boolean;
 }
 declare const Button: React$1.ForwardRefExoticComponent<ButtonProps & React$1.RefAttributes<HTMLButtonElement>>;
-
-declare const Sheet: React$1.FC<SheetPrimitive.DialogProps>;
-declare const SheetTrigger: React$1.ForwardRefExoticComponent<SheetPrimitive.DialogTriggerProps & React$1.RefAttributes<HTMLButtonElement>>;
-declare const sheetVariants: (props?: ({
-    side?: "top" | "bottom" | "left" | "right" | null | undefined;
-} & class_variance_authority_dist_types.ClassProp) | undefined) => string;
-interface SheetContentProps extends React$1.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>, VariantProps<typeof sheetVariants> {
-}
-declare const SheetContent: React$1.ForwardRefExoticComponent<SheetContentProps & React$1.RefAttributes<HTMLDivElement>>;
 
 interface CardProps {
     imageUrl: string;
@@ -30,13 +94,15 @@ interface CardProps {
 declare const Card: ({ imageUrl, alt, children }: CardProps) => React__default.JSX.Element;
 
 declare const buttonVariants: (props?: ({
-    variant?: "secondary" | "primary" | "cta" | null | undefined;
+    variant?: "primary" | "cta" | "secondary" | null | undefined;
     size?: "default" | "sm" | "lg" | null | undefined;
 } & class_variance_authority_dist_types.ClassProp) | undefined) => string;
 interface CustomButtonProps extends React__default.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-    children: React__default.ReactNode;
+    children?: React__default.ReactNode;
+    icon?: React__default.ReactNode;
+    label?: string;
 }
-declare const CustomButton: ({ children, variant, size, className, ...props }: CustomButtonProps) => React__default.JSX.Element;
+declare const CustomButton: ({ children, icon, label, variant, size, className, ...props }: CustomButtonProps) => React__default.JSX.Element;
 
 type DropdownState = 'normal' | 'completed' | 'error' | 'required' | 'blankRequired' | 'disabled';
 interface FormDropdownProps extends Omit<React__default.SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange'> {
@@ -63,8 +129,86 @@ interface FormInputProps {
     onChange: (value: string) => void;
     placeholder?: string;
     disabled?: boolean;
+    onKeyDown?: (e: React__default.KeyboardEvent<HTMLInputElement>) => void;
 }
 declare const FormInput: React__default.ForwardRefExoticComponent<FormInputProps & React__default.RefAttributes<HTMLInputElement>>;
+
+interface ImageUploadProps {
+    onUpload: (photos: string[]) => void;
+    maxFiles?: number;
+    className?: string;
+}
+declare const ImageUpload: ({ onUpload, maxFiles, className }: ImageUploadProps) => React__default.JSX.Element;
+
+interface ProcessingItem$3 {
+    id: string;
+    productId: string;
+    pickupPhoto: string;
+    pickupDescription: string;
+    receivedDate: Date;
+    status: 'in_inventory' | 'ready_for_sale';
+    customerName: string;
+}
+interface ItemDetails {
+    title: string;
+    description: string;
+    condition: string;
+    dimensions: {
+        length: number;
+        width: number;
+        height: number;
+    };
+    materials: string[];
+    attributes: string[];
+    estimatedValue: number;
+    category: string;
+    tags: string[];
+    features: string;
+    defects: string;
+    storageLocation: string;
+    processingPhotos: string[];
+}
+interface InventoryItemProcessingProps {
+    items: ProcessingItem$3[];
+    onUpdateDetails: (itemId: string, details: ItemDetails) => void;
+    onUpdateStatus: (itemId: string, status: 'ready_for_sale') => void;
+    onSaveDraft: (itemId: string, details: Partial<ItemDetails>) => void;
+    className?: string;
+}
+declare const InventoryItemProcessing: ({ items, onUpdateDetails, onUpdateStatus, onSaveDraft, className }: InventoryItemProcessingProps) => React__default.JSX.Element;
+
+interface InventoryProcessingProps {
+    request: PickupRequest;
+    onUpdateStatus: (status: RequestStatus) => void;
+    onUpdateDetails: (details: ItemDetails$1) => void;
+    onAddProcessingPhotos: (photos: string[]) => void;
+    onConfirmReceipt: () => void;
+}
+declare const InventoryProcessing: ({ request, onUpdateStatus, onUpdateDetails, onAddProcessingPhotos, onConfirmReceipt, }: InventoryProcessingProps) => React$1.JSX.Element;
+
+interface ProcessingItem$2 {
+    id: string;
+    productId: string;
+    pickupPhoto: string;
+    pickupDescription: string;
+    receivedDate: Date;
+    customerName: string;
+    status?: 'in_inventory' | 'ready_for_sale';
+}
+interface InventoryProcessingManagerProps {
+    items: ProcessingItem$2[];
+    onUpdateDetails: (itemId: string, details: any) => void;
+    onUpdateStatus: (itemId: string, status: 'ready_for_sale') => void;
+    onSaveDraft: (itemId: string, details: any) => void;
+    className?: string;
+}
+declare const InventoryProcessingManager: ({ items, onUpdateDetails, onUpdateStatus, onSaveDraft, className }: InventoryProcessingManagerProps) => React__default.JSX.Element;
+
+interface MapModalProps {
+    address: string;
+    onClose: () => void;
+}
+declare const MapModal: ({ address, onClose }: MapModalProps) => React__default.JSX.Element;
 
 interface MessageBubbleProps {
     children: React__default.ReactNode;
@@ -73,20 +217,6 @@ interface MessageBubbleProps {
 }
 declare const MessageBubble: ({ children, state, className }: MessageBubbleProps) => React__default.JSX.Element;
 
-interface PickupRequestFormProps {
-    onSubmit: (data: any) => void;
-    className?: string;
-}
-declare const PickupRequestForm: ({ onSubmit, className, }: PickupRequestFormProps) => React__default.JSX.Element;
-
-interface PickupItem {
-    id: string;
-    imageUrl: string;
-    title?: string;
-    description: string;
-    availableDates: string[];
-    location: string;
-}
 interface Message {
     id: string;
     content: string;
@@ -94,16 +224,45 @@ interface Message {
     isRead: boolean;
     sender: 'user' | 'admin';
 }
-interface PickupRequest {
-    id: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-    items: PickupItem[];
+interface MessageThreadProps {
     messages: Message[];
-    status: 'pending' | 'approved' | 'rejected' | 'completed';
-    address: string;
+    onSendMessage: (message: string) => void;
+    onMessageRead?: (messageId: string) => void;
+    className?: string;
 }
+declare const MessageThread: ({ messages, onSendMessage, onMessageRead, className }: MessageThreadProps) => React__default.JSX.Element;
+
+interface ModalProps {
+    children: React__default.ReactNode;
+    onClose: () => void;
+    className?: string;
+}
+declare const Modal: ({ children, onClose, className }: ModalProps) => React__default.JSX.Element;
+
+interface PickupItem {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+    status: 'pending' | 'completed' | 'in_inventory';
+}
+interface PickupItemQueueProps {
+    items: PickupItem[];
+    onReceiveItem: (id: string) => void;
+    onRejectItem: (itemId: string) => void;
+    onUpdateStatus: (itemId: string, status: RequestStatus) => void;
+    onUpdateDetails: (itemId: string, details: ItemDetails$1) => void;
+    onAddProcessingPhotos: (itemId: string, photos: string[]) => void;
+    className?: string;
+}
+declare const PickupItemQueue: ({ items, onReceiveItem, onRejectItem, onUpdateStatus, onUpdateDetails, onAddProcessingPhotos, className }: PickupItemQueueProps) => React__default.JSX.Element;
+
+interface PickupRequestFormProps {
+    onSubmit: (data: any) => void;
+    className?: string;
+}
+declare const PickupRequestForm: ({ onSubmit, className, }: PickupRequestFormProps) => React__default.JSX.Element;
+
 interface PickupRequestManagerProps {
     requests: PickupRequest[];
     onAcceptItem: (requestId: string, itemId: string) => void;
@@ -113,6 +272,21 @@ interface PickupRequestManagerProps {
     className?: string;
 }
 declare const PickupRequestManager: ({ requests, onAcceptItem, onRejectItem, onSendMessage, onMessageRead, className }: PickupRequestManagerProps) => React__default.JSX.Element;
+
+interface ProcessingItem$1 {
+    id: string;
+    productId: string;
+    pickupPhoto: string;
+    pickupDescription: string;
+    receivedDate: Date;
+    customerName: string;
+}
+interface ProcessingQueueProps {
+    items: ProcessingItem$1[];
+    onSelectItem: (itemId: string) => void;
+    className?: string;
+}
+declare const ProcessingQueue: ({ items, onSelectItem, className, }: ProcessingQueueProps) => React__default.JSX.Element;
 
 interface ProductCardProps {
     imageUrl: string;
@@ -202,4 +376,19 @@ interface PageProps {
 }
 declare const Page: React.FC<PageProps>;
 
-export { Button, Card, type CardProps, CustomButton, type CustomButtonProps, Footer, FormDropdown, FormInput, Header, type MenuItem, MessageBubble, Page, PickupRequestForm, PickupRequestManager, ProductCard, Progress, Sheet, SheetContent, SheetTrigger, ShoppingCart, SwipeCardDeck, Tag, Toggle };
+interface AcceptedRequest {
+    id: string;
+    items: AcceptedPickupItem[];
+    messages: Message$1[];
+    status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    address: string;
+}
+
+interface ProcessingItem {
+    id: string;
+}
+
+export { type AcceptedRequest, AcceptedRequestManager, Button, Card, type CardProps, CustomButton, type CustomButtonProps, Footer, FormDropdown, FormInput, Header, ImageUpload, InventoryItemProcessing, InventoryProcessing, InventoryProcessingManager, type ItemDetails$1 as ItemDetails, MapModal, type MenuItem, type Message$1 as Message, MessageBubble, MessageThread, Modal, Page, PickupItemQueue, PickupRequestForm, PickupRequestManager, type ProcessingItem, ProcessingQueue, ProductCard, Progress, ShoppingCart, SwipeCardDeck, Tag, Toggle };

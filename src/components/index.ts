@@ -36,4 +36,5 @@ export type { CustomButtonProps } from './CustomButton';
 export type { AcceptedRequest } from '../types/AcceptedRequest';
 export type { Message } from '../types/Message';
 export type { ProcessingItem } from '../types/ProcessingItem';  
+export type { ItemDetails } from '../types/PickupItem';
 // ... export other component types 

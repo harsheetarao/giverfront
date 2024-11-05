@@ -325,6 +325,9 @@ var __toCommonJS = function(mod) {
 // src/components/index.ts
 var components_exports = {};
 __export(components_exports, {
+    AcceptedRequestManager: function() {
+        return AcceptedRequestManager;
+    },
     Button: function() {
         return Button;
     },
@@ -346,11 +349,35 @@ __export(components_exports, {
     Header: function() {
         return Header;
     },
+    ImageUpload: function() {
+        return ImageUpload;
+    },
+    InventoryItemProcessing: function() {
+        return InventoryItemProcessing;
+    },
+    InventoryProcessing: function() {
+        return InventoryProcessing;
+    },
+    InventoryProcessingManager: function() {
+        return InventoryProcessingManager;
+    },
+    MapModal: function() {
+        return MapModal;
+    },
     MessageBubble: function() {
         return MessageBubble;
     },
+    MessageThread: function() {
+        return MessageThread;
+    },
+    Modal: function() {
+        return Modal;
+    },
     Page: function() {
         return Page;
+    },
+    PickupItemQueue: function() {
+        return PickupItemQueue;
     },
     PickupRequestForm: function() {
         return PickupRequestForm;
@@ -358,20 +385,14 @@ __export(components_exports, {
     PickupRequestManager: function() {
         return PickupRequestManager;
     },
+    ProcessingQueue: function() {
+        return ProcessingQueue;
+    },
     ProductCard: function() {
         return ProductCard;
     },
     Progress: function() {
         return Progress;
-    },
-    Sheet: function() {
-        return Sheet;
-    },
-    SheetContent: function() {
-        return SheetContent;
-    },
-    SheetTrigger: function() {
-        return SheetTrigger;
     },
     ShoppingCart: function() {
         return ShoppingCart2;
@@ -387,9 +408,10 @@ __export(components_exports, {
     }
 });
 module.exports = __toCommonJS(components_exports);
-// src/components/button.tsx
-var React2 = __toESM(require("react"));
-var import_react_slot = require("@radix-ui/react-slot");
+// src/components/AcceptedRequestManager.tsx
+var import_react8 = __toESM(require("react"));
+// src/components/CustomButton.tsx
+var import_react = __toESM(require("react"));
 var import_class_variance_authority = require("class-variance-authority");
 // src/lib/utils.ts
 var import_clsx = require("clsx");
@@ -400,157 +422,8 @@ function cn() {
     }
     return (0, import_tailwind_merge.twMerge)((0, import_clsx.clsx)(inputs));
 }
-// src/components/button.tsx
-var buttonVariants = (0, import_class_variance_authority.cva)("inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", {
-    variants: {
-        variant: {
-            default: "bg-primary text-primary-foreground hover:bg-primary/90",
-            destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-            outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-            secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-            ghost: "hover:bg-accent hover:text-accent-foreground",
-            link: "text-primary underline-offset-4 hover:underline"
-        },
-        size: {
-            default: "h-10 px-4 py-2",
-            sm: "h-9 rounded-md px-3",
-            lg: "h-11 rounded-md px-8",
-            icon: "h-10 w-10"
-        }
-    },
-    defaultVariants: {
-        variant: "default",
-        size: "default"
-    }
-});
-var Button = React2.forwardRef(function(_param, ref) {
-    var className = _param.className, variant = _param.variant, size = _param.size, _param_asChild = _param.asChild, asChild = _param_asChild === void 0 ? false : _param_asChild, props = _object_without_properties(_param, [
-        "className",
-        "variant",
-        "size",
-        "asChild"
-    ]);
-    var Comp = asChild ? import_react_slot.Slot : "button";
-    return /* @__PURE__ */ React2.createElement(Comp, _object_spread({
-        className: cn(buttonVariants({
-            variant: variant,
-            size: size,
-            className: className
-        })),
-        ref: ref
-    }, props));
-});
-Button.displayName = "Button";
-// src/components/sheet.tsx
-var React3 = __toESM(require("react"));
-var SheetPrimitive = __toESM(require("@radix-ui/react-dialog"));
-var import_class_variance_authority2 = require("class-variance-authority");
-var import_lucide_react = require("lucide-react");
-var Sheet = SheetPrimitive.Root;
-var SheetTrigger = SheetPrimitive.Trigger;
-var SheetPortal = SheetPrimitive.Portal;
-var SheetOverlay = React3.forwardRef(function(_param, ref) {
-    var className = _param.className, props = _object_without_properties(_param, [
-        "className"
-    ]);
-    return /* @__PURE__ */ React3.createElement(SheetPrimitive.Overlay, _object_spread_props(_object_spread({
-        className: cn("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)
-    }, props), {
-        ref: ref
-    }));
-});
-SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
-var sheetVariants = (0, import_class_variance_authority2.cva)("fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500", {
-    variants: {
-        side: {
-            top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-            bottom: "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-            left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
-            right: "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm"
-        }
-    },
-    defaultVariants: {
-        side: "right"
-    }
-});
-var SheetContent = React3.forwardRef(function(_param, ref) {
-    var _param_side = _param.side, side = _param_side === void 0 ? "right" : _param_side, className = _param.className, children = _param.children, props = _object_without_properties(_param, [
-        "side",
-        "className",
-        "children"
-    ]);
-    return /* @__PURE__ */ React3.createElement(SheetPortal, null, /* @__PURE__ */ React3.createElement(SheetOverlay, null), /* @__PURE__ */ React3.createElement(SheetPrimitive.Content, _object_spread({
-        ref: ref,
-        className: cn(sheetVariants({
-            side: side
-        }), className)
-    }, props), children, /* @__PURE__ */ React3.createElement(SheetPrimitive.Close, {
-        className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-    }, /* @__PURE__ */ React3.createElement(import_lucide_react.X, {
-        className: "h-4 w-4"
-    }), /* @__PURE__ */ React3.createElement("span", {
-        className: "sr-only"
-    }, "Close"))));
-});
-SheetContent.displayName = SheetPrimitive.Content.displayName;
-var SheetHeader = function(_param) {
-    var className = _param.className, props = _object_without_properties(_param, [
-        "className"
-    ]);
-    return /* @__PURE__ */ React3.createElement("div", _object_spread({
-        className: cn("flex flex-col space-y-2 text-center sm:text-left", className)
-    }, props));
-};
-SheetHeader.displayName = "SheetHeader";
-var SheetFooter = function(_param) {
-    var className = _param.className, props = _object_without_properties(_param, [
-        "className"
-    ]);
-    return /* @__PURE__ */ React3.createElement("div", _object_spread({
-        className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)
-    }, props));
-};
-SheetFooter.displayName = "SheetFooter";
-var SheetTitle = React3.forwardRef(function(_param, ref) {
-    var className = _param.className, props = _object_without_properties(_param, [
-        "className"
-    ]);
-    return /* @__PURE__ */ React3.createElement(SheetPrimitive.Title, _object_spread({
-        ref: ref,
-        className: cn("text-lg font-semibold text-foreground", className)
-    }, props));
-});
-SheetTitle.displayName = SheetPrimitive.Title.displayName;
-var SheetDescription = React3.forwardRef(function(_param, ref) {
-    var className = _param.className, props = _object_without_properties(_param, [
-        "className"
-    ]);
-    return /* @__PURE__ */ React3.createElement(SheetPrimitive.Description, _object_spread({
-        ref: ref,
-        className: cn("text-sm text-muted-foreground", className)
-    }, props));
-});
-SheetDescription.displayName = SheetPrimitive.Description.displayName;
-// src/components/Card.tsx
-var import_react = __toESM(require("react"));
-var Card = function(param) {
-    var imageUrl = param.imageUrl, alt = param.alt, children = param.children;
-    return /* @__PURE__ */ import_react.default.createElement("div", {
-        className: "card-custom"
-    }, /* @__PURE__ */ import_react.default.createElement("div", {
-        className: "card-custom-image"
-    }, /* @__PURE__ */ import_react.default.createElement("img", {
-        src: imageUrl,
-        alt: alt,
-        className: "w-full h-full object-cover"
-    })), /* @__PURE__ */ import_react.default.createElement("div", {
-        className: "w-full"
-    }, children));
-};
 // src/components/CustomButton.tsx
-var import_react2 = __toESM(require("react"));
-var import_class_variance_authority3 = require("class-variance-authority");
-var buttonVariants2 = (0, import_class_variance_authority3.cva)("flex items-center justify-center text-base font-poppins rounded-md transition-colors duration-200 ease-in-out px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed", {
+var buttonVariants = (0, import_class_variance_authority.cva)("flex items-center justify-center text-base font-poppins rounded-md transition-colors duration-200 ease-in-out px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed", {
     variants: {
         variant: {
             primary: "\n          bg-[#6AB098] text-white\n          hover:bg-[#5A9F87]\n          active:bg-[#7AC1A9]\n        ",
@@ -569,188 +442,29 @@ var buttonVariants2 = (0, import_class_variance_authority3.cva)("flex items-cent
     }
 });
 var CustomButton = function(_param) {
-    var children = _param.children, variant = _param.variant, size = _param.size, className = _param.className, props = _object_without_properties(_param, [
+    var children = _param.children, icon = _param.icon, label = _param.label, variant = _param.variant, size = _param.size, className = _param.className, props = _object_without_properties(_param, [
         "children",
+        "icon",
+        "label",
         "variant",
         "size",
         "className"
     ]);
-    return /* @__PURE__ */ import_react2.default.createElement("button", _object_spread({
-        className: cn(buttonVariants2({
+    return /* @__PURE__ */ import_react.default.createElement("button", _object_spread({
+        className: cn(buttonVariants({
             variant: variant,
             size: size,
             className: className
         }))
-    }, props), children);
+    }, props), icon, label || children);
 };
-// src/components/FormDropdown.tsx
+// src/components/AcceptedRequestManager.tsx
+var import_lucide_react6 = require("lucide-react");
+// src/components/MessageThread.tsx
 var import_react3 = __toESM(require("react"));
-var import_lucide_react2 = require("lucide-react");
-var stateStyles = {
-    normal: {
-        border: "border-[#5A7C6F]",
-        text: "text-[#5A7C6F]",
-        icon: null
-    },
-    completed: {
-        border: "border-[#5A7C6F]",
-        text: "text-[#5A7C6F]",
-        icon: /* @__PURE__ */ import_react3.default.createElement(import_lucide_react2.Check, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-[#5A7C6F]"
-    },
-    error: {
-        border: "border-red-500",
-        text: "text-red-500",
-        icon: /* @__PURE__ */ import_react3.default.createElement(import_lucide_react2.X, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-red-500"
-    },
-    required: {
-        border: "border-[#109BD4]",
-        text: "text-[#5A7C6F]",
-        icon: null
-    },
-    blankRequired: {
-        border: "border-[#ED933F]",
-        text: "text-[#5A7C6F]",
-        icon: /* @__PURE__ */ import_react3.default.createElement(import_lucide_react2.AlertCircle, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-[#ED933F]"
-    },
-    disabled: {
-        border: "border-gray-300",
-        text: "text-gray-400",
-        icon: null
-    }
-};
-var FormDropdown = import_react3.default.forwardRef(function(_param, ref) {
-    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, options = _param.options, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, props = _object_without_properties(_param, [
-        "label",
-        "hint",
-        "state",
-        "options",
-        "className",
-        "disabled",
-        "value",
-        "onChange"
-    ]);
-    var currentState = disabled ? "disabled" : state;
-    var styles = stateStyles[currentState];
-    return /* @__PURE__ */ import_react3.default.createElement("div", {
-        className: "space-y-1.5"
-    }, /* @__PURE__ */ import_react3.default.createElement("label", {
-        className: cn("block text-sm font-medium uppercase", styles.text)
-    }, label), /* @__PURE__ */ import_react3.default.createElement("div", {
-        className: "relative"
-    }, /* @__PURE__ */ import_react3.default.createElement("select", _object_spread({
-        ref: ref,
-        disabled: disabled,
-        value: value,
-        onChange: function(e) {
-            return onChange === null || onChange === void 0 ? void 0 : onChange(e.target.value);
-        },
-        className: cn("w-full px-3 py-2 pr-10", "rounded-[4px]", "border-2", "font-poppins text-base", "appearance-none", "focus:outline-none focus:ring-2 focus:ring-offset-1", styles.border, disabled && "bg-gray-50 cursor-not-allowed", className)
-    }, props), options.map(function(option) {
-        return /* @__PURE__ */ import_react3.default.createElement("option", {
-            key: option.value,
-            value: option.value
-        }, option.label);
-    })), /* @__PURE__ */ import_react3.default.createElement("div", {
-        className: "absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none"
-    }, styles.icon && /* @__PURE__ */ import_react3.default.createElement("div", {
-        className: cn("rounded-full w-4 h-4 mr-2", "flex items-center justify-center", styles.iconBg)
-    }, styles.icon), /* @__PURE__ */ import_react3.default.createElement(import_lucide_react2.ChevronDown, {
-        className: cn("h-5 w-5", styles.text)
-    }))), hint && /* @__PURE__ */ import_react3.default.createElement("p", {
-        className: cn("text-sm", styles.text)
-    }, hint));
-});
-FormDropdown.displayName = "FormDropdown";
-// src/components/FormInput.tsx
-var import_react4 = __toESM(require("react"));
-var import_lucide_react3 = require("lucide-react");
-var stateStyles2 = {
-    normal: {
-        border: "border-[#5A7C6F]",
-        text: "text-[#5A7C6F]",
-        icon: null
-    },
-    completed: {
-        border: "border-[#5A7C6F]",
-        text: "text-[#5A7C6F]",
-        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react3.Check, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-[#5A7C6F]"
-    },
-    error: {
-        border: "border-red-500",
-        text: "text-red-500",
-        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react3.X, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-red-500"
-    },
-    required: {
-        border: "border-[#109BD4]",
-        text: "text-[#5A7C6F]",
-        icon: null
-    },
-    blankRequired: {
-        border: "border-[#ED933F]",
-        text: "text-[#5A7C6F]",
-        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react3.AlertCircle, {
-            className: "h-3 w-3 text-white"
-        }),
-        iconBg: "bg-[#ED933F]"
-    },
-    disabled: {
-        border: "border-gray-300",
-        text: "text-gray-400",
-        icon: null
-    }
-};
-var FormInput = import_react4.default.forwardRef(function(_param, ref) {
-    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, placeholder = _param.placeholder, props = _object_without_properties(_param, [
-        "label",
-        "hint",
-        "state",
-        "className",
-        "disabled",
-        "value",
-        "onChange",
-        "placeholder"
-    ]);
-    var currentState = disabled ? "disabled" : state;
-    var styles = stateStyles2[currentState];
-    return /* @__PURE__ */ import_react4.default.createElement("div", {
-        className: "space-y-1.5"
-    }, /* @__PURE__ */ import_react4.default.createElement("label", {
-        className: cn("block text-sm font-medium uppercase", styles.text)
-    }, label), /* @__PURE__ */ import_react4.default.createElement("div", {
-        className: "relative"
-    }, /* @__PURE__ */ import_react4.default.createElement("input", _object_spread({
-        ref: ref,
-        disabled: disabled,
-        className: cn("w-full px-3 py-2", "rounded-[4px]", "border-2", "font-poppins text-base", "placeholder:text-[#5A7C6F]/60", "focus:outline-none focus:ring-2 focus:ring-offset-1", styles.border, disabled && "bg-gray-50 cursor-not-allowed", className),
-        value: value,
-        onChange: function(e) {
-            return onChange(e.target.value);
-        },
-        placeholder: placeholder
-    }, props)), styles.icon && /* @__PURE__ */ import_react4.default.createElement("div", {
-        className: cn("absolute right-3 top-1/2 -translate-y-1/2", "rounded-full w-4 h-4", "flex items-center justify-center", styles.iconBg)
-    }, styles.icon)), hint && /* @__PURE__ */ import_react4.default.createElement("p", {
-        className: cn("text-sm", styles.text)
-    }, hint));
-});
-FormInput.displayName = "FormInput";
+var import_lucide_react = require("lucide-react");
 // src/components/MessageBubble.tsx
-var import_react5 = __toESM(require("react"));
+var import_react2 = __toESM(require("react"));
 var MessageBubble = function(param) {
     var children = param.children, _param_state = param.state, state = _param_state === void 0 ? "primary" : _param_state, _param_className = param.className, className = _param_className === void 0 ? "" : _param_className;
     var getStateClasses = function() {
@@ -763,453 +477,173 @@ var MessageBubble = function(param) {
                 return "message-bubble-primary message-bubble-triangle message-bubble-triangle-left";
         }
     };
-    return /* @__PURE__ */ import_react5.default.createElement("div", {
+    return /* @__PURE__ */ import_react2.default.createElement("div", {
         className: "message-bubble p-4 mb-4 ".concat(getStateClasses(), " ").concat(className)
     }, children);
 };
-// src/components/PickupRequestForm.tsx
-var import_react7 = __toESM(require("react"));
-// src/components/Progress.tsx
-var import_react6 = __toESM(require("react"));
-var import_lucide_react4 = require("lucide-react");
-var Progress = function(param) {
-    var steps = param.steps, currentStep = param.currentStep;
-    return /* @__PURE__ */ import_react6.default.createElement("div", {
-        className: "relative flex items-center justify-between w-full max-w-3xl mx-auto py-4 px-6"
-    }, /* @__PURE__ */ import_react6.default.createElement("div", {
-        className: "absolute top-[-10px] left-[12.5px] right-[12.5px] h-[3px] z-0",
-        style: {
-            backgroundColor: "rgba(90, 124, 111, 0.3)"
+// src/components/MessageThread.tsx
+var MessageThread = function(param) {
+    var messages = param.messages, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, className = param.className;
+    var _ref = _sliced_to_array((0, import_react3.useState)(false), 2), isExpanded = _ref[0], setIsExpanded = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react3.useState)(""), 2), newMessage = _ref1[0], setNewMessage = _ref1[1];
+    var unreadCount = messages.filter(function(msg) {
+        return !msg.isRead;
+    }).length;
+    var lastMessage = messages[messages.length - 1];
+    var lastMessageTime = lastMessage ? new Intl.RelativeTimeFormat("en").format(Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1e3 * 60 * 60 * 24)), "days") : null;
+    var handleExpand = function() {
+        setIsExpanded(!isExpanded);
+        if (!isExpanded && onMessageRead) {
+            messages.forEach(function(msg) {
+                if (!msg.isRead) onMessageRead(msg.id);
+            });
         }
-    }), /* @__PURE__ */ import_react6.default.createElement("div", {
-        className: "absolute top-[-10px] left-[12.5px] h-[3px] z-0 transition-all duration-300 ease-in-out",
-        style: {
-            backgroundColor: "#5A7C6F",
-            width: "".concat(Math.max(0, Math.min(100, (currentStep - 1) / (steps.length - 1) * 100)), "%"),
-            maxWidth: "calc(100% - ".concat(25, "px)")
-        }
-    }), /* @__PURE__ */ import_react6.default.createElement("div", {
-        className: "relative z-10 flex items-center justify-between w-full px-[12.5px]"
-    }, steps.map(function(step, index) {
-        return /* @__PURE__ */ import_react6.default.createElement("div", {
-            key: index,
-            className: "absolute",
-            style: {
-                left: "".concat(index / (steps.length - 1) * 100, "%")
-            }
-        }, /* @__PURE__ */ import_react6.default.createElement("div", {
-            className: "flex flex-col items-center -translate-x-1/2"
-        }, /* @__PURE__ */ import_react6.default.createElement("div", {
-            className: "\n                  w-[25px] h-[25px] rounded-full \n                  flex items-center justify-center\n                  border-[3px] border-[#5A7C6F]\n                  transition-colors duration-300 ease-in-out\n                  ".concat(index < currentStep ? "bg-[#5A7C6F]" : "bg-white", "\n                ")
-        }, index < currentStep && /* @__PURE__ */ import_react6.default.createElement(import_lucide_react4.Check, {
-            className: "w-4 h-4 text-white"
-        })), /* @__PURE__ */ import_react6.default.createElement("span", {
-            className: "mt-2 text-sm text-center hidden sm:block h-10 max-w-[80px]"
-        }, step)));
-    })));
-};
-// src/components/PickupRequestForm.tsx
-var import_lucide_react6 = require("lucide-react");
-var import_use_places_autocomplete = __toESM(require("use-places-autocomplete"));
-// src/components/Modal.tsx
-var import_lucide_react5 = require("lucide-react");
-var Modal = function(param) {
-    var children = param.children, onClose = param.onClose;
-    return /* @__PURE__ */ React.createElement("div", {
-        className: "fixed inset-0 z-50 flex items-center justify-center"
-    }, /* @__PURE__ */ React.createElement("div", {
-        className: "absolute inset-0 bg-black/50",
-        onClick: onClose
-    }), /* @__PURE__ */ React.createElement("div", {
-        className: "relative bg-white rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-    }, /* @__PURE__ */ React.createElement("button", {
-        onClick: onClose,
-        className: "absolute right-4 top-4 text-gray-500 hover:text-gray-700"
-    }, /* @__PURE__ */ React.createElement(import_lucide_react5.X, {
-        className: "h-6 w-6"
-    })), children));
-};
-// src/components/PickupRequestForm.tsx
-var PlacesAutocomplete = function(param) {
-    var value = param.value, onChange = param.onChange, onSelect = param.onSelect;
-    var _ref = (0, import_use_places_autocomplete.default)({
-        requestOptions: {
-            componentRestrictions: {
-                country: "us"
+    };
+    return /* @__PURE__ */ import_react3.default.createElement("div", {
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", className)
+    }, /* @__PURE__ */ import_react3.default.createElement("button", {
+        onClick: handleExpand,
+        className: "w-full flex items-center justify-between p-3 rounded-lg hover:bg-[#F8FAF9]"
+    }, /* @__PURE__ */ import_react3.default.createElement("div", {
+        className: "flex items-center gap-3"
+    }, /* @__PURE__ */ import_react3.default.createElement(import_lucide_react.MessageCircle, {
+        className: "h-5 w-5 text-[#4B7163]"
+    }), /* @__PURE__ */ import_react3.default.createElement("span", {
+        className: "font-medium text-[#4B7163]"
+    }, "Messages"), unreadCount > 0 && /* @__PURE__ */ import_react3.default.createElement("span", {
+        className: "bg-[#6AB098] text-white text-sm px-2 py-1 rounded-full"
+    }, unreadCount, " new")), lastMessage && /* @__PURE__ */ import_react3.default.createElement("span", {
+        className: "text-sm text-gray-500"
+    }, "Last message ", lastMessageTime)), isExpanded && /* @__PURE__ */ import_react3.default.createElement("div", {
+        className: "mt-4 space-y-4"
+    }, messages.map(function(message) {
+        return /* @__PURE__ */ import_react3.default.createElement("div", {
+            key: message.id
+        }, /* @__PURE__ */ import_react3.default.createElement(MessageBubble, {
+            state: message.sender === "admin" ? "secondary" : "primary",
+            className: cn(message.sender === "admin" ? "ml-8" : "mr-8")
+        }, /* @__PURE__ */ import_react3.default.createElement("p", {
+            className: "text-[#4B7163]"
+        }, message.content), /* @__PURE__ */ import_react3.default.createElement("span", {
+            className: "text-sm text-gray-500 mt-2 block"
+        }, message.timestamp.toLocaleString())));
+    }), /* @__PURE__ */ import_react3.default.createElement("form", {
+        onSubmit: function(e) {
+            e.preventDefault();
+            if (newMessage.trim()) {
+                onSendMessage(newMessage);
+                setNewMessage("");
             }
         },
-        debounce: 300,
-        defaultValue: value
-    }), ready = _ref.ready, data = _ref.suggestions.data, setValue = _ref.setValue, clearSuggestions = _ref.clearSuggestions;
-    return /* @__PURE__ */ import_react7.default.createElement("div", {
+        className: "flex gap-2 mt-4"
+    }, /* @__PURE__ */ import_react3.default.createElement("input", {
+        type: "text",
+        value: newMessage,
+        onChange: function(e) {
+            return setNewMessage(e.target.value);
+        },
+        placeholder: "Type your message...",
+        className: "flex-1 p-2 border-2 border-[#4B7163] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AB098]"
+    }), /* @__PURE__ */ import_react3.default.createElement(CustomButton, {
+        type: "submit",
+        disabled: !newMessage.trim(),
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg hover:bg-[#3A5A4F]"
+    }, "Send"))));
+};
+// src/components/FormDropdown.tsx
+var import_react4 = __toESM(require("react"));
+var import_lucide_react2 = require("lucide-react");
+var stateStyles = {
+    normal: {
+        border: "border-[#5A7C6F]",
+        text: "text-[#5A7C6F]",
+        icon: null
+    },
+    completed: {
+        border: "border-[#5A7C6F]",
+        text: "text-[#5A7C6F]",
+        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react2.Check, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-[#5A7C6F]"
+    },
+    error: {
+        border: "border-red-500",
+        text: "text-red-500",
+        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react2.X, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-red-500"
+    },
+    required: {
+        border: "border-[#109BD4]",
+        text: "text-[#5A7C6F]",
+        icon: null
+    },
+    blankRequired: {
+        border: "border-[#ED933F]",
+        text: "text-[#5A7C6F]",
+        icon: /* @__PURE__ */ import_react4.default.createElement(import_lucide_react2.AlertCircle, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-[#ED933F]"
+    },
+    disabled: {
+        border: "border-gray-300",
+        text: "text-gray-400",
+        icon: null
+    }
+};
+var FormDropdown = import_react4.default.forwardRef(function(_param, ref) {
+    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, options = _param.options, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, props = _object_without_properties(_param, [
+        "label",
+        "hint",
+        "state",
+        "options",
+        "className",
+        "disabled",
+        "value",
+        "onChange"
+    ]);
+    var currentState = disabled ? "disabled" : state;
+    var styles = stateStyles[currentState];
+    return /* @__PURE__ */ import_react4.default.createElement("div", {
+        className: "space-y-1.5"
+    }, /* @__PURE__ */ import_react4.default.createElement("label", {
+        className: cn("block text-sm font-medium uppercase", styles.text)
+    }, label), /* @__PURE__ */ import_react4.default.createElement("div", {
         className: "relative"
-    }, /* @__PURE__ */ import_react7.default.createElement(FormInput, {
-        label: "Pickup Address",
+    }, /* @__PURE__ */ import_react4.default.createElement("select", _object_spread({
+        ref: ref,
+        disabled: disabled,
         value: value,
-        onChange: function(val) {
-            setValue(val);
-            onChange(val);
+        onChange: function(e) {
+            return onChange === null || onChange === void 0 ? void 0 : onChange(e.target.value);
         },
-        disabled: !ready
-    }), data.length > 0 && /* @__PURE__ */ import_react7.default.createElement("ul", {
-        className: "absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg"
-    }, data.map(function(suggestion) {
-        return /* @__PURE__ */ import_react7.default.createElement("li", {
-            key: suggestion.place_id,
-            className: "px-4 py-2 hover:bg-gray-100 cursor-pointer",
-            onClick: function() {
-                onChange(suggestion.description);
-                onSelect(suggestion.description);
-                clearSuggestions();
-            }
-        }, suggestion.description);
-    })));
-};
-var PickupRequestForm = function(param) {
-    var onSubmit = param.onSubmit, className = param.className;
-    var _ref = _sliced_to_array((0, import_react7.useState)(1), 2), currentStep = _ref[0], setCurrentStep = _ref[1];
-    var _ref1 = _sliced_to_array((0, import_react7.useState)([]), 2), uploadedItems = _ref1[0], setUploadedItems = _ref1[1];
-    var _ref2 = _sliced_to_array((0, import_react7.useState)([]), 2), availableTimes = _ref2[0], setAvailableTimes = _ref2[1];
-    var _ref3 = _sliced_to_array((0, import_react7.useState)(""), 2), address = _ref3[0], setAddress = _ref3[1];
-    var _ref4 = _sliced_to_array((0, import_react7.useState)({
-        fullName: "",
-        contact: ""
-    }), 2), contactInfo = _ref4[0], setContactInfo = _ref4[1];
-    var _ref5 = _sliced_to_array((0, import_react7.useState)(false), 2), showTerms = _ref5[0], setShowTerms = _ref5[1];
-    var _ref6 = _sliced_to_array((0, import_react7.useState)({
-        ownership: false,
-        address: false,
-        terms: false
-    }), 2), confirmations = _ref6[0], setConfirmations = _ref6[1];
-    var steps = [
-        "Contact",
-        "Photos",
-        "Details",
-        "Dates",
-        "Location"
-    ];
-    var handleFileUpload = function(event) {
-        var files = event.target.files;
-        if (files) {
-            var newItems = Array.from(files).map(function(file) {
-                return {
-                    id: Math.random().toString(36).substr(2, 9),
-                    imageUrl: URL.createObjectURL(file)
-                };
-            });
-            setUploadedItems(_to_consumable_array(uploadedItems).concat(_to_consumable_array(newItems)));
-        }
-    };
-    var handleItemDescription = function(id, description) {
-        setUploadedItems(function(items) {
-            return items.map(function(item) {
-                return item.id === id ? _object_spread_props(_object_spread({}, item), {
-                    description: description
-                }) : item;
-            });
-        });
-    };
-    var handleTimeSelection = function(time) {
-        setAvailableTimes(function(current) {
-            return current.includes(time) ? current.filter(function(t) {
-                return t !== time;
-            }) : _to_consumable_array(current).concat([
-                time
-            ]);
-        });
-    };
-    var renderStepContent = function() {
-        switch(currentStep){
-            case 1:
-                return /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "space-y-6"
-                }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "bg-[#F8FAF9] rounded-xl p-4"
-                }, /* @__PURE__ */ import_react7.default.createElement("p", {
-                    className: "text-[#4B7163] mb-4"
-                }, "To better serve you, we need:"), /* @__PURE__ */ import_react7.default.createElement("ul", {
-                    className: "list-disc ml-6 mb-4"
-                }, /* @__PURE__ */ import_react7.default.createElement("li", null, "Your name"), /* @__PURE__ */ import_react7.default.createElement("li", null, "Either an email address or mobile number")), /* @__PURE__ */ import_react7.default.createElement("p", {
-                    className: "text-[#4B7163]"
-                }, "This allows us to send service updates through your preferred contact method. We'll only use these details to communicate about your specific request."), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "mt-6"
-                }, /* @__PURE__ */ import_react7.default.createElement(FormInput, {
-                    label: "Full Name",
-                    value: contactInfo.fullName,
-                    onChange: function(value) {
-                        return setContactInfo(function(prev) {
-                            return _object_spread_props(_object_spread({}, prev), {
-                                fullName: value
-                            });
-                        });
-                    }
-                }), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "mt-6"
-                }, /* @__PURE__ */ import_react7.default.createElement(FormInput, {
-                    label: "Email Address or Mobile Number",
-                    value: contactInfo.contact,
-                    onChange: function(value) {
-                        return setContactInfo(function(prev) {
-                            return _object_spread_props(_object_spread({}, prev), {
-                                contact: value
-                            });
-                        });
-                    },
-                    hint: "Choose the contact method you check most frequently for fastest updates."
-                })))));
-            case 2:
-                return /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "space-y-6"
-                }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "border-2 border-dashed border-[#5A7C6F] rounded-xl p-8 text-center"
-                }, /* @__PURE__ */ import_react7.default.createElement("input", {
-                    type: "file",
-                    id: "photo-upload",
-                    multiple: true,
-                    accept: "image/*",
-                    className: "hidden",
-                    onChange: handleFileUpload
-                }), /* @__PURE__ */ import_react7.default.createElement("label", {
-                    htmlFor: "photo-upload",
-                    className: "cursor-pointer space-y-4 block"
-                }, /* @__PURE__ */ import_react7.default.createElement(import_lucide_react6.Upload, {
-                    className: "h-12 w-12 mx-auto text-[#5A7C6F]"
-                }), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "font-sourceSans"
-                }, /* @__PURE__ */ import_react7.default.createElement("p", {
-                    className: "text-lg font-semibold text-[#4B7163]"
-                }, "Drop photos here or click to upload"), /* @__PURE__ */ import_react7.default.createElement("p", {
-                    className: "text-sm text-[#5A7C6F]"
-                }, "Upload clear photos of each item you'd like us to pick up")))), uploadedItems.length > 0 && /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
-                }, uploadedItems.map(function(item) {
-                    return /* @__PURE__ */ import_react7.default.createElement("div", {
-                        key: item.id,
-                        className: "aspect-square rounded-lg overflow-hidden border-2 border-[#5A7C6F]"
-                    }, /* @__PURE__ */ import_react7.default.createElement("img", {
-                        src: item.imageUrl,
-                        alt: "Uploaded item",
-                        className: "w-full h-full object-cover"
-                    }));
-                })));
-            case 3:
-                return /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "space-y-6"
-                }, uploadedItems.map(function(item) {
-                    return /* @__PURE__ */ import_react7.default.createElement("div", {
-                        key: item.id,
-                        className: "flex gap-4 p-4 bg-[#F8FAF9] rounded-xl"
-                    }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                        className: "w-32 h-32 rounded-lg overflow-hidden flex-shrink-0"
-                    }, /* @__PURE__ */ import_react7.default.createElement("img", {
-                        src: item.imageUrl,
-                        alt: "Item",
-                        className: "w-full h-full object-cover"
-                    })), /* @__PURE__ */ import_react7.default.createElement("div", {
-                        className: "flex-grow"
-                    }, /* @__PURE__ */ import_react7.default.createElement(FormInput, {
-                        label: "Item Description",
-                        placeholder: "Describe the item, including condition and any relevant details",
-                        value: item.description || "",
-                        onChange: function(value) {
-                            return handleItemDescription(item.id, value);
-                        }
-                    })));
-                }));
-            case 4:
-                return /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "space-y-6"
-                }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "bg-[#F8FAF9] rounded-xl p-4"
-                }, /* @__PURE__ */ import_react7.default.createElement("h3", {
-                    className: "font-rockwell text-lg text-[#4B7163] mb-4"
-                }, "Available Pickup Times"), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "grid grid-cols-2 gap-4"
-                }, [
-                    "Monday AM",
-                    "Monday PM",
-                    "Tuesday AM",
-                    "Tuesday PM",
-                    "Wednesday AM",
-                    "Wednesday PM",
-                    "Thursday AM",
-                    "Thursday PM",
-                    "Friday AM",
-                    "Friday PM"
-                ].map(function(time) {
-                    return /* @__PURE__ */ import_react7.default.createElement("button", {
-                        key: time,
-                        onClick: function() {
-                            return handleTimeSelection(time);
-                        },
-                        className: cn("p-3 rounded-lg border-2 font-sourceSans transition-colors", availableTimes.includes(time) ? "border-[#6AB098] bg-[#6AB098] text-white" : "border-[#5A7C6F] text-[#5A7C6F] hover:bg-[#F0F4F2]")
-                    }, time);
-                }))));
-            case 5:
-                return /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "space-y-6"
-                }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "bg-[#F8FAF9] rounded-xl p-4"
-                }, /* @__PURE__ */ import_react7.default.createElement(PlacesAutocomplete, {
-                    value: address,
-                    onChange: setAddress,
-                    onSelect: /*#__PURE__*/ function() {
-                        var _ref = _async_to_generator(function(address2) {
-                            return _ts_generator(this, function(_state) {
-                                setAddress(address2);
-                                return [
-                                    2
-                                ];
-                            });
-                        });
-                        return function(address2) {
-                            return _ref.apply(this, arguments);
-                        };
-                    }()
-                }), /* @__PURE__ */ import_react7.default.createElement("p", {
-                    className: "mt-2 text-sm text-[#5A7C6F] flex items-center gap-2"
-                }, /* @__PURE__ */ import_react7.default.createElement(import_lucide_react6.Info, {
-                    className: "h-4 w-4"
-                }), "Please ensure the address is accurate and items will be accessible at this location")), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4"
-                }, /* @__PURE__ */ import_react7.default.createElement("h3", {
-                    className: "font-rockwell text-lg text-[#4B7163] mb-4"
-                }, "Final Confirmation"), /* @__PURE__ */ import_react7.default.createElement("label", {
-                    className: "flex items-start gap-3 cursor-pointer"
-                }, /* @__PURE__ */ import_react7.default.createElement("input", {
-                    type: "checkbox",
-                    checked: confirmations.ownership,
-                    onChange: function(e) {
-                        return setConfirmations(function(prev) {
-                            return _object_spread_props(_object_spread({}, prev), {
-                                ownership: e.target.checked
-                            });
-                        });
-                    },
-                    className: "mt-1"
-                }), /* @__PURE__ */ import_react7.default.createElement("span", {
-                    className: "text-sm text-[#5A7C6F]"
-                }, "I confirm I own this item or have permission to request service for it")), /* @__PURE__ */ import_react7.default.createElement("label", {
-                    className: "flex items-start gap-3 cursor-pointer"
-                }, /* @__PURE__ */ import_react7.default.createElement("input", {
-                    type: "checkbox",
-                    checked: confirmations.address,
-                    onChange: function(e) {
-                        return setConfirmations(function(prev) {
-                            return _object_spread_props(_object_spread({}, prev), {
-                                address: e.target.checked
-                            });
-                        });
-                    },
-                    className: "mt-1"
-                }), /* @__PURE__ */ import_react7.default.createElement("span", {
-                    className: "text-sm text-[#5A7C6F]"
-                }, "I confirm the address provided is correct and I can receive services there")), /* @__PURE__ */ import_react7.default.createElement("label", {
-                    className: "flex items-start gap-3 cursor-pointer"
-                }, /* @__PURE__ */ import_react7.default.createElement("input", {
-                    type: "checkbox",
-                    checked: confirmations.terms,
-                    onChange: function(e) {
-                        return setConfirmations(function(prev) {
-                            return _object_spread_props(_object_spread({}, prev), {
-                                terms: e.target.checked
-                            });
-                        });
-                    },
-                    className: "mt-1"
-                }), /* @__PURE__ */ import_react7.default.createElement("span", {
-                    className: "text-sm text-[#5A7C6F]"
-                }, "I accept the", " ", /* @__PURE__ */ import_react7.default.createElement("button", {
-                    onClick: function() {
-                        return setShowTerms(true);
-                    },
-                    className: "text-[#6AB098] underline hover:text-[#4B7163]"
-                }, "Terms of Service")))), showTerms && /* @__PURE__ */ import_react7.default.createElement(Modal, {
-                    onClose: function() {
-                        return setShowTerms(false);
-                    }
-                }, /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "p-6"
-                }, /* @__PURE__ */ import_react7.default.createElement("h2", {
-                    className: "font-rockwell text-2xl text-[#4B7163] mb-4"
-                }, "Terms of Service"), /* @__PURE__ */ import_react7.default.createElement("div", {
-                    className: "prose prose-sm max-w-none"
-                }))));
-            default:
-                return null;
-        }
-    };
-    var canProceed = function() {
-        switch(currentStep){
-            case 1:
-                return contactInfo.fullName.trim().length > 0 && contactInfo.contact.trim().length > 0;
-            case 2:
-                return uploadedItems.length > 0;
-            case 3:
-                return true;
-            case 4:
-                return availableTimes.length > 0;
-            case 5:
-                return address.trim().length > 0 && confirmations.ownership && confirmations.address && confirmations.terms;
-            default:
-                return false;
-        }
-    };
-    var handleNext = function() {
-        if (currentStep === 5) {
-            onSubmit({
-                fullName: contactInfo.fullName,
-                contact: contactInfo.contact,
-                items: uploadedItems,
-                availableTimes: availableTimes,
-                address: address
-            });
-        } else {
-            setCurrentStep(function(prev) {
-                return prev + 1;
-            });
-        }
-    };
-    return /* @__PURE__ */ import_react7.default.createElement("div", {
-        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8", className)
-    }, /* @__PURE__ */ import_react7.default.createElement("div", {
-        className: "mb-8"
-    }, /* @__PURE__ */ import_react7.default.createElement(Progress, {
-        steps: steps,
-        currentStep: currentStep
-    })), /* @__PURE__ */ import_react7.default.createElement("div", {
-        className: "mb-8"
-    }, /* @__PURE__ */ import_react7.default.createElement("h2", {
-        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
-    }, steps[currentStep - 1]), renderStepContent()), /* @__PURE__ */ import_react7.default.createElement("div", {
-        className: "flex justify-between"
-    }, currentStep > 1 && /* @__PURE__ */ import_react7.default.createElement(CustomButton, {
-        variant: "secondary",
-        onClick: function() {
-            return setCurrentStep(function(prev) {
-                return prev - 1;
-            });
-        },
-        className: "flex items-center gap-2"
-    }, /* @__PURE__ */ import_react7.default.createElement(import_lucide_react6.ChevronLeft, {
-        className: "h-4 w-4"
-    }), "Back"), /* @__PURE__ */ import_react7.default.createElement(CustomButton, {
-        onClick: handleNext,
-        disabled: !canProceed(),
-        className: "flex items-center gap-2 ml-auto"
-    }, currentStep === 5 ? "Submit Request" : "Continue", currentStep < 5 && /* @__PURE__ */ import_react7.default.createElement(import_lucide_react6.ChevronRight, {
-        className: "h-4 w-4"
-    }))));
-};
-// src/components/PickupRequestManager.tsx
-var import_react9 = __toESM(require("react"));
+        className: cn("w-full px-3 py-2", "pr-16", "rounded-[4px]", "border-2", "font-poppins text-base", "appearance-none", "focus:outline-none focus:ring-2 focus:ring-offset-1", styles.border, disabled && "bg-gray-50 cursor-not-allowed", className)
+    }, props), options.map(function(option) {
+        return /* @__PURE__ */ import_react4.default.createElement("option", {
+            key: option.value,
+            value: option.value
+        }, option.label);
+    })), /* @__PURE__ */ import_react4.default.createElement("div", {
+        className: "absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none"
+    }, styles.icon && /* @__PURE__ */ import_react4.default.createElement("div", {
+        className: cn("rounded-full w-4 h-4 mr-2", "flex items-center justify-center", styles.iconBg)
+    }, styles.icon), /* @__PURE__ */ import_react4.default.createElement(import_lucide_react2.ChevronDown, {
+        className: cn("h-5 w-5", styles.text)
+    }))), hint && /* @__PURE__ */ import_react4.default.createElement("p", {
+        className: cn("text-sm", styles.text)
+    }, hint));
+});
+FormDropdown.displayName = "FormDropdown";
 // src/components/SwipeCard.tsx
-var import_react8 = __toESM(require("react"));
+var import_react5 = __toESM(require("react"));
 var import_framer_motion = require("framer-motion");
-var import_lucide_react7 = require("lucide-react");
+var import_lucide_react3 = require("lucide-react");
 var SwipeCard = function(param) {
     var imageUrl = param.imageUrl, alt = param.alt, children = param.children, onSwipe = param.onSwipe, _param_isVisible = param.isVisible, isVisible = _param_isVisible === void 0 ? true : _param_isVisible;
-    var _ref = _sliced_to_array((0, import_react8.useState)(0), 2), exitX = _ref[0], setExitX = _ref[1];
+    var _ref = _sliced_to_array((0, import_react5.useState)(0), 2), exitX = _ref[0], setExitX = _ref[1];
     var x = (0, import_framer_motion.useMotionValue)(0);
     var rotate = (0, import_framer_motion.useTransform)(x, [
         -200,
@@ -1253,8 +687,8 @@ var SwipeCard = function(param) {
         }
     };
     if (!isVisible) return null;
-    return /* @__PURE__ */ import_react8.default.createElement(import_framer_motion.motion.div, {
-        className: "absolute w-full",
+    return /* @__PURE__ */ import_react5.default.createElement(import_framer_motion.motion.div, {
+        className: "absolute inset-0",
         style: {
             x: x,
             rotate: rotate,
@@ -1275,189 +709,437 @@ var SwipeCard = function(param) {
         initial: {
             x: 0
         }
-    }, /* @__PURE__ */ import_react8.default.createElement(import_framer_motion.motion.div, {
+    }, /* @__PURE__ */ import_react5.default.createElement(import_framer_motion.motion.div, {
         className: "absolute inset-0 bg-green-500/20 rounded-2xl z-10",
         style: {
             opacity: rightBgOpacity
         }
-    }, /* @__PURE__ */ import_react8.default.createElement("div", {
+    }, /* @__PURE__ */ import_react5.default.createElement("div", {
         className: "absolute top-1/2 right-8 transform -translate-y-1/2"
-    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react7.Check, {
+    }, /* @__PURE__ */ import_react5.default.createElement(import_lucide_react3.Check, {
         className: "w-12 h-12 text-green-500"
-    }))), /* @__PURE__ */ import_react8.default.createElement(import_framer_motion.motion.div, {
+    }))), /* @__PURE__ */ import_react5.default.createElement(import_framer_motion.motion.div, {
         className: "absolute inset-0 bg-red-500/20 rounded-2xl z-10",
         style: {
             opacity: leftBgOpacity
         }
-    }, /* @__PURE__ */ import_react8.default.createElement("div", {
+    }, /* @__PURE__ */ import_react5.default.createElement("div", {
         className: "absolute top-1/2 left-8 transform -translate-y-1/2"
-    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react7.X, {
+    }, /* @__PURE__ */ import_react5.default.createElement(import_lucide_react3.X, {
         className: "w-12 h-12 text-red-500"
-    }))), /* @__PURE__ */ import_react8.default.createElement("div", {
-        className: "bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col items-center"
-    }, /* @__PURE__ */ import_react8.default.createElement("div", {
-        className: "w-[250px] h-[250px] rounded-2xl overflow-hidden mb-4"
-    }, /* @__PURE__ */ import_react8.default.createElement("img", {
+    }))), /* @__PURE__ */ import_react5.default.createElement("div", {
+        className: "absolute inset-0 bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col"
+    }, /* @__PURE__ */ import_react5.default.createElement("div", {
+        className: "relative w-full h-3/5 rounded-2xl overflow-hidden mb-4"
+    }, /* @__PURE__ */ import_react5.default.createElement("img", {
         src: imageUrl,
         alt: alt,
         className: "w-full h-full object-cover"
-    })), /* @__PURE__ */ import_react8.default.createElement("div", {
-        className: "w-full"
+    })), /* @__PURE__ */ import_react5.default.createElement("div", {
+        className: "flex-1 overflow-auto"
     }, children)));
 };
-// src/components/PickupRequestManager.tsx
-var import_lucide_react8 = require("lucide-react");
-var PickupRequestManager = function(param) {
-    var requests = param.requests, onAcceptItem = param.onAcceptItem, onRejectItem = param.onRejectItem, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, className = param.className;
-    var _ref = _sliced_to_array((0, import_react9.useState)(0), 2), currentRequestIndex = _ref[0], setCurrentRequestIndex = _ref[1];
-    var _ref1 = _sliced_to_array((0, import_react9.useState)(requests[currentRequestIndex].items), 2), items = _ref1[0], setItems = _ref1[1];
-    var _ref2 = _sliced_to_array((0, import_react9.useState)(""), 2), newMessage = _ref2[0], setNewMessage = _ref2[1];
-    var _ref3 = _sliced_to_array((0, import_react9.useState)(false), 2), isMessagesExpanded = _ref3[0], setIsMessagesExpanded = _ref3[1];
-    var unreadCount = requests[currentRequestIndex].messages.filter(function(msg) {
-        return !msg.isRead;
-    }).length;
-    var lastMessage = requests[currentRequestIndex].messages[requests[currentRequestIndex].messages.length - 1];
-    var lastMessageTime = lastMessage ? new Intl.RelativeTimeFormat("en").format(Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1e3 * 60 * 60 * 24)), "days") : null;
-    var handleSwipe = function(direction, item) {
-        if (direction === "right") {
-            onAcceptItem(requests[currentRequestIndex].id, item.id);
-        } else {
-            onRejectItem(requests[currentRequestIndex].id, item.id);
-        }
-        setItems(function(prevItems) {
-            return prevItems.filter(function(i) {
-                return i.id !== item.id;
-            });
-        });
-    };
-    var handleExpand = function() {
-        setIsMessagesExpanded(!isMessagesExpanded);
-        if (!isMessagesExpanded && onMessageRead) {
-            requests[currentRequestIndex].messages.forEach(function(msg) {
-                if (!msg.isRead) onMessageRead(requests[currentRequestIndex].id, msg.id);
-            });
-        }
-    };
-    var totalRequests = requests.length;
-    return /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "max-w-4xl mx-auto space-y-8"
-    }, /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "flex justify-between items-center px-4"
-    }, /* @__PURE__ */ import_react9.default.createElement(CustomButton, {
-        onClick: function() {
-            return setCurrentRequestIndex(function(prev) {
-                return Math.max(0, prev - 1);
-            });
-        },
-        disabled: currentRequestIndex === 0,
-        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
-    }, "<"), /* @__PURE__ */ import_react9.default.createElement("h2", {
-        className: "font-rockwell text-2xl text-[#4B7163]"
-    }, currentRequestIndex + 1, " of ", totalRequests), /* @__PURE__ */ import_react9.default.createElement(CustomButton, {
-        onClick: function() {
-            return setCurrentRequestIndex(function(prev) {
-                return Math.min(totalRequests - 1, prev + 1);
-            });
-        },
-        disabled: currentRequestIndex === totalRequests - 1,
-        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
-    }, ">")), /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
-    }, /* @__PURE__ */ import_react9.default.createElement("h3", {
-        className: "font-rockwell text-xl text-[#4B7163] mb-4"
-    }, "Items to Review (", requests[currentRequestIndex].items.length, ")"), /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "relative h-[500px]"
-    }, requests[currentRequestIndex].items.map(function(item, index) {
-        return /* @__PURE__ */ import_react9.default.createElement(SwipeCard, {
-            key: item.id,
-            imageUrl: item.imageUrl,
-            alt: item.title || "Pickup request item",
-            isVisible: index === requests[currentRequestIndex].items.length - 1,
-            onSwipe: function(direction) {
-                return handleSwipe(direction, item);
-            }
-        }, /* @__PURE__ */ import_react9.default.createElement("div", {
-            className: "space-y-4"
-        }, /* @__PURE__ */ import_react9.default.createElement("p", {
-            className: "font-sourceSans text-gray-600"
-        }, item.description), /* @__PURE__ */ import_react9.default.createElement("div", {
-            className: "space-y-2"
-        }, /* @__PURE__ */ import_react9.default.createElement("div", {
-            className: "flex items-center gap-2 text-[#5A7C6F]"
-        }, /* @__PURE__ */ import_react9.default.createElement(import_lucide_react8.MapPin, {
-            className: "h-4 w-4"
-        }), /* @__PURE__ */ import_react9.default.createElement("span", {
-            className: "text-sm"
-        }, item.location)), /* @__PURE__ */ import_react9.default.createElement("div", {
-            className: "flex items-center gap-2 text-[#5A7C6F]"
-        }, /* @__PURE__ */ import_react9.default.createElement(import_lucide_react8.Calendar, {
-            className: "h-4 w-4"
-        }), /* @__PURE__ */ import_react9.default.createElement("span", {
-            className: "text-sm"
-        }, "Available: ", item.availableDates.join(", "))))));
-    }), /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "absolute bottom-0 left-0 right-0 flex justify-center gap-8 pb-4 text-sm text-gray-500"
-    }, /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "flex items-center gap-1"
-    }, /* @__PURE__ */ import_react9.default.createElement(import_lucide_react8.X, {
-        className: "h-4 w-4 text-red-500"
-    }), " Swipe left to reject"), /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "flex items-center gap-1"
-    }, /* @__PURE__ */ import_react9.default.createElement(import_lucide_react8.Check, {
-        className: "h-4 w-4 text-green-500"
-    }), " Swipe right to accept")))), /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", className)
-    }, /* @__PURE__ */ import_react9.default.createElement("button", {
-        onClick: handleExpand,
-        className: "w-full flex items-center justify-between p-3 rounded-lg hover:bg-[#F8FAF9]"
-    }, /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "flex items-center gap-3"
-    }, /* @__PURE__ */ import_react9.default.createElement(import_lucide_react8.MessageCircle, {
-        className: "h-5 w-5 text-[#4B7163]"
-    }), /* @__PURE__ */ import_react9.default.createElement("span", {
-        className: "font-medium text-[#4B7163]"
-    }, "Messages"), unreadCount > 0 && /* @__PURE__ */ import_react9.default.createElement("span", {
-        className: "bg-[#6AB098] text-white text-sm px-2 py-1 rounded-full"
-    }, unreadCount, " new")), lastMessage && /* @__PURE__ */ import_react9.default.createElement("span", {
-        className: "text-sm text-gray-500"
-    }, "Last message ", lastMessageTime)), isMessagesExpanded && /* @__PURE__ */ import_react9.default.createElement("div", {
-        className: "mt-4 space-y-4"
-    }, requests[currentRequestIndex].messages.map(function(message) {
-        return /* @__PURE__ */ import_react9.default.createElement("div", {
-            key: message.id,
-            className: cn("p-4 rounded-lg", message.sender === "admin" ? "bg-[#F8FAF9] ml-8" : "bg-[#E8F0ED] mr-8")
-        }, /* @__PURE__ */ import_react9.default.createElement("p", {
-            className: "text-[#4B7163]"
-        }, message.content), /* @__PURE__ */ import_react9.default.createElement("span", {
-            className: "text-sm text-gray-500 mt-2 block"
-        }, message.timestamp.toLocaleString()));
-    }), /* @__PURE__ */ import_react9.default.createElement("form", {
-        onSubmit: function(e) {
-            e.preventDefault();
-            if (newMessage.trim()) {
-                onSendMessage(requests[currentRequestIndex].id, newMessage);
-                setNewMessage("");
-            }
-        },
-        className: "flex gap-2 mt-4"
-    }, /* @__PURE__ */ import_react9.default.createElement("input", {
-        type: "text",
-        value: newMessage,
-        onChange: function(e) {
-            return setNewMessage(e.target.value);
-        },
-        placeholder: "Type your message...",
-        className: "flex-1 p-2 border-2 border-[#4B7163] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AB098]"
-    }), /* @__PURE__ */ import_react9.default.createElement(CustomButton, {
-        type: "submit",
-        disabled: !newMessage.trim(),
-        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg hover:bg-[#3A5A4F]"
-    }, "Send")))));
+// src/components/MapModal.tsx
+var import_react7 = __toESM(require("react"));
+// src/components/Modal.tsx
+var import_react6 = __toESM(require("react"));
+var import_lucide_react4 = require("lucide-react");
+var Modal = function(param) {
+    var children = param.children, onClose = param.onClose, className = param.className;
+    return /* @__PURE__ */ import_react6.default.createElement("div", {
+        className: "fixed inset-0 z-50 flex items-center justify-center"
+    }, /* @__PURE__ */ import_react6.default.createElement("div", {
+        className: "absolute inset-0 bg-black/50",
+        onClick: onClose
+    }), /* @__PURE__ */ import_react6.default.createElement("div", {
+        className: cn("relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto", className)
+    }, /* @__PURE__ */ import_react6.default.createElement("button", {
+        onClick: onClose,
+        className: "absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+    }, /* @__PURE__ */ import_react6.default.createElement(import_lucide_react4.X, {
+        className: "h-6 w-6"
+    })), children));
 };
-// src/components/ProductCard.tsx
-var import_react11 = __toESM(require("react"));
-// src/components/Tag.tsx
+// src/components/MapModal.tsx
+var import_lucide_react5 = require("lucide-react");
+var MapModal = function(param) {
+    var address = param.address, onClose = param.onClose;
+    var encodedAddress = encodeURIComponent(address);
+    var mapUrl = "https://www.google.com/maps/embed/v1/place?key=".concat(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, "&q=").concat(encodedAddress);
+    var directionsUrl = "https://www.google.com/maps/dir/?api=1&destination=".concat(encodedAddress);
+    var openInGoogleMaps = function() {
+        window.open(directionsUrl, "_blank");
+    };
+    return /* @__PURE__ */ import_react7.default.createElement(Modal, {
+        onClose: onClose
+    }, /* @__PURE__ */ import_react7.default.createElement("div", {
+        className: "p-6"
+    }, /* @__PURE__ */ import_react7.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-4"
+    }, "Pickup Location"), /* @__PURE__ */ import_react7.default.createElement("div", {
+        className: "mb-6"
+    }, /* @__PURE__ */ import_react7.default.createElement("div", {
+        className: "flex items-center gap-2 text-[#5A7C6F] mb-4"
+    }, /* @__PURE__ */ import_react7.default.createElement(import_lucide_react5.MapPin, {
+        className: "h-4 w-4 flex-shrink-0"
+    }), /* @__PURE__ */ import_react7.default.createElement("p", null, address)), /* @__PURE__ */ import_react7.default.createElement("div", {
+        className: "relative w-full h-[300px] rounded-xl overflow-hidden mb-4 border-2 border-[#4B7163]"
+    }, /* @__PURE__ */ import_react7.default.createElement("iframe", {
+        width: "100%",
+        height: "100%",
+        style: {
+            border: 0
+        },
+        loading: "lazy",
+        src: mapUrl,
+        allowFullScreen: true
+    })), /* @__PURE__ */ import_react7.default.createElement(CustomButton, {
+        onClick: openInGoogleMaps,
+        className: "w-full flex items-center justify-center gap-2"
+    }, /* @__PURE__ */ import_react7.default.createElement(import_lucide_react5.Navigation, {
+        className: "w-4 h-4"
+    }), "Get Directions")), /* @__PURE__ */ import_react7.default.createElement("p", {
+        className: "text-sm text-[#5A7C6F]"
+    }, "Opening directions will use your current location as the starting point")));
+};
+// src/components/AcceptedRequestManager.tsx
+var AcceptedRequestManager = function(param) {
+    var _param_requests = param.requests, requests = _param_requests === void 0 ? [] : _param_requests, onUpdateItemStatus = param.onUpdateItemStatus, onAddPhoto = param.onAddPhoto, onReschedule = param.onReschedule, onCompletePickup = param.onCompletePickup, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, _param_availableDates = param.availableDates, availableDates = _param_availableDates === void 0 ? [] : _param_availableDates, className = param.className;
+    var _ref = _sliced_to_array((0, import_react8.useState)(null), 2), selectedRequest = _ref[0], setSelectedRequest = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react8.useState)(null), 2), selectedDate = _ref1[0], setSelectedDate = _ref1[1];
+    var _ref2 = _sliced_to_array((0, import_react8.useState)(false), 2), isMessagesExpanded = _ref2[0], setIsMessagesExpanded = _ref2[1];
+    var _ref3 = _sliced_to_array((0, import_react8.useState)(false), 2), isMapModalOpen = _ref3[0], setIsMapModalOpen = _ref3[1];
+    var filteredRequests = (requests || []).sort(function(a, b) {
+        return new Date(a.pickupDate || "").getTime() - new Date(b.pickupDate || "").getTime();
+    }).filter(function(request) {
+        return !selectedDate || request.pickupDate === selectedDate;
+    });
+    if (!selectedRequest) {
+        return /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", "flex flex-col", className)
+        }, /* @__PURE__ */ import_react8.default.createElement("h2", {
+            className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+        }, "Pickups (", filteredRequests.length, ")"), /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "mb-4"
+        }, /* @__PURE__ */ import_react8.default.createElement(FormDropdown, {
+            label: "Filter by Date",
+            value: selectedDate || "",
+            onChange: function(value) {
+                return setSelectedDate(value || null);
+            },
+            options: [
+                {
+                    value: "",
+                    label: "All Dates"
+                }
+            ].concat(_to_consumable_array((availableDates || []).map(function(date) {
+                return {
+                    value: date,
+                    label: new Date(date).toLocaleDateString()
+                };
+            })))
+        })), /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "space-y-4"
+        }, filteredRequests.map(function(request) {
+            return /* @__PURE__ */ import_react8.default.createElement("div", {
+                key: request.id,
+                onClick: function() {
+                    return setSelectedRequest(request);
+                },
+                className: "flex items-center gap-4 p-4 rounded-xl bg-[#F8FAF9] hover:bg-[#F0F4F2] cursor-pointer transition-colors"
+            }, /* @__PURE__ */ import_react8.default.createElement("div", {
+                className: "flex-grow"
+            }, /* @__PURE__ */ import_react8.default.createElement("h3", {
+                className: "font-rockwell text-lg text-[#4B7163]"
+            }, request.customerName), /* @__PURE__ */ import_react8.default.createElement("div", {
+                className: "flex items-center gap-2 text-sm text-[#5A7C6F] mt-1"
+            }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.MapPin, {
+                className: "h-4 w-4"
+            }), /* @__PURE__ */ import_react8.default.createElement("span", null, request.address)), /* @__PURE__ */ import_react8.default.createElement("div", {
+                className: "flex items-center gap-2 text-sm text-[#5A7C6F] mt-1"
+            }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.Calendar, {
+                className: "h-4 w-4"
+            }), /* @__PURE__ */ import_react8.default.createElement("span", null, request.pickupDate ? new Date(request.pickupDate).toLocaleDateString() : "No date set"))), /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.ChevronRight, {
+                className: "h-6 w-6 text-[#5A7C6F]"
+            }));
+        })));
+    }
+    return /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: cn("max-w-4xl mx-auto", className)
+    }, /* @__PURE__ */ import_react8.default.createElement(CustomButton, {
+        variant: "secondary",
+        onClick: function() {
+            return setSelectedRequest(null);
+        },
+        className: "mb-4"
+    }, "\u2190 Back to List"), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6 space-y-6"
+    }, /* @__PURE__ */ import_react8.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-4"
+    }, "Pickup Details"), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "mb-6"
+    }, /* @__PURE__ */ import_react8.default.createElement("h3", {
+        className: "font-rockwell text-lg text-[#4B7163] mb-2"
+    }, "Customer Information"), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "bg-[#F8FAF9] p-4 rounded-xl"
+    }, /* @__PURE__ */ import_react8.default.createElement("p", {
+        className: "text-[#5A7C6F] mb-2"
+    }, /* @__PURE__ */ import_react8.default.createElement("strong", null, "Name:"), " ", selectedRequest.customerName), /* @__PURE__ */ import_react8.default.createElement("p", {
+        className: "text-[#5A7C6F] mb-2"
+    }, /* @__PURE__ */ import_react8.default.createElement("strong", null, "Contact:"), " ", selectedRequest.email || selectedRequest.phone), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex items-center gap-2 text-[#5A7C6F] cursor-pointer hover:text-[#4B7163] transition-colors",
+        onClick: function() {
+            return setIsMapModalOpen(true);
+        }
+    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.MapPin, {
+        className: "h-4 w-4"
+    }), /* @__PURE__ */ import_react8.default.createElement("p", {
+        className: "underline"
+    }, selectedRequest.address)), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex items-center gap-2 text-[#5A7C6F] mt-2"
+    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.Calendar, {
+        className: "h-4 w-4"
+    }), /* @__PURE__ */ import_react8.default.createElement("p", null, new Date(selectedRequest.pickupDate || "").toLocaleDateString())))), isMapModalOpen && /* @__PURE__ */ import_react8.default.createElement(MapModal, {
+        address: selectedRequest.address,
+        onClose: function() {
+            return setIsMapModalOpen(false);
+        }
+    }), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex flex-col gap-4"
+    }, /* @__PURE__ */ import_react8.default.createElement("h3", {
+        className: "font-rockwell text-lg text-[#4B7163] mb-2"
+    }, "Items"), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "grid grid-cols-1 gap-8 mb-4"
+    }, selectedRequest.items.map(function(item) {
+        var _item_photos;
+        return /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "aspect-[16/9] w-full relative",
+            key: item.id
+        }, /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "absolute inset-0 -mx-8"
+        }, /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "relative h-full mx-8"
+        }, /* @__PURE__ */ import_react8.default.createElement(SwipeCard, {
+            imageUrl: ((_item_photos = item.photos) === null || _item_photos === void 0 ? void 0 : _item_photos[0]) || "",
+            alt: item.name,
+            onSwipe: function(direction) {
+                onUpdateItemStatus(selectedRequest.id, item.id, direction === "right" ? "verified" : "incorrect");
+            }
+        }, /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "bg-[#F8FAF9] p-4 rounded-xl"
+        }, /* @__PURE__ */ import_react8.default.createElement("h4", {
+            className: "font-semibold text-[#4B7163] mb-2"
+        }, item.name), /* @__PURE__ */ import_react8.default.createElement("p", {
+            className: "text-sm text-[#5A7C6F] mb-2"
+        }, item.description), /* @__PURE__ */ import_react8.default.createElement("div", {
+            className: "flex items-center gap-2"
+        }, /* @__PURE__ */ import_react8.default.createElement("span", {
+            className: cn("px-2 py-1 rounded-full text-xs", item.status === "verified" && "bg-green-100 text-green-800", item.status === "incorrect" && "bg-red-100 text-red-800", item.status === "pending" && "bg-yellow-100 text-yellow-800")
+        }, item.status.charAt(0).toUpperCase() + item.status.slice(1))))))));
+    })), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex justify-center gap-8 text-sm text-gray-500 mt-2"
+    }, /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex items-center gap-1"
+    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.X, {
+        className: "h-4 w-4 text-red-500"
+    }), " Swipe left if not picking up item"), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "flex items-center gap-1"
+    }, /* @__PURE__ */ import_react8.default.createElement(import_lucide_react6.Check, {
+        className: "h-4 w-4 text-green-500"
+    }), " Swipe right if you have picked up the item"))), /* @__PURE__ */ import_react8.default.createElement("div", {
+        className: "mt-6"
+    }, /* @__PURE__ */ import_react8.default.createElement(MessageThread, {
+        messages: selectedRequest.messages,
+        onSendMessage: function(message) {
+            return onSendMessage(selectedRequest.id, message);
+        },
+        onMessageRead: function(messageId) {
+            return onMessageRead === null || onMessageRead === void 0 ? void 0 : onMessageRead(selectedRequest.id, messageId);
+        }
+    }))));
+};
+// src/components/button.tsx
+var React10 = __toESM(require("react"));
+var import_react_slot = require("@radix-ui/react-slot");
+var import_class_variance_authority2 = require("class-variance-authority");
+var buttonVariants2 = (0, import_class_variance_authority2.cva)("inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", {
+    variants: {
+        variant: {
+            default: "bg-primary text-primary-foreground hover:bg-primary/90",
+            destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+            outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+            secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+            ghost: "hover:bg-accent hover:text-accent-foreground",
+            link: "text-primary underline-offset-4 hover:underline"
+        },
+        size: {
+            default: "h-10 px-4 py-2",
+            sm: "h-9 rounded-md px-3",
+            lg: "h-11 rounded-md px-8",
+            icon: "h-10 w-10"
+        }
+    },
+    defaultVariants: {
+        variant: "default",
+        size: "default"
+    }
+});
+var Button = React10.forwardRef(function(_param, ref) {
+    var className = _param.className, variant = _param.variant, size = _param.size, _param_asChild = _param.asChild, asChild = _param_asChild === void 0 ? false : _param_asChild, props = _object_without_properties(_param, [
+        "className",
+        "variant",
+        "size",
+        "asChild"
+    ]);
+    var Comp = asChild ? import_react_slot.Slot : "button";
+    return /* @__PURE__ */ React10.createElement(Comp, _object_spread({
+        className: cn(buttonVariants2({
+            variant: variant,
+            size: size,
+            className: className
+        })),
+        ref: ref
+    }, props));
+});
+Button.displayName = "Button";
+// src/components/Card.tsx
+var import_react9 = __toESM(require("react"));
+var Card = function(param) {
+    var imageUrl = param.imageUrl, alt = param.alt, children = param.children;
+    return /* @__PURE__ */ import_react9.default.createElement("div", {
+        className: "card-custom"
+    }, /* @__PURE__ */ import_react9.default.createElement("div", {
+        className: "card-custom-image"
+    }, /* @__PURE__ */ import_react9.default.createElement("img", {
+        src: imageUrl,
+        alt: alt,
+        className: "w-full h-full object-cover"
+    })), /* @__PURE__ */ import_react9.default.createElement("div", {
+        className: "w-full"
+    }, children));
+};
+// src/components/FormInput.tsx
 var import_react10 = __toESM(require("react"));
+var import_lucide_react7 = require("lucide-react");
+var stateStyles2 = {
+    normal: {
+        border: "border-[#5A7C6F]",
+        text: "text-[#5A7C6F]",
+        icon: null
+    },
+    completed: {
+        border: "border-[#5A7C6F]",
+        text: "text-[#5A7C6F]",
+        icon: /* @__PURE__ */ import_react10.default.createElement(import_lucide_react7.Check, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-[#5A7C6F]"
+    },
+    error: {
+        border: "border-red-500",
+        text: "text-red-500",
+        icon: /* @__PURE__ */ import_react10.default.createElement(import_lucide_react7.X, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-red-500"
+    },
+    required: {
+        border: "border-[#109BD4]",
+        text: "text-[#5A7C6F]",
+        icon: null
+    },
+    blankRequired: {
+        border: "border-[#ED933F]",
+        text: "text-[#5A7C6F]",
+        icon: /* @__PURE__ */ import_react10.default.createElement(import_lucide_react7.AlertCircle, {
+            className: "h-3 w-3 text-white"
+        }),
+        iconBg: "bg-[#ED933F]"
+    },
+    disabled: {
+        border: "border-gray-300",
+        text: "text-gray-400",
+        icon: null
+    }
+};
+var FormInput = import_react10.default.forwardRef(function(_param, ref) {
+    var label = _param.label, hint = _param.hint, _param_state = _param.state, state = _param_state === void 0 ? "normal" : _param_state, className = _param.className, disabled = _param.disabled, value = _param.value, onChange = _param.onChange, placeholder = _param.placeholder, props = _object_without_properties(_param, [
+        "label",
+        "hint",
+        "state",
+        "className",
+        "disabled",
+        "value",
+        "onChange",
+        "placeholder"
+    ]);
+    var currentState = disabled ? "disabled" : state;
+    var styles = stateStyles2[currentState];
+    return /* @__PURE__ */ import_react10.default.createElement("div", {
+        className: "space-y-1.5"
+    }, /* @__PURE__ */ import_react10.default.createElement("label", {
+        className: cn("block text-sm font-medium uppercase", styles.text)
+    }, label), /* @__PURE__ */ import_react10.default.createElement("div", {
+        className: "relative"
+    }, /* @__PURE__ */ import_react10.default.createElement("input", _object_spread({
+        ref: ref,
+        disabled: disabled,
+        className: cn("w-full px-3 py-2", "rounded-[4px]", "border-2", "font-poppins text-base", "placeholder:text-[#5A7C6F]/60", "focus:outline-none focus:ring-2 focus:ring-offset-1", styles.border, disabled && "bg-gray-50 cursor-not-allowed", className),
+        value: value,
+        onChange: function(e) {
+            return onChange(e.target.value);
+        },
+        placeholder: placeholder
+    }, props)), styles.icon && /* @__PURE__ */ import_react10.default.createElement("div", {
+        className: cn("absolute right-3 top-1/2 -translate-y-1/2", "rounded-full w-4 h-4", "flex items-center justify-center", styles.iconBg)
+    }, styles.icon)), hint && /* @__PURE__ */ import_react10.default.createElement("p", {
+        className: cn("text-sm", styles.text)
+    }, hint));
+});
+FormInput.displayName = "FormInput";
+// src/components/ImageUpload.tsx
+var import_react11 = __toESM(require("react"));
+var import_lucide_react8 = require("lucide-react");
+var ImageUpload = function(param) {
+    var onUpload = param.onUpload, _param_maxFiles = param.maxFiles, maxFiles = _param_maxFiles === void 0 ? 5 : _param_maxFiles, className = param.className;
+    var handleFileUpload = function(event) {
+        var files = event.target.files;
+        if (files) {
+            var fileArray = Array.from(files).slice(0, maxFiles);
+            var photoUrls = fileArray.map(function(file) {
+                return URL.createObjectURL(file);
+            });
+            onUpload(photoUrls);
+        }
+    };
+    return /* @__PURE__ */ import_react11.default.createElement("div", {
+        className: cn("space-y-6", className)
+    }, /* @__PURE__ */ import_react11.default.createElement("div", {
+        className: "border-2 border-dashed border-[#5A7C6F] rounded-xl p-8 text-center"
+    }, /* @__PURE__ */ import_react11.default.createElement("input", {
+        type: "file",
+        id: "photo-upload",
+        multiple: true,
+        accept: "image/*",
+        className: "hidden",
+        onChange: handleFileUpload
+    }), /* @__PURE__ */ import_react11.default.createElement("label", {
+        htmlFor: "photo-upload",
+        className: "cursor-pointer space-y-4 block"
+    }, /* @__PURE__ */ import_react11.default.createElement(import_lucide_react8.Upload, {
+        className: "h-12 w-12 mx-auto text-[#5A7C6F]"
+    }), /* @__PURE__ */ import_react11.default.createElement("div", {
+        className: "font-sourceSans"
+    }, /* @__PURE__ */ import_react11.default.createElement("p", {
+        className: "text-lg font-semibold text-[#4B7163]"
+    }, "Drop photos here or click to upload"), /* @__PURE__ */ import_react11.default.createElement("p", {
+        className: "text-sm text-[#5A7C6F]"
+    }, "Upload clear photos (max ", maxFiles, " files)")))));
+};
+// src/components/InventoryItemProcessing.tsx
+var import_react13 = __toESM(require("react"));
+// src/components/Tag.tsx
+var import_react12 = __toESM(require("react"));
 var import_lucide_react9 = require("lucide-react");
 var variantStyles = {
     primary: {
@@ -1479,144 +1161,409 @@ var variantStyles = {
 var Tag = function(param) {
     var text = param.text, _param_variant = param.variant, variant = _param_variant === void 0 ? "primary" : _param_variant, onDelete = param.onDelete, className = param.className;
     var styles = variantStyles[variant];
-    return /* @__PURE__ */ import_react10.default.createElement("div", {
+    return /* @__PURE__ */ import_react12.default.createElement("div", {
         className: cn("inline-flex items-center", "h-7 pl-1 pr-3", "rounded-full", "font-poppins font-semibold text-sm", "bg-[#F8FAF9]", "border-2", "transition-all duration-200", styles.border, styles.text, className)
-    }, onDelete && /* @__PURE__ */ import_react10.default.createElement("div", {
+    }, onDelete && /* @__PURE__ */ import_react12.default.createElement("div", {
         className: "flex items-center"
-    }, /* @__PURE__ */ import_react10.default.createElement("button", {
+    }, /* @__PURE__ */ import_react12.default.createElement("button", {
         type: "button",
         onClick: onDelete,
         className: cn("flex items-center justify-center", "w-5 h-5 rounded-full mr-1", "transition-colors duration-200", styles.deleteButton, "focus:outline-none focus:ring-2 focus:ring-offset-1"),
         "aria-label": "Remove ".concat(text)
-    }, /* @__PURE__ */ import_react10.default.createElement(import_lucide_react9.X, {
+    }, /* @__PURE__ */ import_react12.default.createElement(import_lucide_react9.X, {
         className: "h-3 w-3 text-white"
-    }))), /* @__PURE__ */ import_react10.default.createElement("span", {
+    }))), /* @__PURE__ */ import_react12.default.createElement("span", {
         className: "truncate"
     }, text));
 };
-// src/components/ProductCard.tsx
+// src/components/InventoryItemProcessing.tsx
 var import_lucide_react10 = require("lucide-react");
-var ProductCard = function(param) {
-    var imageUrl = param.imageUrl, title = param.title, category = param.category, description = param.description, price = param.price, attributes = param.attributes, onAddToCart = param.onAddToCart, className = param.className;
-    return /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", "flex flex-col", className)
-    }, /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: "w-full h-[200px] rounded-xl overflow-hidden mb-6"
-    }, /* @__PURE__ */ import_react11.default.createElement("img", {
-        src: imageUrl,
-        alt: title,
-        className: "w-full h-full object-cover"
-    })), /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: "flex flex-col flex-grow"
-    }, /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: "flex-grow space-y-4"
-    }, /* @__PURE__ */ import_react11.default.createElement("div", null, /* @__PURE__ */ import_react11.default.createElement("span", {
-        className: "text-sm font-sourceSans text-[#5A7C6F] mb-1 block"
-    }, category), /* @__PURE__ */ import_react11.default.createElement("h3", {
-        className: "font-rockwell text-2xl text-[#4B7163]"
-    }, title)), /* @__PURE__ */ import_react11.default.createElement("p", {
-        className: "font-sourceSans text-gray-600 text-base"
-    }, description), /* @__PURE__ */ import_react11.default.createElement("div", {
+var InventoryItemProcessing = function(param) {
+    var items = param.items, onUpdateDetails = param.onUpdateDetails, onUpdateStatus = param.onUpdateStatus, onSaveDraft = param.onSaveDraft, className = param.className;
+    var _formData_attributes;
+    var _ref = _sliced_to_array((0, import_react13.useState)(null), 2), selectedItem = _ref[0], setSelectedItem = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react13.useState)([]), 2), processingPhotos = _ref1[0], setProcessingPhotos = _ref1[1];
+    var _ref2 = _sliced_to_array((0, import_react13.useState)({
+        title: "",
+        description: "",
+        condition: "",
+        dimensions: {
+            length: 0,
+            width: 0,
+            height: 0
+        },
+        materials: [],
+        attributes: [],
+        estimatedValue: 0,
+        category: "",
+        tags: [],
+        features: "",
+        defects: "",
+        storageLocation: ""
+    }), 2), formData = _ref2[0], setFormData = _ref2[1];
+    var _ref3 = _sliced_to_array((0, import_react13.useState)(""), 2), newAttribute = _ref3[0], setNewAttribute = _ref3[1];
+    var handleSubmit = function() {
+        if (!selectedItem || !isFormValid()) return;
+        var details = _object_spread_props(_object_spread({}, formData), {
+            processingPhotos: processingPhotos
+        });
+        onUpdateDetails(selectedItem.id, details);
+        onUpdateStatus(selectedItem.id, "ready_for_sale");
+        resetForm();
+    };
+    var handleSaveDraft = function() {
+        if (!selectedItem) return;
+        onSaveDraft(selectedItem.id, _object_spread_props(_object_spread({}, formData), {
+            processingPhotos: processingPhotos
+        }));
+    };
+    var isFormValid = function() {
+        return formData.title && formData.description && formData.condition && formData.category && formData.storageLocation && processingPhotos.length > 0;
+    };
+    var resetForm = function() {
+        setSelectedItem(null);
+        setProcessingPhotos([]);
+        setFormData({});
+    };
+    var handleAddAttribute = function() {
+        if (newAttribute.trim()) {
+            setFormData(function(prev) {
+                return _object_spread_props(_object_spread({}, prev), {
+                    attributes: _to_consumable_array(prev.attributes || []).concat([
+                        newAttribute.trim()
+                    ])
+                });
+            });
+            setNewAttribute("");
+        }
+    };
+    if (!selectedItem) {
+        return /* @__PURE__ */ import_react13.default.createElement("div", {
+            className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", className)
+        }, /* @__PURE__ */ import_react13.default.createElement("h2", {
+            className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+        }, "Items Pending Processing (", items.length, ")"), /* @__PURE__ */ import_react13.default.createElement("div", {
+            className: "space-y-4"
+        }, items.map(function(item) {
+            return /* @__PURE__ */ import_react13.default.createElement("div", {
+                key: item.id,
+                onClick: function() {
+                    return setSelectedItem(item);
+                },
+                className: "flex gap-4 p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+            }, /* @__PURE__ */ import_react13.default.createElement("img", {
+                src: item.pickupPhoto,
+                alt: "Item ".concat(item.productId),
+                className: "w-24 h-24 rounded-lg object-cover"
+            }), /* @__PURE__ */ import_react13.default.createElement("div", {
+                className: "flex-grow"
+            }, /* @__PURE__ */ import_react13.default.createElement("div", {
+                className: "flex justify-between items-start"
+            }, /* @__PURE__ */ import_react13.default.createElement("h3", {
+                className: "font-rockwell text-lg text-[#4B7163]"
+            }, "Product ID: ", item.productId), /* @__PURE__ */ import_react13.default.createElement("span", {
+                className: "text-sm text-gray-500"
+            }, "Received: ", new Date(item.receivedDate).toLocaleDateString())), /* @__PURE__ */ import_react13.default.createElement("p", {
+                className: "text-sm text-gray-600 mt-1"
+            }, item.pickupDescription), /* @__PURE__ */ import_react13.default.createElement("p", {
+                className: "text-sm text-gray-500 mt-2"
+            }, "From: ", item.customerName)));
+        })));
+    }
+    var _formData_title, _formData_description;
+    return /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: cn("space-y-6", className)
+    }, /* @__PURE__ */ import_react13.default.createElement(Card, {
+        imageUrl: selectedItem.pickupPhoto,
+        alt: "Original pickup photo"
+    }, /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "space-y-6"
+    }, /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "flex justify-between items-start"
+    }, /* @__PURE__ */ import_react13.default.createElement("h3", {
+        className: "font-rockwell text-lg text-[#4B7163]"
+    }, "Processing Item: ", selectedItem.productId), /* @__PURE__ */ import_react13.default.createElement(Tag, {
+        text: selectedItem.status,
+        variant: "primary"
+    })), /* @__PURE__ */ import_react13.default.createElement(ImageUpload, {
+        onUpload: setProcessingPhotos,
+        maxFiles: 5,
+        className: "mb-4"
+    }), /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "grid grid-cols-2 gap-4"
+    }, /* @__PURE__ */ import_react13.default.createElement(FormInput, {
+        label: "Title",
+        value: (_formData_title = formData.title) !== null && _formData_title !== void 0 ? _formData_title : "",
+        onChange: function(value) {
+            return setFormData(_object_spread_props(_object_spread({}, formData), {
+                title: value
+            }));
+        },
+        state: formData.title ? "completed" : "required"
+    }), /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "space-y-2"
+    }, /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "flex gap-2"
+    }, /* @__PURE__ */ import_react13.default.createElement(FormInput, {
+        label: "Add Attribute",
+        value: newAttribute,
+        onChange: setNewAttribute,
+        onKeyDown: function(e) {
+            return e.key === "Enter" && handleAddAttribute();
+        }
+    }), /* @__PURE__ */ import_react13.default.createElement(CustomButton, {
+        onClick: handleAddAttribute,
+        variant: "secondary",
+        className: "mt-6"
+    }, "Add")), /* @__PURE__ */ import_react13.default.createElement("div", {
         className: "flex flex-wrap gap-2"
-    }, attributes.map(function(attr, index) {
-        return /* @__PURE__ */ import_react11.default.createElement(Tag, {
+    }, (_formData_attributes = formData.attributes) === null || _formData_attributes === void 0 ? void 0 : _formData_attributes.map(function(attr, index) {
+        return /* @__PURE__ */ import_react13.default.createElement(Tag, {
             key: index,
             text: attr,
-            variant: "secondary"
+            onDelete: function() {
+                return setFormData(function(prev) {
+                    var _prev_attributes;
+                    return _object_spread_props(_object_spread({}, prev), {
+                        attributes: (_prev_attributes = prev.attributes) === null || _prev_attributes === void 0 ? void 0 : _prev_attributes.filter(function(_, i) {
+                            return i !== index;
+                        })
+                    });
+                });
+            }
         });
-    }))), /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: "flex items-center justify-between pt-6 mt-6 border-t border-gray-100"
-    }, /* @__PURE__ */ import_react11.default.createElement("div", {
-        className: "flex items-baseline gap-1"
-    }, /* @__PURE__ */ import_react11.default.createElement("span", {
-        className: "font-rockwell text-3xl text-[#4B7163]"
-    }, "$", price.toFixed(2)), /* @__PURE__ */ import_react11.default.createElement("span", {
-        className: "font-sourceSans text-sm text-gray-500"
-    }, "USD")), /* @__PURE__ */ import_react11.default.createElement(CustomButton, {
-        onClick: onAddToCart,
-        className: "flex items-center gap-2 px-6"
-    }, /* @__PURE__ */ import_react11.default.createElement(import_lucide_react10.ShoppingCart, {
+    })))), /* @__PURE__ */ import_react13.default.createElement(FormDropdown, {
+        label: "Category",
+        options: [
+            {
+                value: "furniture",
+                label: "Furniture"
+            },
+            {
+                value: "decor",
+                label: "Home Decor"
+            },
+            {
+                value: "lighting",
+                label: "Lighting"
+            }
+        ],
+        value: formData.category,
+        onChange: function(value) {
+            return setFormData(_object_spread_props(_object_spread({}, formData), {
+                category: value
+            }));
+        },
+        state: formData.category ? "completed" : "required"
+    }), /* @__PURE__ */ import_react13.default.createElement(FormInput, {
+        label: "Description",
+        value: (_formData_description = formData.description) !== null && _formData_description !== void 0 ? _formData_description : "",
+        onChange: function(value) {
+            return setFormData(_object_spread_props(_object_spread({}, formData), {
+                description: value
+            }));
+        },
+        state: formData.description ? "completed" : "required"
+    }), /* @__PURE__ */ import_react13.default.createElement("div", {
+        className: "flex justify-end gap-4 mt-6"
+    }, /* @__PURE__ */ import_react13.default.createElement(CustomButton, {
+        onClick: handleSaveDraft,
+        variant: "secondary",
+        className: "flex items-center gap-2"
+    }, /* @__PURE__ */ import_react13.default.createElement(import_lucide_react10.Save, {
         className: "h-4 w-4"
-    }), "Add to Cart"))));
+    }), "Save Draft"), /* @__PURE__ */ import_react13.default.createElement(CustomButton, {
+        onClick: handleSubmit,
+        variant: "cta",
+        disabled: !isFormValid(),
+        className: "flex items-center gap-2"
+    }, /* @__PURE__ */ import_react13.default.createElement(import_lucide_react10.Send, {
+        className: "h-4 w-4"
+    }), "Mark Ready for Sale")))));
 };
-// src/components/ShoppingCart.tsx
-var import_react12 = __toESM(require("react"));
+// src/components/InventoryProcessing.tsx
+var import_react14 = require("react");
+var InventoryProcessing = function(param) {
+    var request = param.request, onUpdateStatus = param.onUpdateStatus, onUpdateDetails = param.onUpdateDetails, onAddProcessingPhotos = param.onAddProcessingPhotos, onConfirmReceipt = param.onConfirmReceipt;
+    var _ref = _sliced_to_array((0, import_react14.useState)(""), 2), productId = _ref[0], setProductId = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react14.useState)(""), 2), description = _ref1[0], setDescription = _ref1[1];
+    var _ref2 = _sliced_to_array((0, import_react14.useState)([]), 2), processingPhotos = _ref2[0], setProcessingPhotos = _ref2[1];
+    var handleReceiving = function() {
+        if (!productId) return;
+        onUpdateStatus("in_inventory");
+        onUpdateDetails({
+            productId: productId
+        });
+        onConfirmReceipt();
+    };
+    var handleProcessing = function() {
+        if (!description || processingPhotos.length === 0) return;
+        onUpdateStatus("ready_for_sale");
+        onUpdateDetails({
+            description: description,
+            processingPhotos: processingPhotos
+        });
+    };
+    return /* @__PURE__ */ React.createElement("div", {
+        className: "space-y-6"
+    }, request.status === "completed" && /* @__PURE__ */ React.createElement(Card, {
+        imageUrl: request.pickupPhoto,
+        alt: "Original pickup photo"
+    }, /* @__PURE__ */ React.createElement("h3", {
+        className: "font-rockwell text-lg text-[#4B7163] mb-4"
+    }, "Receiving Stage"), /* @__PURE__ */ React.createElement(FormInput, {
+        label: "Product ID",
+        placeholder: "Enter Product ID",
+        value: productId,
+        onChange: setProductId,
+        state: productId ? "completed" : "required",
+        hint: "Enter a unique identifier for this item"
+    }), /* @__PURE__ */ React.createElement(CustomButton, {
+        variant: "cta",
+        onClick: handleReceiving,
+        disabled: !productId,
+        className: "mt-4"
+    }, "Confirm Receipt")), request.status === "in_inventory" && /* @__PURE__ */ React.createElement(Card, {
+        imageUrl: "",
+        alt: ""
+    }, /* @__PURE__ */ React.createElement("h3", {
+        className: "heading-3"
+    }, "Item Processing"), /* @__PURE__ */ React.createElement(ImageUpload, {
+        onUpload: setProcessingPhotos,
+        maxFiles: 5,
+        className: "mb-4"
+    }), /* @__PURE__ */ React.createElement(FormDropdown, {
+        label: "Item Category",
+        hint: "Select the primary category for this item",
+        state: "required",
+        options: [
+            {
+                value: "",
+                label: "Select a category"
+            },
+            {
+                value: "furniture",
+                label: "Furniture"
+            },
+            {
+                value: "decor",
+                label: "Home Decor"
+            },
+            {
+                value: "lighting",
+                label: "Lighting"
+            }
+        ]
+    }), /* @__PURE__ */ React.createElement(FormInput, {
+        label: "Item Description",
+        placeholder: "Enter full product description",
+        value: description,
+        onChange: setDescription,
+        state: description ? "completed" : "required",
+        hint: "Provide a detailed description of the item",
+        className: "mt-4"
+    }), /* @__PURE__ */ React.createElement(CustomButton, {
+        variant: "cta",
+        onClick: handleProcessing,
+        disabled: !description || processingPhotos.length === 0,
+        className: "mt-4"
+    }, "Mark Ready for Sale")));
+};
+// src/components/InventoryProcessingManager.tsx
+var import_react16 = __toESM(require("react"));
+// src/components/ProcessingQueue.tsx
+var import_react15 = __toESM(require("react"));
 var import_lucide_react11 = require("lucide-react");
-var ShoppingCart2 = function(param) {
-    var initialItems = param.items, onRemoveItem = param.onRemoveItem, onCheckout = param.onCheckout, className = param.className;
-    var _ref = _sliced_to_array((0, import_react12.useState)(initialItems), 2), items = _ref[0], setItems = _ref[1];
-    (0, import_react12.useEffect)(function() {
-        setItems(initialItems);
-    }, [
-        initialItems
-    ]);
-    var subtotal = items.reduce(function(sum, item) {
-        return sum + item.price;
-    }, 0);
-    var tax = subtotal * 0.0825;
-    var total = subtotal + tax;
-    return /* @__PURE__ */ import_react12.default.createElement("div", {
+var ProcessingQueue = function(param) {
+    var items = param.items, onSelectItem = param.onSelectItem, className = param.className;
+    return /* @__PURE__ */ import_react15.default.createElement("div", {
         className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", "flex flex-col", className)
-    }, /* @__PURE__ */ import_react12.default.createElement("h2", {
+    }, /* @__PURE__ */ import_react15.default.createElement("h2", {
         className: "font-rockwell text-2xl text-[#4B7163] mb-6"
-    }, "Shopping Cart (", items.length, " ", items.length === 1 ? "item" : "items", ")"), items.length === 0 ? /* @__PURE__ */ import_react12.default.createElement("div", {
+    }, "Items Awaiting Processing (", items.length, " ", items.length === 1 ? "item" : "items", ")"), items.length === 0 ? /* @__PURE__ */ import_react15.default.createElement("div", {
         className: "text-center py-8 text-gray-500 font-sourceSans"
-    }, "Your cart is empty") : /* @__PURE__ */ import_react12.default.createElement(import_react12.default.Fragment, null, /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "flex-grow space-y-6 mb-6"
+    }, "No items awaiting processing") : /* @__PURE__ */ import_react15.default.createElement("div", {
+        className: "flex-grow space-y-6"
     }, items.map(function(item) {
-        return /* @__PURE__ */ import_react12.default.createElement("div", {
+        return /* @__PURE__ */ import_react15.default.createElement("div", {
             key: item.id,
             className: "flex gap-4 pb-6 border-b border-gray-100 last:border-b-0"
-        }, /* @__PURE__ */ import_react12.default.createElement("div", {
+        }, /* @__PURE__ */ import_react15.default.createElement("div", {
             className: "w-24 h-24 rounded-lg overflow-hidden flex-shrink-0"
-        }, /* @__PURE__ */ import_react12.default.createElement("img", {
-            src: item.imageUrl,
-            alt: item.name,
+        }, /* @__PURE__ */ import_react15.default.createElement("img", {
+            src: item.pickupPhoto,
+            alt: "Item ".concat(item.productId),
             className: "w-full h-full object-cover"
-        })), /* @__PURE__ */ import_react12.default.createElement("div", {
+        })), /* @__PURE__ */ import_react15.default.createElement("div", {
             className: "flex-grow min-w-0"
-        }, /* @__PURE__ */ import_react12.default.createElement("div", {
+        }, /* @__PURE__ */ import_react15.default.createElement("div", {
             className: "flex justify-between items-start gap-2"
-        }, /* @__PURE__ */ import_react12.default.createElement("div", null, /* @__PURE__ */ import_react12.default.createElement("h3", {
+        }, /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("h3", {
             className: "font-rockwell text-lg text-[#4B7163] mb-1"
-        }, item.name), /* @__PURE__ */ import_react12.default.createElement("p", {
+        }, "Product ID: ", item.productId), /* @__PURE__ */ import_react15.default.createElement("p", {
             className: "text-sm text-gray-600 font-sourceSans"
-        }, item.description)), /* @__PURE__ */ import_react12.default.createElement("button", {
+        }, item.pickupDescription)), /* @__PURE__ */ import_react15.default.createElement(CustomButton, {
             onClick: function() {
-                return onRemoveItem(item.id);
+                return onSelectItem(item.id);
             },
-            className: "text-gray-400 hover:text-gray-600 transition-colors p-1",
-            "aria-label": "Remove ".concat(item.name, " from cart")
-        }, /* @__PURE__ */ import_react12.default.createElement(import_lucide_react11.X, {
-            className: "h-5 w-5"
-        }))), /* @__PURE__ */ import_react12.default.createElement("div", {
-            className: "flex justify-end items-center mt-4"
-        }, /* @__PURE__ */ import_react12.default.createElement("span", {
-            className: "font-rockwell text-lg text-[#4B7163]"
-        }, "$", item.price.toFixed(2)))));
-    })), /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "bg-[#F8FAF9] rounded-xl p-4 space-y-3"
-    }, /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "flex justify-between font-sourceSans text-[#5A7C6F]"
-    }, /* @__PURE__ */ import_react12.default.createElement("span", null, "Subtotal"), /* @__PURE__ */ import_react12.default.createElement("span", null, "$", subtotal.toFixed(2))), /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "flex justify-between font-sourceSans text-[#5A7C6F]"
-    }, /* @__PURE__ */ import_react12.default.createElement("span", null, "Tax (8.25%)"), /* @__PURE__ */ import_react12.default.createElement("span", null, "$", tax.toFixed(2))), /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "border-t border-[#5A7C6F]/20 pt-3"
-    }, /* @__PURE__ */ import_react12.default.createElement("div", {
-        className: "flex justify-between font-rockwell text-xl text-[#4B7163]"
-    }, /* @__PURE__ */ import_react12.default.createElement("span", null, "Total"), /* @__PURE__ */ import_react12.default.createElement("span", null, "$", total.toFixed(2))))), /* @__PURE__ */ import_react12.default.createElement(CustomButton, {
-        onClick: onCheckout,
-        className: "w-full mt-6",
-        variant: "cta"
-    }, "Proceed to Checkout")));
+            variant: "secondary",
+            className: "flex items-center gap-2"
+        }, "Process ", /* @__PURE__ */ import_react15.default.createElement(import_lucide_react11.ArrowRight, {
+            className: "h-4 w-4"
+        }))), /* @__PURE__ */ import_react15.default.createElement("div", {
+            className: "flex justify-between items-center mt-4"
+        }, /* @__PURE__ */ import_react15.default.createElement("span", {
+            className: "text-sm text-gray-500"
+        }, "From: ", item.customerName), /* @__PURE__ */ import_react15.default.createElement("span", {
+            className: "text-sm text-gray-500"
+        }, "Received: ", new Date(item.receivedDate).toLocaleDateString()))));
+    })));
 };
+// src/components/InventoryProcessingManager.tsx
+var InventoryProcessingManager = function(param) {
+    var items = param.items, onUpdateDetails = param.onUpdateDetails, onUpdateStatus = param.onUpdateStatus, onSaveDraft = param.onSaveDraft, className = param.className;
+    var _ref = _sliced_to_array((0, import_react16.useState)(null), 2), selectedItemId = _ref[0], setSelectedItemId = _ref[1];
+    var handleSelectItem = function(itemId) {
+        setSelectedItemId(itemId);
+    };
+    var handleBack = function() {
+        setSelectedItemId(null);
+    };
+    if (selectedItemId) {
+        var processingItems = items.map(function(item) {
+            return _object_spread_props(_object_spread({}, item), {
+                status: item.status || "in_inventory"
+            });
+        });
+        return /* @__PURE__ */ import_react16.default.createElement("div", {
+            className: className
+        }, /* @__PURE__ */ import_react16.default.createElement("button", {
+            onClick: handleBack,
+            className: "mb-4 text-[#4B7163] hover:text-[#3A5A4F] font-sourceSans"
+        }, "\u2190 Back to Queue"), /* @__PURE__ */ import_react16.default.createElement(InventoryItemProcessing, {
+            items: processingItems.filter(function(item) {
+                return item.id === selectedItemId;
+            }),
+            onUpdateDetails: onUpdateDetails,
+            onUpdateStatus: onUpdateStatus,
+            onSaveDraft: onSaveDraft
+        }));
+    }
+    return /* @__PURE__ */ import_react16.default.createElement(ProcessingQueue, {
+        items: items,
+        onSelectItem: handleSelectItem,
+        className: className
+    });
+};
+// src/components/PickupItemQueue.tsx
+var import_react18 = __toESM(require("react"));
 // src/components/SwipeCardDeck.tsx
-var import_react13 = __toESM(require("react"));
+var import_react17 = __toESM(require("react"));
 var SwipeCardDeck = function(param) {
     var cards = param.cards, onSwipeLeft = param.onSwipeLeft, onSwipeRight = param.onSwipeRight, onEmpty = param.onEmpty;
-    var _ref = _sliced_to_array((0, import_react13.useState)(cards), 2), currentCards = _ref[0], setCurrentCards = _ref[1];
-    var _ref1 = _sliced_to_array((0, import_react13.useState)([]), 2), history = _ref1[0], setHistory = _ref1[1];
-    (0, import_react13.useEffect)(function() {
+    var _ref = _sliced_to_array((0, import_react17.useState)(cards), 2), currentCards = _ref[0], setCurrentCards = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react17.useState)([]), 2), history = _ref1[0], setHistory = _ref1[1];
+    (0, import_react17.useEffect)(function() {
         if (currentCards.length === 0) {
             onEmpty === null || onEmpty === void 0 ? void 0 : onEmpty();
         }
@@ -1656,13 +1603,13 @@ var SwipeCardDeck = function(param) {
             return prev.slice(0, -1);
         });
     };
-    return /* @__PURE__ */ import_react13.default.createElement("div", {
+    return /* @__PURE__ */ import_react17.default.createElement("div", {
         className: "relative w-full max-w-[300px] mx-auto h-[400px]"
-    }, /* @__PURE__ */ import_react13.default.createElement("div", {
+    }, /* @__PURE__ */ import_react17.default.createElement("div", {
         className: "relative w-full h-full"
     }, currentCards.map(function(card, index) {
         var isTop = index === currentCards.length - 1;
-        return /* @__PURE__ */ import_react13.default.createElement(SwipeCard, {
+        return /* @__PURE__ */ import_react17.default.createElement(SwipeCard, {
             key: card.id,
             imageUrl: card.imageUrl,
             alt: card.alt,
@@ -1671,13 +1618,733 @@ var SwipeCardDeck = function(param) {
                 return handleSwipe(direction, card);
             }
         }, card.content);
-    })), history.length > 0 && /* @__PURE__ */ import_react13.default.createElement("button", {
+    })), history.length > 0 && /* @__PURE__ */ import_react17.default.createElement("button", {
         onClick: undoLastSwipe,
         className: "absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-4 \n                     px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-600\n                     hover:bg-gray-200 transition-colors"
     }, "Undo"));
 };
+// src/components/PickupItemQueue.tsx
+var PickupItemQueue = function(param) {
+    var items = param.items, onReceiveItem = param.onReceiveItem, onRejectItem = param.onRejectItem, onUpdateStatus = param.onUpdateStatus, onUpdateDetails = param.onUpdateDetails, onAddProcessingPhotos = param.onAddProcessingPhotos, className = param.className;
+    var _ref = _sliced_to_array((0, import_react18.useState)(null), 2), selectedItem = _ref[0], setSelectedItem = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react18.useState)(null), 2), processingItem = _ref1[0], setProcessingItem = _ref1[1];
+    var pendingItems = items.filter(function(item) {
+        return item.status === "pending";
+    });
+    var cardData = selectedItem ? [
+        {
+            id: selectedItem.id,
+            imageUrl: selectedItem.imageUrl,
+            alt: selectedItem.name,
+            content: /* @__PURE__ */ import_react18.default.createElement("div", {
+                className: "p-4"
+            }, /* @__PURE__ */ import_react18.default.createElement("h3", {
+                className: "font-rockwell text-lg text-[#4B7163] mb-2"
+            }, selectedItem.name), /* @__PURE__ */ import_react18.default.createElement("p", {
+                className: "text-sm text-gray-600"
+            }, selectedItem.description), /* @__PURE__ */ import_react18.default.createElement("p", {
+                className: "text-sm text-gray-500 mt-4"
+            }, "Swipe right to receive or left to reject"))
+        }
+    ] : [];
+    if (processingItem) {
+        return /* @__PURE__ */ import_react18.default.createElement(InventoryProcessing, {
+            request: {
+                id: processingItem.id,
+                status: "completed",
+                pickupPhoto: processingItem.imageUrl,
+                items: [],
+                customerName: "",
+                customerEmail: "",
+                customerPhone: "",
+                pickupDate: /* @__PURE__ */ new Date(),
+                pickupAddress: "",
+                messages: [],
+                address: ""
+            },
+            onUpdateStatus: function(status) {
+                return onUpdateStatus(processingItem.id, status);
+            },
+            onUpdateDetails: function(details) {
+                return onUpdateDetails(processingItem.id, details);
+            },
+            onAddProcessingPhotos: function(photos) {
+                return onAddProcessingPhotos(processingItem.id, photos);
+            },
+            onConfirmReceipt: function() {
+                setProcessingItem(null);
+            }
+        });
+    }
+    return /* @__PURE__ */ import_react18.default.createElement("div", {
+        className: cn("space-y-6", className)
+    }, !selectedItem ? /* @__PURE__ */ import_react18.default.createElement("div", {
+        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
+    }, /* @__PURE__ */ import_react18.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+    }, "Pending Items (", pendingItems.length, ")"), /* @__PURE__ */ import_react18.default.createElement("div", {
+        className: "space-y-4"
+    }, pendingItems.map(function(item) {
+        return /* @__PURE__ */ import_react18.default.createElement("div", {
+            key: item.id,
+            onClick: function() {
+                return setSelectedItem(item);
+            },
+            className: "flex gap-4 p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+        }, /* @__PURE__ */ import_react18.default.createElement("img", {
+            src: item.imageUrl,
+            alt: item.name,
+            className: "w-24 h-24 rounded-lg object-cover"
+        }), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("h3", {
+            className: "font-rockwell text-lg text-[#4B7163]"
+        }, item.name), /* @__PURE__ */ import_react18.default.createElement("p", {
+            className: "text-sm text-gray-600"
+        }, item.description)));
+    }))) : /* @__PURE__ */ import_react18.default.createElement(SwipeCardDeck, {
+        cards: cardData,
+        onSwipeLeft: function() {
+            onRejectItem(selectedItem.id);
+            setSelectedItem(null);
+        },
+        onSwipeRight: function() {
+            onReceiveItem(selectedItem.id);
+            onUpdateStatus(selectedItem.id, "completed");
+            setProcessingItem(selectedItem);
+            setSelectedItem(null);
+        }
+    }));
+};
+// src/components/PickupRequestForm.tsx
+var import_react20 = __toESM(require("react"));
+// src/components/Progress.tsx
+var import_react19 = __toESM(require("react"));
+var import_lucide_react12 = require("lucide-react");
+var Progress = function(param) {
+    var steps = param.steps, currentStep = param.currentStep;
+    return /* @__PURE__ */ import_react19.default.createElement("div", {
+        className: "relative flex items-center justify-between w-full max-w-3xl mx-auto py-4 px-6"
+    }, /* @__PURE__ */ import_react19.default.createElement("div", {
+        className: "absolute top-[-10px] left-[12.5px] right-[12.5px] h-[3px] z-0",
+        style: {
+            backgroundColor: "rgba(90, 124, 111, 0.3)"
+        }
+    }), /* @__PURE__ */ import_react19.default.createElement("div", {
+        className: "absolute top-[-10px] left-[12.5px] h-[3px] z-0 transition-all duration-300 ease-in-out",
+        style: {
+            backgroundColor: "#5A7C6F",
+            width: "".concat(Math.max(0, Math.min(100, (currentStep - 1) / (steps.length - 1) * 100)), "%"),
+            maxWidth: "calc(100% - ".concat(25, "px)")
+        }
+    }), /* @__PURE__ */ import_react19.default.createElement("div", {
+        className: "relative z-10 flex items-center justify-between w-full px-[12.5px]"
+    }, steps.map(function(step, index) {
+        return /* @__PURE__ */ import_react19.default.createElement("div", {
+            key: index,
+            className: "absolute",
+            style: {
+                left: "".concat(index / (steps.length - 1) * 100, "%")
+            }
+        }, /* @__PURE__ */ import_react19.default.createElement("div", {
+            className: "flex flex-col items-center -translate-x-1/2"
+        }, /* @__PURE__ */ import_react19.default.createElement("div", {
+            className: "\n                  w-[25px] h-[25px] rounded-full \n                  flex items-center justify-center\n                  border-[3px] border-[#5A7C6F]\n                  transition-colors duration-300 ease-in-out\n                  ".concat(index < currentStep ? "bg-[#5A7C6F]" : "bg-white", "\n                ")
+        }, index < currentStep && /* @__PURE__ */ import_react19.default.createElement(import_lucide_react12.Check, {
+            className: "w-4 h-4 text-white"
+        })), /* @__PURE__ */ import_react19.default.createElement("span", {
+            className: "mt-2 text-sm text-center hidden sm:block h-10 max-w-[80px]"
+        }, step)));
+    })));
+};
+// src/components/PickupRequestForm.tsx
+var import_lucide_react13 = require("lucide-react");
+var import_use_places_autocomplete = __toESM(require("use-places-autocomplete"));
+var PlacesAutocomplete = function(param) {
+    var value = param.value, onChange = param.onChange, onSelect = param.onSelect;
+    var _ref = (0, import_use_places_autocomplete.default)({
+        requestOptions: {
+            componentRestrictions: {
+                country: "us"
+            }
+        },
+        debounce: 300,
+        defaultValue: value
+    }), ready = _ref.ready, data = _ref.suggestions.data, setValue = _ref.setValue, clearSuggestions = _ref.clearSuggestions;
+    return /* @__PURE__ */ import_react20.default.createElement("div", {
+        className: "relative"
+    }, /* @__PURE__ */ import_react20.default.createElement(FormInput, {
+        label: "Pickup Address",
+        value: value,
+        onChange: function(val) {
+            setValue(val);
+            onChange(val);
+        },
+        disabled: !ready
+    }), data.length > 0 && /* @__PURE__ */ import_react20.default.createElement("ul", {
+        className: "absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg"
+    }, data.map(function(suggestion) {
+        return /* @__PURE__ */ import_react20.default.createElement("li", {
+            key: suggestion.place_id,
+            className: "px-4 py-2 hover:bg-gray-100 cursor-pointer",
+            onClick: function() {
+                onChange(suggestion.description);
+                onSelect(suggestion.description);
+                clearSuggestions();
+            }
+        }, suggestion.description);
+    })));
+};
+var PickupRequestForm = function(param) {
+    var onSubmit = param.onSubmit, className = param.className;
+    var _ref = _sliced_to_array((0, import_react20.useState)(1), 2), currentStep = _ref[0], setCurrentStep = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react20.useState)([]), 2), uploadedItems = _ref1[0], setUploadedItems = _ref1[1];
+    var _ref2 = _sliced_to_array((0, import_react20.useState)([]), 2), availableTimes = _ref2[0], setAvailableTimes = _ref2[1];
+    var _ref3 = _sliced_to_array((0, import_react20.useState)(""), 2), address = _ref3[0], setAddress = _ref3[1];
+    var _ref4 = _sliced_to_array((0, import_react20.useState)({
+        fullName: "",
+        contact: ""
+    }), 2), contactInfo = _ref4[0], setContactInfo = _ref4[1];
+    var _ref5 = _sliced_to_array((0, import_react20.useState)(false), 2), showTerms = _ref5[0], setShowTerms = _ref5[1];
+    var _ref6 = _sliced_to_array((0, import_react20.useState)({
+        ownership: false,
+        address: false,
+        terms: false
+    }), 2), confirmations = _ref6[0], setConfirmations = _ref6[1];
+    var handleItemDescription = function(itemId, description) {
+        setUploadedItems(function(items) {
+            return items.map(function(item) {
+                return item.id === itemId ? _object_spread_props(_object_spread({}, item), {
+                    description: description
+                }) : item;
+            });
+        });
+    };
+    var steps = [
+        "Contact",
+        "Photos",
+        "Details",
+        "Dates",
+        "Location"
+    ];
+    var handleTimeSelection = function(time) {
+        setAvailableTimes(function(current) {
+            return current.includes(time) ? current.filter(function(t) {
+                return t !== time;
+            }) : _to_consumable_array(current).concat([
+                time
+            ]);
+        });
+    };
+    var renderStepContent = function() {
+        switch(currentStep){
+            case 1:
+                return /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "space-y-6"
+                }, /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ import_react20.default.createElement("p", {
+                    className: "text-[#4B7163] mb-4"
+                }, "To better serve you, we need:"), /* @__PURE__ */ import_react20.default.createElement("ul", {
+                    className: "list-disc ml-6 mb-4"
+                }, /* @__PURE__ */ import_react20.default.createElement("li", null, "Your name"), /* @__PURE__ */ import_react20.default.createElement("li", null, "Either an email address or mobile number")), /* @__PURE__ */ import_react20.default.createElement("p", {
+                    className: "text-[#4B7163]"
+                }, "This allows us to send service updates through your preferred contact method. We'll only use these details to communicate about your specific request."), /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "mt-6"
+                }, /* @__PURE__ */ import_react20.default.createElement(FormInput, {
+                    label: "Full Name",
+                    value: contactInfo.fullName,
+                    onChange: function(value) {
+                        return setContactInfo(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                fullName: value
+                            });
+                        });
+                    }
+                }), /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "mt-6"
+                }, /* @__PURE__ */ import_react20.default.createElement(FormInput, {
+                    label: "Email Address or Mobile Number",
+                    value: contactInfo.contact,
+                    onChange: function(value) {
+                        return setContactInfo(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                contact: value
+                            });
+                        });
+                    },
+                    hint: "Choose the contact method you check most frequently for fastest updates."
+                })))));
+            case 2:
+                return /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "space-y-6"
+                }, /* @__PURE__ */ import_react20.default.createElement(ImageUpload, {
+                    onUpload: function(photos) {
+                        var newItems = photos.map(function(photoUrl) {
+                            return {
+                                id: Math.random().toString(36).substr(2, 9),
+                                imageUrl: photoUrl
+                            };
+                        });
+                        setUploadedItems(_to_consumable_array(uploadedItems).concat(_to_consumable_array(newItems)));
+                    },
+                    maxFiles: 5
+                }), uploadedItems.length > 0 && /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "grid grid-cols-2 sm:grid-cols-3 gap-4"
+                }, uploadedItems.map(function(item) {
+                    return /* @__PURE__ */ import_react20.default.createElement("div", {
+                        key: item.id,
+                        className: "aspect-square rounded-lg overflow-hidden border-2 border-[#5A7C6F]"
+                    }, /* @__PURE__ */ import_react20.default.createElement("img", {
+                        src: item.imageUrl,
+                        alt: "Uploaded item",
+                        className: "w-full h-full object-cover"
+                    }));
+                })));
+            case 3:
+                return /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "space-y-6"
+                }, uploadedItems.map(function(item) {
+                    return /* @__PURE__ */ import_react20.default.createElement("div", {
+                        key: item.id,
+                        className: "flex gap-4 p-4 bg-[#F8FAF9] rounded-xl"
+                    }, /* @__PURE__ */ import_react20.default.createElement("div", {
+                        className: "w-32 h-32 rounded-lg overflow-hidden flex-shrink-0"
+                    }, /* @__PURE__ */ import_react20.default.createElement("img", {
+                        src: item.imageUrl,
+                        alt: "Item",
+                        className: "w-full h-full object-cover"
+                    })), /* @__PURE__ */ import_react20.default.createElement("div", {
+                        className: "flex-grow"
+                    }, /* @__PURE__ */ import_react20.default.createElement(FormInput, {
+                        label: "Item Description",
+                        placeholder: "Describe the item, including condition and any relevant details",
+                        value: item.description || "",
+                        onChange: function(value) {
+                            return handleItemDescription(item.id, value);
+                        }
+                    })));
+                }));
+            case 4:
+                return /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "space-y-6"
+                }, /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ import_react20.default.createElement("h3", {
+                    className: "font-rockwell text-lg text-[#4B7163] mb-4"
+                }, "Available Pickup Times"), /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "grid grid-cols-2 gap-4"
+                }, [
+                    "Monday AM",
+                    "Monday PM",
+                    "Tuesday AM",
+                    "Tuesday PM",
+                    "Wednesday AM",
+                    "Wednesday PM",
+                    "Thursday AM",
+                    "Thursday PM",
+                    "Friday AM",
+                    "Friday PM"
+                ].map(function(time) {
+                    return /* @__PURE__ */ import_react20.default.createElement("button", {
+                        key: time,
+                        onClick: function() {
+                            return handleTimeSelection(time);
+                        },
+                        className: cn("p-3 rounded-lg border-2 font-sourceSans transition-colors", availableTimes.includes(time) ? "border-[#6AB098] bg-[#6AB098] text-white" : "border-[#5A7C6F] text-[#5A7C6F] hover:bg-[#F0F4F2]")
+                    }, time);
+                }))));
+            case 5:
+                return /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "space-y-6"
+                }, /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ import_react20.default.createElement(PlacesAutocomplete, {
+                    value: address,
+                    onChange: setAddress,
+                    onSelect: /*#__PURE__*/ function() {
+                        var _ref = _async_to_generator(function(address2) {
+                            return _ts_generator(this, function(_state) {
+                                setAddress(address2);
+                                return [
+                                    2
+                                ];
+                            });
+                        });
+                        return function(address2) {
+                            return _ref.apply(this, arguments);
+                        };
+                    }()
+                }), /* @__PURE__ */ import_react20.default.createElement("p", {
+                    className: "mt-2 text-sm text-[#5A7C6F] flex items-center gap-2"
+                }, /* @__PURE__ */ import_react20.default.createElement(import_lucide_react13.Info, {
+                    className: "h-4 w-4"
+                }), "Please ensure the address is accurate and items will be accessible at this location")), /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4"
+                }, /* @__PURE__ */ import_react20.default.createElement("h3", {
+                    className: "font-rockwell text-lg text-[#4B7163] mb-4"
+                }, "Final Confirmation"), /* @__PURE__ */ import_react20.default.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ import_react20.default.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.ownership,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                ownership: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ import_react20.default.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I confirm I own this item or have permission to request service for it")), /* @__PURE__ */ import_react20.default.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ import_react20.default.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.address,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                address: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ import_react20.default.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I confirm the address provided is correct and I can receive services there")), /* @__PURE__ */ import_react20.default.createElement("label", {
+                    className: "flex items-start gap-3 cursor-pointer"
+                }, /* @__PURE__ */ import_react20.default.createElement("input", {
+                    type: "checkbox",
+                    checked: confirmations.terms,
+                    onChange: function(e) {
+                        return setConfirmations(function(prev) {
+                            return _object_spread_props(_object_spread({}, prev), {
+                                terms: e.target.checked
+                            });
+                        });
+                    },
+                    className: "mt-1"
+                }), /* @__PURE__ */ import_react20.default.createElement("span", {
+                    className: "text-sm text-[#5A7C6F]"
+                }, "I accept the", " ", /* @__PURE__ */ import_react20.default.createElement("button", {
+                    onClick: function() {
+                        return setShowTerms(true);
+                    },
+                    className: "text-[#6AB098] underline hover:text-[#4B7163]"
+                }, "Terms of Service")))), showTerms && /* @__PURE__ */ import_react20.default.createElement(Modal, {
+                    onClose: function() {
+                        return setShowTerms(false);
+                    }
+                }, /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "p-6"
+                }, /* @__PURE__ */ import_react20.default.createElement("h2", {
+                    className: "font-rockwell text-2xl text-[#4B7163] mb-4"
+                }, "Terms of Service"), /* @__PURE__ */ import_react20.default.createElement("div", {
+                    className: "prose prose-sm max-w-none"
+                }))));
+            default:
+                return null;
+        }
+    };
+    var canProceed = function() {
+        switch(currentStep){
+            case 1:
+                return contactInfo.fullName.trim().length > 0 && contactInfo.contact.trim().length > 0;
+            case 2:
+                return uploadedItems.length > 0;
+            case 3:
+                return true;
+            case 4:
+                return availableTimes.length > 0;
+            case 5:
+                return address.trim().length > 0 && confirmations.ownership && confirmations.address && confirmations.terms;
+            default:
+                return false;
+        }
+    };
+    var handleNext = function() {
+        if (currentStep === 5) {
+            onSubmit({
+                fullName: contactInfo.fullName,
+                contact: contactInfo.contact,
+                items: uploadedItems,
+                availableTimes: availableTimes,
+                address: address
+            });
+        } else {
+            setCurrentStep(function(prev) {
+                return prev + 1;
+            });
+        }
+    };
+    return /* @__PURE__ */ import_react20.default.createElement("div", {
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8", className)
+    }, /* @__PURE__ */ import_react20.default.createElement("div", {
+        className: "mb-8"
+    }, /* @__PURE__ */ import_react20.default.createElement(Progress, {
+        steps: steps,
+        currentStep: currentStep
+    })), /* @__PURE__ */ import_react20.default.createElement("div", {
+        className: "mb-8"
+    }, /* @__PURE__ */ import_react20.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+    }, steps[currentStep - 1]), renderStepContent()), /* @__PURE__ */ import_react20.default.createElement("div", {
+        className: "flex justify-between"
+    }, currentStep > 1 && /* @__PURE__ */ import_react20.default.createElement(CustomButton, {
+        variant: "secondary",
+        onClick: function() {
+            return setCurrentStep(function(prev) {
+                return prev - 1;
+            });
+        },
+        className: "flex items-center gap-2"
+    }, /* @__PURE__ */ import_react20.default.createElement(import_lucide_react13.ChevronLeft, {
+        className: "h-4 w-4"
+    }), "Back"), /* @__PURE__ */ import_react20.default.createElement(CustomButton, {
+        onClick: handleNext,
+        disabled: !canProceed(),
+        className: "flex items-center gap-2 ml-auto"
+    }, currentStep === 5 ? "Submit Request" : "Continue", currentStep < 5 && /* @__PURE__ */ import_react20.default.createElement(import_lucide_react13.ChevronRight, {
+        className: "h-4 w-4"
+    }))));
+};
+// src/components/PickupRequestManager.tsx
+var import_react21 = __toESM(require("react"));
+var import_lucide_react14 = require("lucide-react");
+var PickupRequestManager = function(param) {
+    var requests = param.requests, onAcceptItem = param.onAcceptItem, onRejectItem = param.onRejectItem, onSendMessage = param.onSendMessage, onMessageRead = param.onMessageRead, className = param.className;
+    var _ref = _sliced_to_array((0, import_react21.useState)(0), 2), currentRequestIndex = _ref[0], setCurrentRequestIndex = _ref[1];
+    var _ref1 = _sliced_to_array((0, import_react21.useState)(requests[currentRequestIndex].items), 2), items = _ref1[0], setItems = _ref1[1];
+    var _ref2 = _sliced_to_array((0, import_react21.useState)(""), 2), newMessage = _ref2[0], setNewMessage = _ref2[1];
+    var _ref3 = _sliced_to_array((0, import_react21.useState)(false), 2), isMessagesExpanded = _ref3[0], setIsMessagesExpanded = _ref3[1];
+    var unreadCount = requests[currentRequestIndex].messages.filter(function(msg) {
+        return !msg.isRead;
+    }).length;
+    var lastMessage = requests[currentRequestIndex].messages[requests[currentRequestIndex].messages.length - 1];
+    var lastMessageTime = lastMessage ? new Intl.RelativeTimeFormat("en").format(Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1e3 * 60 * 60 * 24)), "days") : null;
+    var handleSwipe = function(direction, item) {
+        if (direction === "right") {
+            onAcceptItem(requests[currentRequestIndex].id, item.id);
+        } else {
+            onRejectItem(requests[currentRequestIndex].id, item.id);
+        }
+        setItems(function(prevItems) {
+            return prevItems.filter(function(i) {
+                return i.id !== item.id;
+            });
+        });
+    };
+    var handleExpand = function() {
+        setIsMessagesExpanded(!isMessagesExpanded);
+        if (!isMessagesExpanded && onMessageRead) {
+            requests[currentRequestIndex].messages.forEach(function(msg) {
+                if (!msg.isRead) onMessageRead(requests[currentRequestIndex].id, msg.id);
+            });
+        }
+    };
+    var totalRequests = requests.length;
+    return /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "max-w-4xl mx-auto space-y-8"
+    }, /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "flex justify-between items-center px-4"
+    }, /* @__PURE__ */ import_react21.default.createElement(CustomButton, {
+        onClick: function() {
+            return setCurrentRequestIndex(function(prev) {
+                return Math.max(0, prev - 1);
+            });
+        },
+        disabled: currentRequestIndex === 0,
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+    }, "<"), /* @__PURE__ */ import_react21.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163]"
+    }, currentRequestIndex + 1, " of ", totalRequests), /* @__PURE__ */ import_react21.default.createElement(CustomButton, {
+        onClick: function() {
+            return setCurrentRequestIndex(function(prev) {
+                return Math.min(totalRequests - 1, prev + 1);
+            });
+        },
+        disabled: currentRequestIndex === totalRequests - 1,
+        className: "bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+    }, ">")), /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "bg-white rounded-2xl border-2 border-[#4B7163] p-6"
+    }, /* @__PURE__ */ import_react21.default.createElement("h3", {
+        className: "font-rockwell text-xl text-[#4B7163] mb-4"
+    }, "Items to Review (", requests[currentRequestIndex].items.length, ")"), /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "relative h-[500px]"
+    }, requests[currentRequestIndex].items.map(function(item, index) {
+        return /* @__PURE__ */ import_react21.default.createElement(SwipeCard, {
+            key: item.id,
+            imageUrl: item.imageUrl,
+            alt: item.title || "Pickup request item",
+            isVisible: index === requests[currentRequestIndex].items.length - 1,
+            onSwipe: function(direction) {
+                return handleSwipe(direction, item);
+            }
+        }, /* @__PURE__ */ import_react21.default.createElement("div", {
+            className: "space-y-4"
+        }, /* @__PURE__ */ import_react21.default.createElement("p", {
+            className: "font-sourceSans text-gray-600"
+        }, item.description), /* @__PURE__ */ import_react21.default.createElement("div", {
+            className: "space-y-2"
+        }, /* @__PURE__ */ import_react21.default.createElement("div", {
+            className: "flex items-center gap-2 text-[#5A7C6F]"
+        }, /* @__PURE__ */ import_react21.default.createElement(import_lucide_react14.MapPin, {
+            className: "h-4 w-4"
+        }), /* @__PURE__ */ import_react21.default.createElement("span", {
+            className: "text-sm"
+        }, item.location)), /* @__PURE__ */ import_react21.default.createElement("div", {
+            className: "flex items-center gap-2 text-[#5A7C6F]"
+        }, /* @__PURE__ */ import_react21.default.createElement(import_lucide_react14.Calendar, {
+            className: "h-4 w-4"
+        }), /* @__PURE__ */ import_react21.default.createElement("div", {
+            className: "text-sm"
+        }, "Available:", item.availableDates.map(function(dateInfo, idx) {
+            return /* @__PURE__ */ import_react21.default.createElement("span", {
+                key: dateInfo.date
+            }, idx > 0 && ", ", dateInfo.date, /* @__PURE__ */ import_react21.default.createElement("span", {
+                className: "text-[#6AB098] ml-1"
+            }, "(", dateInfo.requestCount, " request", dateInfo.requestCount !== 1 ? "s" : "", ")"));
+        }))))));
+    }), /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "absolute bottom-0 left-0 right-0 flex justify-center gap-8 pb-4 text-sm text-gray-500"
+    }, /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "flex items-center gap-1"
+    }, /* @__PURE__ */ import_react21.default.createElement(import_lucide_react14.X, {
+        className: "h-4 w-4 text-red-500"
+    }), " Swipe left to reject"), /* @__PURE__ */ import_react21.default.createElement("div", {
+        className: "flex items-center gap-1"
+    }, /* @__PURE__ */ import_react21.default.createElement(import_lucide_react14.Check, {
+        className: "h-4 w-4 text-green-500"
+    }), " Swipe right to accept")))), /* @__PURE__ */ import_react21.default.createElement(MessageThread, {
+        messages: requests[currentRequestIndex].messages,
+        onSendMessage: function(message) {
+            return onSendMessage(requests[currentRequestIndex].id, message);
+        },
+        onMessageRead: function(messageId) {
+            return onMessageRead === null || onMessageRead === void 0 ? void 0 : onMessageRead(requests[currentRequestIndex].id, messageId);
+        },
+        className: className
+    }));
+};
+// src/components/ProductCard.tsx
+var import_react22 = __toESM(require("react"));
+var import_lucide_react15 = require("lucide-react");
+var ProductCard = function(param) {
+    var imageUrl = param.imageUrl, title = param.title, category = param.category, description = param.description, price = param.price, attributes = param.attributes, onAddToCart = param.onAddToCart, className = param.className;
+    return /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", "flex flex-col", className)
+    }, /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "w-full h-[200px] rounded-xl overflow-hidden mb-6"
+    }, /* @__PURE__ */ import_react22.default.createElement("img", {
+        src: imageUrl,
+        alt: title,
+        className: "w-full h-full object-cover"
+    })), /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "flex flex-col flex-grow"
+    }, /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "flex-grow space-y-4"
+    }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("span", {
+        className: "text-sm font-sourceSans text-[#5A7C6F] mb-1 block"
+    }, category), /* @__PURE__ */ import_react22.default.createElement("h3", {
+        className: "font-rockwell text-2xl text-[#4B7163]"
+    }, title)), /* @__PURE__ */ import_react22.default.createElement("p", {
+        className: "font-sourceSans text-gray-600 text-base"
+    }, description), /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "flex flex-wrap gap-2"
+    }, attributes.map(function(attr, index) {
+        return /* @__PURE__ */ import_react22.default.createElement(Tag, {
+            key: index,
+            text: attr,
+            variant: "secondary"
+        });
+    }))), /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "flex items-center justify-between pt-6 mt-6 border-t border-gray-100"
+    }, /* @__PURE__ */ import_react22.default.createElement("div", {
+        className: "flex items-baseline gap-1"
+    }, /* @__PURE__ */ import_react22.default.createElement("span", {
+        className: "font-rockwell text-3xl text-[#4B7163]"
+    }, "$", price.toFixed(2)), /* @__PURE__ */ import_react22.default.createElement("span", {
+        className: "font-sourceSans text-sm text-gray-500"
+    }, "USD")), /* @__PURE__ */ import_react22.default.createElement(CustomButton, {
+        onClick: onAddToCart,
+        className: "flex items-center gap-2 px-6"
+    }, /* @__PURE__ */ import_react22.default.createElement(import_lucide_react15.ShoppingCart, {
+        className: "h-4 w-4"
+    }), "Add to Cart"))));
+};
+// src/components/ShoppingCart.tsx
+var import_react23 = __toESM(require("react"));
+var import_lucide_react16 = require("lucide-react");
+var ShoppingCart2 = function(param) {
+    var initialItems = param.items, onRemoveItem = param.onRemoveItem, onCheckout = param.onCheckout, className = param.className;
+    var _ref = _sliced_to_array((0, import_react23.useState)(initialItems), 2), items = _ref[0], setItems = _ref[1];
+    (0, import_react23.useEffect)(function() {
+        setItems(initialItems);
+    }, [
+        initialItems
+    ]);
+    var subtotal = items.reduce(function(sum, item) {
+        return sum + item.price;
+    }, 0);
+    var tax = subtotal * 0.0825;
+    var total = subtotal + tax;
+    return /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: cn("bg-white rounded-2xl border-2 border-[#4B7163] p-6", "flex flex-col", className)
+    }, /* @__PURE__ */ import_react23.default.createElement("h2", {
+        className: "font-rockwell text-2xl text-[#4B7163] mb-6"
+    }, "Shopping Cart (", items.length, " ", items.length === 1 ? "item" : "items", ")"), items.length === 0 ? /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "text-center py-8 text-gray-500 font-sourceSans"
+    }, "Your cart is empty") : /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "flex-grow space-y-6 mb-6"
+    }, items.map(function(item) {
+        return /* @__PURE__ */ import_react23.default.createElement("div", {
+            key: item.id,
+            className: "flex gap-4 pb-6 border-b border-gray-100 last:border-b-0"
+        }, /* @__PURE__ */ import_react23.default.createElement("div", {
+            className: "w-24 h-24 rounded-lg overflow-hidden flex-shrink-0"
+        }, /* @__PURE__ */ import_react23.default.createElement("img", {
+            src: item.imageUrl,
+            alt: item.name,
+            className: "w-full h-full object-cover"
+        })), /* @__PURE__ */ import_react23.default.createElement("div", {
+            className: "flex-grow min-w-0"
+        }, /* @__PURE__ */ import_react23.default.createElement("div", {
+            className: "flex justify-between items-start gap-2"
+        }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("h3", {
+            className: "font-rockwell text-lg text-[#4B7163] mb-1"
+        }, item.name), /* @__PURE__ */ import_react23.default.createElement("p", {
+            className: "text-sm text-gray-600 font-sourceSans"
+        }, item.description)), /* @__PURE__ */ import_react23.default.createElement("button", {
+            onClick: function() {
+                return onRemoveItem(item.id);
+            },
+            className: "text-gray-400 hover:text-gray-600 transition-colors p-1",
+            "aria-label": "Remove ".concat(item.name, " from cart")
+        }, /* @__PURE__ */ import_react23.default.createElement(import_lucide_react16.X, {
+            className: "h-5 w-5"
+        }))), /* @__PURE__ */ import_react23.default.createElement("div", {
+            className: "flex justify-end items-center mt-4"
+        }, /* @__PURE__ */ import_react23.default.createElement("span", {
+            className: "font-rockwell text-lg text-[#4B7163]"
+        }, "$", item.price.toFixed(2)))));
+    })), /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "bg-[#F8FAF9] rounded-xl p-4 space-y-3"
+    }, /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "flex justify-between font-sourceSans text-[#5A7C6F]"
+    }, /* @__PURE__ */ import_react23.default.createElement("span", null, "Subtotal"), /* @__PURE__ */ import_react23.default.createElement("span", null, "$", subtotal.toFixed(2))), /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "flex justify-between font-sourceSans text-[#5A7C6F]"
+    }, /* @__PURE__ */ import_react23.default.createElement("span", null, "Tax (8.25%)"), /* @__PURE__ */ import_react23.default.createElement("span", null, "$", tax.toFixed(2))), /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "border-t border-[#5A7C6F]/20 pt-3"
+    }, /* @__PURE__ */ import_react23.default.createElement("div", {
+        className: "flex justify-between font-rockwell text-xl text-[#4B7163]"
+    }, /* @__PURE__ */ import_react23.default.createElement("span", null, "Total"), /* @__PURE__ */ import_react23.default.createElement("span", null, "$", total.toFixed(2))))), /* @__PURE__ */ import_react23.default.createElement(CustomButton, {
+        onClick: onCheckout,
+        className: "w-full mt-6",
+        variant: "cta"
+    }, "Proceed to Checkout")));
+};
 // src/components/Toggle.tsx
-var React17 = __toESM(require("react"));
+var React25 = __toESM(require("react"));
 var import_framer_motion2 = require("framer-motion");
 var variantStyles2 = {
     primary: {
@@ -1700,7 +2367,7 @@ var Toggle = function(param) {
             }
         }
     };
-    return /* @__PURE__ */ React17.createElement(import_framer_motion2.motion.button, {
+    return /* @__PURE__ */ React25.createElement(import_framer_motion2.motion.button, {
         type: "button",
         role: "switch",
         "aria-checked": checked,
@@ -1713,7 +2380,7 @@ var Toggle = function(param) {
         whileTap: disabled ? void 0 : {
             scale: 0.95
         }
-    }, /* @__PURE__ */ React17.createElement(import_framer_motion2.motion.span, {
+    }, /* @__PURE__ */ React25.createElement(import_framer_motion2.motion.span, {
         className: cn("pointer-events-none inline-block h-5 w-5 rounded-full shadow-lg ring-0", "absolute top-[2px]", disabled ? "cursor-not-allowed bg-gray-400" : checked ? variantStyles2[variant].active : "bg-gray-400 hover:bg-gray-500"),
         animate: {
             x: checked ? "24px" : "2px"
@@ -1726,51 +2393,142 @@ var Toggle = function(param) {
     }));
 };
 // src/components/Header.tsx
-var import_react14 = __toESM(require("react"));
+var import_react24 = __toESM(require("react"));
 var import_image = __toESM(require("next/image"));
-var import_lucide_react12 = require("lucide-react");
+var import_lucide_react18 = require("lucide-react");
+// src/components/sheet.tsx
+var React26 = __toESM(require("react"));
+var SheetPrimitive = __toESM(require("@radix-ui/react-dialog"));
+var import_class_variance_authority3 = require("class-variance-authority");
+var import_lucide_react17 = require("lucide-react");
+var Sheet = SheetPrimitive.Root;
+var SheetTrigger = SheetPrimitive.Trigger;
+var SheetPortal = SheetPrimitive.Portal;
+var SheetOverlay = React26.forwardRef(function(_param, ref) {
+    var className = _param.className, props = _object_without_properties(_param, [
+        "className"
+    ]);
+    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Overlay, _object_spread_props(_object_spread({
+        className: cn("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)
+    }, props), {
+        ref: ref
+    }));
+});
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
+var sheetVariants = (0, import_class_variance_authority3.cva)("fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500", {
+    variants: {
+        side: {
+            top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+            bottom: "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+            left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+            right: "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm"
+        }
+    },
+    defaultVariants: {
+        side: "right"
+    }
+});
+var SheetContent = React26.forwardRef(function(_param, ref) {
+    var _param_side = _param.side, side = _param_side === void 0 ? "right" : _param_side, className = _param.className, children = _param.children, props = _object_without_properties(_param, [
+        "side",
+        "className",
+        "children"
+    ]);
+    return /* @__PURE__ */ React26.createElement(SheetPortal, null, /* @__PURE__ */ React26.createElement(SheetOverlay, null), /* @__PURE__ */ React26.createElement(SheetPrimitive.Content, _object_spread({
+        ref: ref,
+        className: cn(sheetVariants({
+            side: side
+        }), className)
+    }, props), children, /* @__PURE__ */ React26.createElement(SheetPrimitive.Close, {
+        className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+    }, /* @__PURE__ */ React26.createElement(import_lucide_react17.X, {
+        className: "h-4 w-4"
+    }), /* @__PURE__ */ React26.createElement("span", {
+        className: "sr-only"
+    }, "Close"))));
+});
+SheetContent.displayName = SheetPrimitive.Content.displayName;
+var SheetHeader = function(_param) {
+    var className = _param.className, props = _object_without_properties(_param, [
+        "className"
+    ]);
+    return /* @__PURE__ */ React26.createElement("div", _object_spread({
+        className: cn("flex flex-col space-y-2 text-center sm:text-left", className)
+    }, props));
+};
+SheetHeader.displayName = "SheetHeader";
+var SheetFooter = function(_param) {
+    var className = _param.className, props = _object_without_properties(_param, [
+        "className"
+    ]);
+    return /* @__PURE__ */ React26.createElement("div", _object_spread({
+        className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)
+    }, props));
+};
+SheetFooter.displayName = "SheetFooter";
+var SheetTitle = React26.forwardRef(function(_param, ref) {
+    var className = _param.className, props = _object_without_properties(_param, [
+        "className"
+    ]);
+    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Title, _object_spread({
+        ref: ref,
+        className: cn("text-lg font-semibold text-foreground", className)
+    }, props));
+});
+SheetTitle.displayName = SheetPrimitive.Title.displayName;
+var SheetDescription = React26.forwardRef(function(_param, ref) {
+    var className = _param.className, props = _object_without_properties(_param, [
+        "className"
+    ]);
+    return /* @__PURE__ */ React26.createElement(SheetPrimitive.Description, _object_spread({
+        ref: ref,
+        className: cn("text-sm text-muted-foreground", className)
+    }, props));
+});
+SheetDescription.displayName = SheetPrimitive.Description.displayName;
+// src/components/Header.tsx
 var Header = function(param) {
     var menuItems = param.menuItems, logo = param.logo;
-    return /* @__PURE__ */ import_react14.default.createElement("header", {
+    return /* @__PURE__ */ import_react24.default.createElement("header", {
         className: "sticky top-0 z-50 w-full bg-[#4B7163] text-white shadow-lg"
-    }, /* @__PURE__ */ import_react14.default.createElement("div", {
+    }, /* @__PURE__ */ import_react24.default.createElement("div", {
         className: "w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8"
-    }, /* @__PURE__ */ import_react14.default.createElement("div", {
+    }, /* @__PURE__ */ import_react24.default.createElement("div", {
         className: "h-16 flex items-center justify-between"
-    }, /* @__PURE__ */ import_react14.default.createElement("div", {
+    }, /* @__PURE__ */ import_react24.default.createElement("div", {
         className: "flex shrink-0 items-center"
-    }, logo && /* @__PURE__ */ import_react14.default.createElement(import_image.default, {
+    }, logo && /* @__PURE__ */ import_react24.default.createElement(import_image.default, {
         src: logo.src,
         alt: logo.alt,
         width: logo.width || 300,
         height: logo.height || 75,
         className: "h-16 w-auto",
         priority: true
-    })), /* @__PURE__ */ import_react14.default.createElement("div", {
+    })), /* @__PURE__ */ import_react24.default.createElement("div", {
         className: "flex md:hidden"
-    }, /* @__PURE__ */ import_react14.default.createElement(Sheet, null, /* @__PURE__ */ import_react14.default.createElement(SheetTrigger, {
+    }, /* @__PURE__ */ import_react24.default.createElement(Sheet, null, /* @__PURE__ */ import_react24.default.createElement(SheetTrigger, {
         asChild: true
-    }, /* @__PURE__ */ import_react14.default.createElement(Button, {
+    }, /* @__PURE__ */ import_react24.default.createElement(Button, {
         variant: "ghost",
         size: "icon",
         className: "text-white hover:bg-[#5a8575]"
-    }, /* @__PURE__ */ import_react14.default.createElement(import_lucide_react12.Menu, {
+    }, /* @__PURE__ */ import_react24.default.createElement(import_lucide_react18.Menu, {
         className: "h-6 w-6"
-    }))), /* @__PURE__ */ import_react14.default.createElement(SheetContent, {
+    }))), /* @__PURE__ */ import_react24.default.createElement(SheetContent, {
         side: "right",
         className: "w-[80%] sm:w-[400px] bg-[#4B7163] border-l-white/20"
-    }, /* @__PURE__ */ import_react14.default.createElement("nav", {
+    }, /* @__PURE__ */ import_react24.default.createElement("nav", {
         className: "flex flex-col space-y-4 mt-8"
     }, menuItems.map(function(item) {
-        return /* @__PURE__ */ import_react14.default.createElement("a", {
+        return /* @__PURE__ */ import_react24.default.createElement("a", {
             key: item.label,
             href: item.href,
             className: "text-white text-lg hover:text-white/80 transition-colors p-2"
         }, item.label);
-    }))))), /* @__PURE__ */ import_react14.default.createElement("nav", {
+    }))))), /* @__PURE__ */ import_react24.default.createElement("nav", {
         className: "hidden md:flex items-center space-x-8"
     }, menuItems.map(function(item) {
-        return /* @__PURE__ */ import_react14.default.createElement("a", {
+        return /* @__PURE__ */ import_react24.default.createElement("a", {
             key: item.label,
             href: item.href,
             className: "text-sm font-medium hover:text-gray-300 transition-colors"
@@ -1796,6 +2554,7 @@ var Page = function(param) {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+    AcceptedRequestManager: AcceptedRequestManager,
     Button: Button,
     Card: Card,
     CustomButton: CustomButton,
@@ -1803,15 +2562,21 @@ var Page = function(param) {
     FormDropdown: FormDropdown,
     FormInput: FormInput,
     Header: Header,
+    ImageUpload: ImageUpload,
+    InventoryItemProcessing: InventoryItemProcessing,
+    InventoryProcessing: InventoryProcessing,
+    InventoryProcessingManager: InventoryProcessingManager,
+    MapModal: MapModal,
     MessageBubble: MessageBubble,
+    MessageThread: MessageThread,
+    Modal: Modal,
     Page: Page,
+    PickupItemQueue: PickupItemQueue,
     PickupRequestForm: PickupRequestForm,
     PickupRequestManager: PickupRequestManager,
+    ProcessingQueue: ProcessingQueue,
     ProductCard: ProductCard,
     Progress: Progress,
-    Sheet: Sheet,
-    SheetContent: SheetContent,
-    SheetTrigger: SheetTrigger,
     ShoppingCart: ShoppingCart,
     SwipeCardDeck: SwipeCardDeck,
     Tag: Tag,

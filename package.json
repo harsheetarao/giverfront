@@ -18,7 +18,7 @@
         "lint": "next lint",
         "docker:build": "docker build -t component-library .",
         "docker:run": "docker run -p 3000:3000 component-library",
-        "build:lib": "tsup src/index.ts --format cjs,esm --dts --external react",
+        "build:lib": "tsup src/components/index.ts --format cjs,esm --dts --external react",
         "prepublishOnly": "npm run build:lib"
     },
     "peerDependencies": {

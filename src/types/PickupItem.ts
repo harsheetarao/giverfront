@@ -21,4 +21,10 @@ export interface AcceptedPickupItem extends PickupItem {
   scheduledDate?: string;
   name: string;
   photos?: string[];
-} 
+}
+
+export interface ItemDetails {
+  productId?: string;
+  description?: string;
+  processingPhotos?: string[];
+}
