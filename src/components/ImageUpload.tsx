@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 import { Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -15,16 +15,23 @@ export const ImageUpload = ({
   maxFiles = 5,
   className
 }: ImageUploadProps) => {
+  const uniqueId = useId();
+  const inputId = `photo-upload-${uniqueId}`;
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      // Convert files to array and limit to maxFiles
+    if (files && files.length > 0) {
       const fileArray = Array.from(files).slice(0, maxFiles);
-      
-      // Create object URLs for the files
       const photoUrls = fileArray.map(file => URL.createObjectURL(file));
       
-      onUpload(photoUrls);
+      console.log('ImageUpload Component - Processing files:', files.length);
+      console.log('ImageUpload Component - Created URLs:', photoUrls);
+      
+      if (photoUrls.length > 0) {
+        onUpload(photoUrls);
+      }
+      
+      event.target.value = '';
     }
   };
 
@@ -33,14 +40,14 @@ export const ImageUpload = ({
       <div className="border-2 border-dashed border-[#5A7C6F] rounded-xl p-8 text-center">
         <input
           type="file"
-          id="photo-upload"
+          id={inputId}
           multiple
           accept="image/*"
           className="hidden"
           onChange={handleFileUpload}
         />
         <label 
-          htmlFor="photo-upload"
+          htmlFor={inputId}
           className="cursor-pointer space-y-4 block"
         >
           <Upload className="h-12 w-12 mx-auto text-[#5A7C6F]" />

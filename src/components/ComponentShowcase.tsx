@@ -33,6 +33,9 @@ import { PickupItemQueue } from '@/components/PickupItemQueue';
 import { InventoryItemProcessing } from '@/components/InventoryItemProcessing';
 import { ProcessingQueue } from '@/components/ProcessingQueue';
 import { InventoryProcessingManager } from '@/components/InventoryProcessingManager';
+import { PickupList } from '@/components/PickupList';
+import { Receiving } from '@/components/Receiving';
+import { PartnerPickupRequestForm } from '@/components/PartnerPickupRequestForm';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -78,6 +81,33 @@ interface AcceptedRequest {
   customerEmail: string;
   customerPhone: string;
   address: string;
+}
+
+// Add this interface near the other interfaces at the top of the file
+interface Pickup {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled' | 'in_inventory' | 'ready_for_sale';
+  pickupPhoto: string;
+  pickupDate: Date;
+  pickupAddress: string;
+  items: any[];
+  messages: any[];
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  address: string;
+}
+
+// Add this interface near your other interfaces
+interface PartnerPickupFormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+  }>;
 }
 
 const ComponentShowcase = () => {
@@ -963,7 +993,10 @@ const TagList = () => {
         <div className="space-y-4">
           <h3 className="heading-3">Image Upload Component</h3>
           <ImageUpload 
-            onUpload={(photos) => console.log('Uploaded photos:', photos)}
+            onUpload={(photos) => {
+              console.log('Showcase ImageUpload - Received photos:', photos);
+              // Add any showcase-specific handling here
+            }}
             maxFiles={3}
           />
         </div>
@@ -1078,6 +1111,112 @@ const TagList = () => {
             ]}
             onSelectItem={(itemId) => console.log('Selected item:', itemId)}
             className="w-full"
+          />
+        </div>
+      )
+    },
+    // ... existing code ...
+{
+  title: "Pickup List",
+  content: (
+    <div className="space-y-4">
+      <h3 className="heading-3">Pickup List Component</h3>
+      
+      <PickupList
+        pickups={[
+          {
+            id: '1',
+            status: 'pending',
+            pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+            pickupDate: new Date('2024-03-20'),
+            pickupAddress: '123 Main St',
+            items: [],
+            messages: [],
+            customerName: 'John Doe',
+            customerEmail: 'john@example.com',
+            customerPhone: '555-0123',
+            address: '123 Main St'
+          },
+          {
+            id: '2',
+            status: 'completed',
+            pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
+            pickupDate: new Date('2024-03-21'),
+            pickupAddress: '456 Oak St',
+            items: [],
+            messages: [],
+            customerName: 'Jane Smith',
+            customerEmail: 'jane@example.com',
+            customerPhone: '555-0124',
+            address: '456 Oak St'
+          }
+        ]}
+        onSelectPickup={(pickup: Pickup) => console.log('Selected pickup:', pickup)}
+      />
+    </div>
+      )
+    },
+    {
+      title: "Receiving",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Receiving Component</h3>
+          
+          <Receiving
+            pickups={[
+              {
+                id: '1',
+                status: 'pending',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDate: new Date('2024-03-20'),
+                pickupAddress: '123 Main St',
+                items: [],
+                messages: [],
+                customerName: 'John Doe',
+                customerEmail: 'john@example.com',
+                customerPhone: '555-0123',
+                address: '123 Main St'
+              },
+              {
+                id: '2',
+                status: 'completed',
+                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
+                pickupDate: new Date('2024-03-21'),
+                pickupAddress: '456 Oak St',
+                items: [],
+                messages: [],
+                customerName: 'Jane Smith',
+                customerEmail: 'jane@example.com',
+                customerPhone: '555-0124',
+                address: '456 Oak St'
+              }
+            ]}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Partner Pickup Request Form",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Partner Pickup Request Form</h3>
+          <PartnerPickupRequestForm 
+            onSubmit={(data: PartnerPickupFormData) => {
+              console.log('Partner form submitted:', data);
+            }}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Regular Pickup Request Form",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Regular Pickup Request Form</h3>
+          <PickupRequestForm 
+            onSubmit={(data) => {
+              console.log('Regular form submitted:', data);
+            }}
           />
         </div>
       )

@@ -12,6 +12,8 @@ interface FormInputProps {
   state?: InputState;
   className?: string;
   value: string;
+  type?: string;
+  min?: number;
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;

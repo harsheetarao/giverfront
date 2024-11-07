@@ -1,14 +1,19 @@
 import React from 'react';
 
 export interface CardProps {
-  imageUrl: string;
-  alt: string;
+  imageUrl?: string;
+  alt?: string;
   children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
 }
 
-export const Card = ({ imageUrl, alt, children }: CardProps) => {
+export const Card = ({ imageUrl, alt, children, className = '', onClick }: CardProps) => {
   return (
-    <div className="card-custom">
+    <div className="card-custom" onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className="card-custom-image">
         <img 
           src={imageUrl} 

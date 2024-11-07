@@ -14,11 +14,18 @@ interface UploadedItem {
   id: string;
   imageUrl: string;
   description?: string;
+  quantity?: number;
 }
 
 interface PickupRequestFormProps {
   onSubmit: (data: any) => void;
   className?: string;
+  skipContactStep?: boolean;
+  renderDetailsStep?: (
+    items: UploadedItem[],
+    handleItemDescription: (id: string, description: string) => void,
+    handleQuantityChange: (id: string, quantity: string) => void
+  ) => React.ReactNode;
 }
 
 interface ConfirmationState {
@@ -79,9 +86,35 @@ const PlacesAutocomplete = ({
   );
 };
 
+const handlePhotoUpload = (
+  photos: string[], 
+  setUploadedItems: React.Dispatch<React.SetStateAction<UploadedItem[]>>,
+  skipContactStep: boolean
+) => {
+  const instanceId = Math.random().toString(36).substr(2, 9); // Generate unique instance ID
+  console.log(`PickupRequestForm ${instanceId} - Processing photos:`, photos);
+  
+  if (photos.length > 0) {
+    const newItems = photos.map(photoUrl => ({
+      id: `${instanceId}-${Math.random().toString(36).substr(2, 9)}`,
+      imageUrl: photoUrl,
+      quantity: 1,
+    }));
+    
+    setUploadedItems(prevItems => {
+      // Only update items for this specific instance
+      const updatedItems = [...prevItems, ...newItems];
+      console.log(`PickupRequestForm ${instanceId} - Updated items:`, updatedItems);
+      return updatedItems;
+    });
+  }
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
+  skipContactStep = false,
+  renderDetailsStep,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -106,13 +139,17 @@ export const PickupRequestForm = ({
     );
   };
 
-  const steps = [
-    'Contact',
-    'Photos',
-    'Details',
-    'Dates',
-    'Location'
-  ];
+  const handleQuantityChange = (itemId: string, quantity: string) => {
+    setUploadedItems(items =>
+      items.map(item =>
+        item.id === itemId ? { ...item, quantity: parseInt(quantity) || 1 } : item
+      )
+    );
+  };
+
+  const steps = skipContactStep 
+    ? ['Photos', 'Details', 'Dates', 'Location']
+    : ['Contact', 'Photos', 'Details', 'Dates', 'Location'];
 
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
@@ -123,7 +160,9 @@ export const PickupRequestForm = ({
   };
 
   const renderStepContent = () => {
-    switch (currentStep) {
+    const adjustedStep = skipContactStep ? currentStep + 1 : currentStep;
+
+    switch (adjustedStep) {
       case 1:
         return (
           <div className="space-y-6">
@@ -163,13 +202,7 @@ export const PickupRequestForm = ({
         return (
           <div className="space-y-6">
             <ImageUpload
-              onUpload={(photos) => {
-                const newItems = photos.map(photoUrl => ({
-                  id: Math.random().toString(36).substr(2, 9),
-                  imageUrl: photoUrl,
-                }));
-                setUploadedItems([...uploadedItems, ...newItems]);
-              }}
+              onUpload={(photos) => handlePhotoUpload(photos, setUploadedItems, skipContactStep)}
               maxFiles={5}
             />
 
@@ -194,29 +227,31 @@ export const PickupRequestForm = ({
         );
 
       case 3:
-        return (
-          <div className="space-y-6">
-            {uploadedItems.map((item) => (
-              <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
-                <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                  <img 
-                    src={item.imageUrl} 
-                    alt="Item" 
-                    className="w-full h-full object-cover"
-                  />
+        return renderDetailsStep ? 
+          renderDetailsStep(uploadedItems, handleItemDescription, handleQuantityChange) :
+          (
+            <div className="space-y-6">
+              {uploadedItems.map((item) => (
+                <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
+                  <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                    <img 
+                      src={item.imageUrl} 
+                      alt="Item" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <FormInput
+                      label="Item Description"
+                      placeholder="Describe the item, including condition and any relevant details"
+                      value={item.description || ''}
+                      onChange={(value: string) => handleItemDescription(item.id, value)}
+                    />
+                  </div>
                 </div>
-                <div className="flex-grow">
-                  <FormInput
-                    label="Item Description"
-                    placeholder="Describe the item, including condition and any relevant details"
-                    value={item.description || ''}
-                    onChange={(value: string) => handleItemDescription(item.id, value)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        );
+              ))}
+            </div>
+          );
 
       case 4:
         return (
@@ -347,6 +382,9 @@ export const PickupRequestForm = ({
   const canProceed = () => {
     switch (currentStep) {
       case 1:
+        if (skipContactStep) {
+          return uploadedItems.length > 0;
+        }
         return contactInfo.fullName.trim().length > 0 && 
                contactInfo.contact.trim().length > 0;
       case 2:
