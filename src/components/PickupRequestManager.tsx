@@ -11,29 +11,54 @@ import { PickupItem } from '@/types/PickupItem';
 import { Message } from '@/types/Message';
 
 interface PickupRequestManagerProps {
-  requests: PickupRequest[];
-  onAcceptItem: (requestId: string, itemId: string) => void;
-  onRejectItem: (requestId: string, itemId: string) => void;
-  onSendMessage: (requestId: string, message: string) => void;
+  pickupRequests: Array<{
+    id: string;
+    items: Array<{
+      id: string;
+      name: string;
+      status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+      imageUrl: string;
+      description: string;
+      availableDates: Array<{
+        date: string;
+        requestCount: number;
+      }>;
+      location: string;
+    }>;
+    messages: any[];
+    status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    address: string;
+    pickupPhoto: string;
+    pickupDate: Date;
+    pickupAddress: string;
+  }>;
+  onAcceptRequest: (id: string) => void;
+  onRejectRequest: (id: string) => void;
+  onUpdateStatus: (id: string, status: string) => void;
+  onSendMessage: (id: string, message: string) => void;
   onMessageRead?: (requestId: string, messageId: string) => void;
   className?: string;
 }
 
 export const PickupRequestManager = ({
-  requests,
-  onAcceptItem,
-  onRejectItem,
+  pickupRequests,
+  onAcceptRequest,
+  onRejectRequest,
+  onUpdateStatus,
   onSendMessage,
   onMessageRead,
   className
 }: PickupRequestManagerProps) => {
   const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
-  const [items, setItems] = useState(requests[currentRequestIndex].items);
+  const [items, setItems] = useState(pickupRequests[currentRequestIndex].items);
   const [newMessage, setNewMessage] = useState('');
   const [isMessagesExpanded, setIsMessagesExpanded] = useState(false);
   
-  const unreadCount = requests[currentRequestIndex].messages.filter(msg => !msg.isRead).length;
-  const lastMessage = requests[currentRequestIndex].messages[requests[currentRequestIndex].messages.length - 1];
+  const unreadCount = pickupRequests[currentRequestIndex].messages.filter(msg => !msg.isRead).length;
+  const lastMessage = pickupRequests[currentRequestIndex].messages[pickupRequests[currentRequestIndex].messages.length - 1];
   const lastMessageTime = lastMessage 
     ? new Intl.RelativeTimeFormat('en').format(
         Math.ceil((lastMessage.timestamp.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
@@ -43,9 +68,9 @@ export const PickupRequestManager = ({
 
   const handleSwipe = (direction: 'left' | 'right', item: PickupItem) => {
     if (direction === 'right') {
-      onAcceptItem(requests[currentRequestIndex].id, item.id);
+      onAcceptRequest(pickupRequests[currentRequestIndex].id);
     } else {
-      onRejectItem(requests[currentRequestIndex].id, item.id);
+      onRejectRequest(pickupRequests[currentRequestIndex].id);
     }
     setItems(prevItems => prevItems.filter(i => i.id !== item.id));
   };
@@ -54,13 +79,13 @@ export const PickupRequestManager = ({
     setIsMessagesExpanded(!isMessagesExpanded);
     // Mark all messages as read when expanding
     if (!isMessagesExpanded && onMessageRead) {
-      requests[currentRequestIndex].messages.forEach(msg => {
-        if (!msg.isRead) onMessageRead(requests[currentRequestIndex].id, msg.id);
+      pickupRequests[currentRequestIndex].messages.forEach(msg => {
+        if (!msg.isRead) onMessageRead(pickupRequests[currentRequestIndex].id, msg.id);
       });
     }
   };
 
-  const totalRequests = requests.length;
+  const totalRequests = pickupRequests.length;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -90,16 +115,16 @@ export const PickupRequestManager = ({
       {/* Swipeable Items Section */}
       <div className="bg-white rounded-2xl border-2 border-[#4B7163] p-6">
         <h3 className="font-rockwell text-xl text-[#4B7163] mb-4">
-          Items to Review ({requests[currentRequestIndex].items.length})
+          Items to Review ({pickupRequests[currentRequestIndex].items.length})
         </h3>
         
         <div className="relative h-[500px]">
-          {requests[currentRequestIndex].items.map((item, index) => (
+          {pickupRequests[currentRequestIndex].items.map((item, index) => (
             <SwipeCard
               key={item.id}
               imageUrl={item.imageUrl}
-              alt={item.title || 'Pickup request item'}
-              isVisible={index === requests[currentRequestIndex].items.length - 1}
+              alt={item.name || 'Pickup request item'}
+              isVisible={index === pickupRequests[currentRequestIndex].items.length - 1}
               onSwipe={(direction) => handleSwipe(direction, item)}
             >
               <div className="space-y-4">
@@ -145,9 +170,9 @@ export const PickupRequestManager = ({
 
       {/* Communication Section */}
       <MessageThread
-        messages={requests[currentRequestIndex].messages}
-        onSendMessage={(message) => onSendMessage(requests[currentRequestIndex].id, message)}
-        onMessageRead={(messageId) => onMessageRead?.(requests[currentRequestIndex].id, messageId)}
+        messages={pickupRequests[currentRequestIndex].messages}
+        onSendMessage={(message) => onSendMessage(pickupRequests[currentRequestIndex].id, message)}
+        onMessageRead={(messageId) => onMessageRead?.(pickupRequests[currentRequestIndex].id, messageId)}
         className={className}
       />
     </div>

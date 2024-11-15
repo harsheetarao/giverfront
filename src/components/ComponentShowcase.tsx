@@ -36,6 +36,7 @@ import { InventoryProcessingManager } from '@/components/InventoryProcessingMana
 import { PickupList } from '@/components/PickupList';
 import { Receiving } from '@/components/Receiving';
 import { PartnerPickupRequestForm } from '@/components/PartnerPickupRequestForm';
+import { CodeSample } from '@/components/CodeSample';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -108,6 +109,15 @@ interface PartnerPickupFormData {
     description: string;
     quantity: number;
   }>;
+}
+
+// Add this interface near the other interfaces at the top of the file
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
 }
 
 const ComponentShowcase = () => {
@@ -287,10 +297,10 @@ const TagList = () => {
 
   const newContentItems = [
     {
-      title: "Modal Component",
+      title: "Modal",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Modal Component</h3>
+          <h3 className="heading-3">Modal</h3>
           <CustomButton onClick={() => setShowDemoModal(true)}>
             Open Modal
           </CustomButton>
@@ -302,7 +312,7 @@ const TagList = () => {
                   Demo Modal
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  This is an example of our reusable modal component. It can be used for various purposes like confirmations, forms, or detailed information display.
+                  This is an example of our reusable modal component.
                 </p>
                 <div className="flex justify-end">
                   <CustomButton onClick={() => setShowDemoModal(false)}>
@@ -312,6 +322,23 @@ const TagList = () => {
               </div>
             </Modal>
           )}
+          <CodeSample code={`const [showModal, setShowModal] = useState(false);
+
+<CustomButton onClick={() => setShowModal(true)}>
+  Open Modal
+</CustomButton>
+
+{showModal && (
+  <Modal onClose={() => setShowModal(false)}>
+    <div className="p-6">
+      <h2 className="text-2xl mb-4">Demo Modal</h2>
+      <p className="mb-6">Modal content goes here</p>
+      <CustomButton onClick={() => setShowModal(false)}>
+        Close Modal
+      </CustomButton>
+    </div>
+  </Modal>
+)}`} />
         </div>
       )
     },
@@ -319,14 +346,29 @@ const TagList = () => {
       title: "Message Thread",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Message Thread Component</h3>
-          
+          <h3 className="heading-3">Message Thread</h3>
           <MessageThread
             messages={sampleMessages}
             onSendMessage={(message) => console.log('New message:', message)}
             onMessageRead={(messageId) => console.log('Message read:', messageId)}
             className="border border-gray-200"
           />
+          <CodeSample code={`const messages = [
+  {
+    id: '1',
+    content: 'Hello!',
+    timestamp: new Date(),
+    isRead: true,
+    sender: 'user'
+  }
+];
+
+<MessageThread
+  messages={messages}
+  onSendMessage={(message) => handleNewMessage(message)}
+  onMessageRead={(messageId) => handleMessageRead(messageId)}
+  className="border border-gray-200"
+/>`} />
         </div>
       )
     },
@@ -334,7 +376,7 @@ const TagList = () => {
       title: "Map Modal",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Map Modal Component</h3>
+          <h3 className="heading-3">Map Modal</h3>
           <div className="flex flex-col gap-4">
             <p className="text-gray-600">
               Click the button below to see the map modal with a sample address:
@@ -361,222 +403,33 @@ const TagList = () => {
   ];
 
   const contentItems = [
-    {
-      title: "Cards Example",
-      content: (
-        <Card imageUrl="https://gone.com/assets/img/photo1.webp" alt="Example card">
-          <h3 className="heading-3">Card Component</h3>
-          <p>Example of our card component with image and content.</p>
-        </Card>
-      )
-    },
-    {
-      title: "Product Cards",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Product Card Component</h3>
-          
-          {/* Changed to vertical layout with full width cards */}
-          <div className="flex flex-col gap-8">
-            <ProductCard
-              imageUrl="https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg"
-              title="Ergonomic Office Chair"
-              category="Office Furniture"
-              description="High-quality ergonomic office chair with lumbar support, adjustable height, and breathable mesh back for maximum comfort during long work hours."
-              price={299.99}
-              attributes={[
-                "Ergonomic",
-                "Adjustable",
-                "Mesh Back",
-                "5-Year Warranty"
-              ]}
-              onAddToCart={() => console.log('Added to cart')}
-              className="w-full max-w-none" // Remove max-width constraint
-            />
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Shopping Cart",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Shopping Cart</h3>
-          
-          <ShoppingCart
-            items={[
-              {
-                id: '1',
-                name: 'Victorian Mahogany Sideboard',
-                description: 'Circa 1860, beautiful carved details, original brass hardware, excellent condition',
-                price: 2499.99,
-                imageUrl: 'https://assets.wfcdn.com/im/08420312/resize-h500-w500%5Ecompr-r85/1221/122147167/67%27%27+Solid+Wood+Sideboard.jpg'
-              },
-              {
-                id: '2',
-                name: 'Art Deco Crystal Chandelier',
-                description: 'Original 1920s, restored wiring, pristine crystals, statement piece',
-                price: 3899.99,
-                imageUrl: 'https://assets.wfcdn.com/im/51641869/resize-h500-w500%5Ecompr-r85/2286/228662642/Imma+Crystal+Empire+Chandelier+with+Crystal+Accents.jpg'
-              },
-              {
-                id: '3',
-                name: 'Chinese Qing Dynasty Vase',
-                description: '19th century, blue and white porcelain, perfect condition, museum quality',
-                price: 5899.99,
-                imageUrl: 'https://assets.wfcdn.com/im/50716500/resize-h500-w500%5Ecompr-r85/1283/128302625/Handmade+Ceramic+%2F+Porcelain+Table+Vase.jpg'
-              }
-            ]}
-            onRemoveItem={(itemId) => 
-              console.log('Remove item:', itemId)
-            }
-            onCheckout={() => 
-              console.log('Proceed to checkout')
-            }
-          />
-        </div>
-      )
-    },
-    {
-      title: "Pickup Request Form",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Pickup Request Form</h3>
-          
-          <PickupRequestForm
-            onSubmit={(data) => {
-              console.log('Form submitted:', data);
-            }}
-          />
-        </div>
-      )
-    },
-    {
-      title: "Pickup Request Manager",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Pickup Request Management</h3>
-          
-          <PickupRequestManager
-            requests={pickupRequests}
-            onAcceptItem={(requestId, itemId) => console.log('Accept:', requestId, itemId)}
-            onRejectItem={(requestId, itemId) => console.log('Reject:', requestId, itemId)}
-            onSendMessage={(requestId, message) => console.log('Message:', requestId, message)}
-            onMessageRead={(requestId, messageId) => console.log('Read:', requestId, messageId)}
-            className="w-full"
-          />
-        </div>
-      )
-    },
-    {
-      title: "Tags",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Tag Components</h3>
-          
-          {/* Primary Tags */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-sm text-gray-600">Primary Tags</h4>
-            <div className="flex flex-wrap gap-2">
-              <Tag 
-                text="Active Tag" 
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Long Tag Name That Should Truncate" 
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Read Only Tag" 
-              />
-            </div>
-          </div>
-    
-          {/* CTA Tags */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-sm text-gray-600">CTA Tags</h4>
-            <div className="flex flex-wrap gap-2">
-              <Tag 
-                text="Active Tag" 
-                variant="cta"
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Long Tag Name That Should Truncate" 
-                variant="cta"
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Read Only Tag" 
-                variant="cta"
-              />
-            </div>
-          </div>
-    
-          {/* Secondary Tags */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-sm text-gray-600">Secondary Tags</h4>
-            <div className="flex flex-wrap gap-2">
-              <Tag 
-                text="Active Tag" 
-                variant="secondary"
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Long Tag Name That Should Truncate" 
-                variant="secondary"
-                onDelete={() => console.log('Delete clicked')}
-              />
-              <Tag 
-                text="Read Only Tag" 
-                variant="secondary"
-              />
-            </div>
-          </div>
-    
-          {/* Interactive Example */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-sm text-gray-600">Interactive Example</h4>
-            <TagList />
-          </div>
-        </div>
-      )
-    },
+    // Basic UI Elements
     {
       title: "Button Variants",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Button Components</h3>
+          <h3 className="heading-3">Buttons</h3>
           
           {/* Primary Buttons */}
           <div className="space-y-2">
             <h4 className="font-semibold text-sm text-gray-600">Primary</h4>
             <div className="flex flex-wrap gap-4">
-              <CustomButton variant="primary" size="sm">
-                Small Primary
-              </CustomButton>
-              <CustomButton variant="primary">
-                Default Primary
-              </CustomButton>
-              <CustomButton variant="primary" size="lg">
-                Large Primary
-              </CustomButton>
+              <CustomButton variant="primary" size="sm">Small Primary</CustomButton>
+              <CustomButton variant="primary">Default Primary</CustomButton>
+              <CustomButton variant="primary" size="lg">Large Primary</CustomButton>
             </div>
+            <CodeSample code={`<CustomButton variant="primary" size="sm">Small Primary</CustomButton>
+<CustomButton variant="primary">Default Primary</CustomButton>
+<CustomButton variant="primary" size="lg">Large Primary</CustomButton>`} />
           </div>
 
           {/* CTA Buttons */}
           <div className="space-y-2">
             <h4 className="font-semibold text-sm text-gray-600">CTA</h4>
             <div className="flex flex-wrap gap-4">
-              <CustomButton variant="cta" size="sm">
-                Small CTA
-              </CustomButton>
-              <CustomButton variant="cta">
-                Default CTA
-              </CustomButton>
-              <CustomButton variant="cta" size="lg">
-                Large CTA
-              </CustomButton>
+              <CustomButton variant="cta" size="sm">Small CTA</CustomButton>
+              <CustomButton variant="cta">Default CTA</CustomButton>
+              <CustomButton variant="cta" size="lg">Large CTA</CustomButton>
             </div>
           </div>
 
@@ -610,132 +463,205 @@ const TagList = () => {
                 Disabled Secondary
               </CustomButton>
             </div>
+            <CodeSample code={`<CustomButton variant="cta" size="sm">Small CTA</CustomButton>
+<CustomButton variant="cta">Default CTA</CustomButton>
+<CustomButton variant="cta" size="lg">Large CTA</CustomButton>`} />
           </div>
         </div>
       )
     },
+     // Form Elements
+     {
+      title: "Form Input Variants",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Form Input States</h3>
+          
+          <FormInput
+            label="Normal Input"
+            placeholder="Enter text..."
+            value=""
+            onChange={() => {}}
+          />
+    
+          <FormInput
+            label="Completed Input"
+            placeholder="Completed field"
+            value="Completed value"
+            state="completed"
+            onChange={() => {}}
+          />
+    
+          <FormInput
+            label="Error Input"
+            placeholder="Error field"
+            value="Invalid value"
+            state="error"
+            hint="This field has an error"
+            onChange={() => {}}
+          />
+    
+          <FormInput
+            label="Required Input"
+            placeholder="Required field"
+            value=""
+            state="required"
+            onChange={() => {}}
+          />
+    
+          <FormInput
+            label="Blank Required Input"
+            placeholder="This field is required"
+            value=""
+            state="blankRequired"
+            hint="This field cannot be empty"
+            onChange={() => {}}
+          />
+    
+          <FormInput
+            label="Disabled Input"
+            placeholder="This field is disabled"
+            value=""
+            disabled
+            onChange={() => {}}
+          />
+          <CodeSample code={`<FormInput
+              label="Normal Input"
+              placeholder="Enter text..."
+              value={value}
+              onChange={setValue}
+            />`} />
+        </div>
+      )
+    },
     {
-      title: "Form Components",
+      title: "Form Dropdown Variants",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Dropdown States</h3>
+          
+          <FormDropdown
+            label="Normal Dropdown"
+            options={[
+              { value: '', label: 'Select an option' },
+              { value: 'option1', label: 'Option 1' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+    
+          <FormDropdown
+            label="Completed Dropdown"
+            state="completed"
+            value="option1"
+            options={[
+              { value: 'option1', label: 'Selected Option' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+    
+          <FormDropdown
+            label="Error Dropdown"
+            state="error"
+            hint="Please select a valid option"
+            options={[
+              { value: '', label: 'Select an option' },
+              { value: 'option1', label: 'Option 1' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+    
+          <FormDropdown
+            label="Required Dropdown"
+            state="required"
+            options={[
+              { value: '', label: 'Select an option' },
+              { value: 'option1', label: 'Option 1' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+    
+          <FormDropdown
+            label="Blank Required Dropdown"
+            state="blankRequired"
+            hint="This field is required"
+            options={[
+              { value: '', label: 'Select an option' },
+              { value: 'option1', label: 'Option 1' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+    
+          <FormDropdown
+            label="Disabled Dropdown"
+            disabled
+            options={[
+              { value: '', label: 'Select an option' },
+              { value: 'option1', label: 'Option 1' },
+              { value: 'option2', label: 'Option 2' }
+            ]}
+            onChange={(value) => console.log(value)}
+          />
+        </div>
+      )
+    },
+    {
+      title: "Tags",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Form Components</h3>
+          <h3 className="heading-3">Tags</h3>
+          
+          {/* Primary Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Primary Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag text="Active Tag" onDelete={() => console.log('Delete clicked')} />
+              <Tag text="Read Only Tag" />
+            </div>
+            <CodeSample code={`<Tag text="Active Tag" onDelete={() => handleDelete()} />
+<Tag text="Read Only Tag" />`} />
+          </div>
     
-          {/* Text Fields */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm text-gray-600">Text Fields</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                label="Normal Input"
-                placeholder="Enter text here"
-                value=""
-                hint="This is a normal text input"
-                state="normal"
-                onChange={(value) => console.log(value)}
-              />
-              <FormInput
-                label="Completed Input"
-                placeholder="Enter text here"
-                value="Completed value"
-                hint="This input has been completed"
-                state="completed"
-                onChange={(value) => console.log(value)}              />
-              <FormInput
-                label="Error Input"
-                placeholder="Enter text here"
-                value="Invalid value"
-                hint="This input has an error"
-                state="error"
-                onChange={(value) => console.log(value)}              />
-              <FormInput
-                label="Required Input"
-                placeholder="Enter text here"
-                value=""
-                hint="This input is required"
-                state="required"
-                onChange={(value) => console.log(value)}              />
-              <FormInput
-                label="Blank Required Input"
-                placeholder="Enter text here"
-                value=""
-                hint="This required input is blank"
-                state="blankRequired"
-                onChange={(value) => console.log(value)}              />
-              <FormInput
-                label="Disabled Input"
-                placeholder="Enter text here"
-                value=""
-                hint="This input is disabled"
-                disabled
-                onChange={(value) => console.log(value)}              />
+          {/* CTA Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">CTA Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag text="Active Tag" variant="cta" onDelete={() => console.log('Delete clicked')} />
+              <Tag text="Read Only Tag" variant="cta" />
             </div>
           </div>
     
-          {/* Dropdowns */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm text-gray-600">Dropdowns</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormDropdown
-                label="Normal Dropdown"
-                hint="This is a normal dropdown"
-                state="normal"
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
+          {/* Secondary Tags */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Secondary Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              <Tag 
+                text="Active Tag" 
+                variant="secondary"
+                onDelete={() => console.log('Delete clicked')}
               />
-              <FormDropdown
-                label="Completed Dropdown"
-                hint="This dropdown has a selection"
-                state="completed"
-                value="1"
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
+              <Tag 
+                text="Long Tag Name That Should Truncate" 
+                variant="secondary"
+                onDelete={() => console.log('Delete clicked')}
               />
-              <FormDropdown
-                label="Error Dropdown"
-                hint="This dropdown has an error"
-                state="error"
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
-              />
-              <FormDropdown
-                label="Required Dropdown"
-                hint="This dropdown is required"
-                state="required"
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
-              />
-              <FormDropdown
-                label="Blank Required Dropdown"
-                hint="This required dropdown is blank"
-                state="blankRequired"
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
-              />
-              <FormDropdown
-                label="Disabled Dropdown"
-                hint="This dropdown is disabled"
-                disabled
-                options={[
-                  { value: '', label: 'Select an option' },
-                  { value: '1', label: 'Option 1' },
-                  { value: '2', label: 'Option 2' },
-                ]}
+              <Tag 
+                text="Read Only Tag" 
+                variant="secondary"
               />
             </div>
+            <CodeSample code={`<Tag text="Active Tag" variant="cta" onDelete={() => handleDelete()} />
+<Tag text="Read Only Tag" variant="cta" />`} />
+          </div>
+    
+          {/* Interactive Example */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm text-gray-600">Interactive Example</h4>
+            <TagList />
           </div>
         </div>
       )
@@ -744,22 +670,32 @@ const TagList = () => {
       title: "Progress Example",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Progress Component</h3>
+          <h3 className="heading-3">Progress</h3>
           <Progress steps={steps} currentStep={currentStep} />
           <div className="flex gap-2">
-            <CustomButton 
-              onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-              disabled={currentStep === 1}
-            >
+            <CustomButton onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>
               Previous
             </CustomButton>
-            <CustomButton 
-              onClick={() => setCurrentStep(prev => Math.min(steps.length, prev + 1))}
-              disabled={currentStep === steps.length}
-            >
+            <CustomButton onClick={() => setCurrentStep(prev => Math.min(steps.length, prev + 1))} disabled={currentStep === steps.length}>
               Next
             </CustomButton>
           </div>
+          <CodeSample code={`const steps = ['Profile', 'Address', 'Payment', 'Review'];
+const [currentStep, setCurrentStep] = useState(1);
+
+<Progress steps={steps} currentStep={currentStep} />
+<CustomButton 
+  onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+  disabled={currentStep === 1}
+>
+  Previous
+</CustomButton>
+<CustomButton 
+  onClick={() => setCurrentStep(prev => Math.min(steps.length, prev + 1))}
+  disabled={currentStep === steps.length}
+>
+  Next
+</CustomButton>`} />
         </div>
       )
     },
@@ -767,7 +703,7 @@ const TagList = () => {
       title: "Toggle Switches",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Toggle Components</h3>
+          <h3 className="heading-3">Toggle</h3>
           
           {/* Primary Toggles */}
           <div className="space-y-2">
@@ -838,25 +774,54 @@ const TagList = () => {
       title: "Message Bubbles Example",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Message Bubble Components</h3>
-          <MessageBubble state="primary">
-            Primary message bubble
-          </MessageBubble>
-          <MessageBubble state="secondary">
-            Secondary message bubble
-          </MessageBubble>
-          <MessageBubble state="tertiary">
-            Tertiary message bubble
-          </MessageBubble>
+          <h3 className="heading-3">Message Bubble</h3>
+          <MessageBubble state="primary">Primary message bubble</MessageBubble>
+          <MessageBubble state="secondary">Secondary message bubble</MessageBubble>
+          <MessageBubble state="tertiary">Tertiary message bubble</MessageBubble>
+          <CodeSample code={`<MessageBubble state="primary">Primary message bubble</MessageBubble>
+<MessageBubble state="secondary">Secondary message bubble</MessageBubble>
+<MessageBubble state="tertiary">Tertiary message bubble</MessageBubble>`} />
         </div>
       )
     },
-
+    // Cards and Display Components
+  {
+    title: "Product Card",
+    content: (
+      <div className="space-y-4">
+        <h3 className="heading-3">Product Card</h3>
+        <ProductCard
+          title="Vintage Chair"
+          description="Beautiful vintage chair in excellent condition"
+          price={199.99}
+          imageUrl="https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg"
+          onAddToCart={() => console.log('Added to cart')}
+          category="Furniture"
+          attributes={[
+            { label: "Material", value: "Wood" },
+            { label: "Condition", value: "Excellent" }
+          ]}
+        />
+        <CodeSample code={`<ProductCard
+  title="Vintage Chair"
+  description="Beautiful vintage chair in excellent condition"
+  price={199.99}
+  imageUrl="/path/to/image.jpg"
+  onAddToCart={() => handleAddToCart()}
+  category="Furniture"
+  attributes={[
+    { label: "Material", value: "Wood" },
+    { label: "Condition", value: "Excellent" }
+  ]}
+/>`} />
+      </div>
+    )
+  },
     {
       title: "Swipe Cards Example",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Swipe Card Component</h3>
+          <h3 className="heading-3">Basic Swipe Card</h3>
           <div className="h-[400px] w-full relative">
             <SwipeCardDeck
               cards={[
@@ -889,14 +854,114 @@ const TagList = () => {
               onEmpty={() => console.log('No more cards!')}
             />
           </div>
+          <CodeSample code={`const cards = [
+    {
+      id: 1,
+      imageUrl: "/path/to/image1.jpg",
+      alt: "Card 1",
+      content: (
+        <div>
+          <h4 className="font-bold mb-1">Card One</h4>
+          <p>Swipe right to approve, left to reject</p>
+        </div>
+      )
+    }
+  ];
+
+  <SwipeCardDeck
+    cards={cards}
+    onSwipeLeft={(card) => handleReject(card)}
+    onSwipeRight={(card) => handleApprove(card)}
+    onEmpty={() => handleEmptyDeck()}
+  />`} />
         </div>
       )
     },
+      // Shopping Components
+  {
+    title: "Shopping Cart",
+    content: (
+      <div className="space-y-4">
+        <h3 className="heading-3">Shopping Cart</h3>
+        <ShoppingCart
+          items={[
+            {
+              id: '1',
+              name: 'Vintage Chair',
+              description: 'Beautiful vintage chair in excellent condition',
+              price: 199.99,
+              imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg'
+            },
+            {
+              id: '2',
+              name: 'Antique Lamp',
+              description: 'Classic design table lamp',
+              price: 89.99,
+              imageUrl: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg'
+            }
+          ]}
+          onRemoveItem={(id) => console.log('Removed item:', id)}
+          onCheckout={() => console.log('Proceeding to checkout')}
+        />
+        <CodeSample code={`const cartItems = [
+  {
+    id: '1',
+    name: 'Vintage Chair',
+    description: 'Beautiful vintage chair',
+    price: 199.99,
+    imageUrl: '/path/to/image.jpg'
+  }
+];
+
+<ShoppingCart
+  items={cartItems}
+  onRemoveItem={(id) => handleRemoveItem(id)}
+  onCheckout={() => handleCheckout()}
+/>`} />
+      </div>
+    )
+  },
+
+  // Pickup Request Flow
+  {
+    title: "Pickup Request Manager",
+    content: (
+      <div className="space-y-4">
+        <h3 className="heading-3">Pickup Request Manager</h3>
+        <PickupRequestManager
+          pickupRequests={pickupRequests}
+          onAcceptRequest={(id) => console.log('Accepted request:', id)}
+          onRejectRequest={(id) => console.log('Rejected request:', id)}
+          onUpdateStatus={(id, status) => console.log('Updated status:', id, status)}
+          onSendMessage={(id, message) => console.log('Sent message:', id, message)}
+        />
+        <CodeSample code={`const pickupRequests = [
+  {
+    id: '1',
+    status: 'pending',
+    items: [],
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St'
+  }
+];
+
+<PickupRequestManager
+  pickupRequests={pickupRequests}
+  onAcceptRequest={(id) => handleAccept(id)}
+  onRejectRequest={(id) => handleReject(id)}
+  onUpdateStatus={(id, status) => handleStatusUpdate(id, status)}
+  onSendMessage={(id, message) => handleSendMessage(id, message)}
+/>`} />
+      </div>
+    )
+  },
     {
       title: "Dashboard",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Dashboard Component</h3>
+          <h3 className="heading-3">Admin Dashboard</h3>
           <Dashboard
             pickupRequests={[
               {
@@ -944,6 +1009,24 @@ const TagList = () => {
             onMessageRead={(requestId, messageId) => 
               console.log('Message read:', requestId, messageId)}
           />
+          <CodeSample code={`const dashboardData = {
+  pickupRequests: [],
+  acceptedRequests: [],
+  availableDates: ['2024-03-19', '2024-03-20', '2024-03-21']
+};
+
+<Dashboard
+  pickupRequests={dashboardData.pickupRequests}
+  acceptedRequests={dashboardData.acceptedRequests}
+  availableDates={dashboardData.availableDates}
+  onRequestClick={(requestId) => handleRequestClick(requestId)}
+  onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
+  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
+  onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
+  onCompletePickup={(requestId) => handleCompletePickup(requestId)}
+  onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
+  onMessageRead={(requestId, messageId) => handleMessageRead(requestId, messageId)}
+/>`} />
         </div>
       )
     },
@@ -951,7 +1034,7 @@ const TagList = () => {
       title: "Accepted Request Manager",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Accepted Request Manager</h3>
+          <h3 className="heading-3">Pickups By Date</h3>
           <AcceptedRequestManager
             requests={acceptedRequests}
             onUpdateItemStatus={(requestId, itemId, status) => 
@@ -968,6 +1051,29 @@ const TagList = () => {
               console.log('Message read:', requestId, messageId)}
             availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
           />
+          <CodeSample code={`const acceptedRequests = [
+  {
+    id: '1',
+    items: [],
+    messages: [],
+    status: 'pending',
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St'
+  }
+];
+
+<AcceptedRequestManager
+  requests={acceptedRequests}
+  onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
+  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
+  onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
+  onCompletePickup={(requestId) => handleCompletePickup(requestId)}
+  onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
+  onMessageRead={(requestId, messageId) => handleMessageRead(requestId, messageId)}
+  availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
+/>`} />
         </div>
       )
     },
@@ -975,7 +1081,7 @@ const TagList = () => {
       title: "Inventory Processing",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Inventory Processing Component</h3>
+          <h3 className="heading-3">Recieving  Card</h3>
           
           <InventoryProcessing
             request={samplePickupRequest}
@@ -991,7 +1097,7 @@ const TagList = () => {
       title: "Image Upload",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Image Upload Component</h3>
+          <h3 className="heading-3">Image Upload</h3>
           <ImageUpload 
             onUpload={(photos) => {
               console.log('Showcase ImageUpload - Received photos:', photos);
@@ -1006,13 +1112,20 @@ const TagList = () => {
       title: "Pickup Item Queue",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Pickup Item Queue</h3>
+          <h3 className="heading-3">Pickup Item Card</h3>
         <PickupItemQueue
           items={[
             {
               id: '1',
               name: 'Vintage Desk',
               description: 'Mid-century modern desk in walnut finish',
+              imageUrl: 'https://example.com/desk.jpg',
+              status: 'pending'
+            },
+            {
+              id: '2',
+              name: 'Other Name',
+              description: 'Other Description',
               imageUrl: 'https://example.com/desk.jpg',
               status: 'pending'
             }
@@ -1030,7 +1143,7 @@ const TagList = () => {
       title: "Inventory Item Processing",
       content: (
         <div className="space-y-6">
-          <h3 className="heading-3">Inventory Item Processing</h3>
+          <h3 className="heading-3">Item Listing</h3>
           
           <InventoryItemProcessing
             items={[
@@ -1048,6 +1161,24 @@ const TagList = () => {
             onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
             onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
           />
+          <CodeSample code={`const inventoryItems = [
+    {
+      id: '1',
+      productId: 'PROD-001',
+      pickupPhoto: '/path/to/photo.jpg',
+      pickupDescription: 'Vintage chair',
+      receivedDate: new Date(),
+      status: 'in_inventory',
+      customerName: 'John Doe'
+    }
+  ];
+
+  <InventoryItemProcessing
+    items={inventoryItems}
+    onUpdateDetails={(itemId, details) => handleDetailsUpdate(itemId, details)}
+    onUpdateStatus={(itemId, status) => handleStatusUpdate(itemId, status)}
+    onSaveDraft={(itemId, details) => handleSaveDraft(itemId, details)}
+  />`} />
         </div>
       )
     },
@@ -1081,6 +1212,24 @@ const TagList = () => {
             onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
             className="w-full"
           />
+          <CodeSample code={`const items = [
+    {
+      id: '1',
+      productId: 'PROD-001',
+      pickupPhoto: '/path/to/photo.jpg',
+      pickupDescription: 'Vintage chair',
+      receivedDate: new Date(),
+      customerName: 'John Doe'
+    }
+  ];
+
+  <InventoryProcessingManager
+    items={items}
+    onUpdateDetails={(itemId, details) => handleDetailsUpdate(itemId, details)}
+    onUpdateStatus={(itemId, status) => handleStatusUpdate(itemId, status)}
+    onSaveDraft={(itemId, details) => handleSaveDraft(itemId, details)}
+    className="w-full"
+  />`} />
         </div>
       )
     },
@@ -1120,7 +1269,7 @@ const TagList = () => {
   title: "Pickup List",
   content: (
     <div className="space-y-4">
-      <h3 className="heading-3">Pickup List Component</h3>
+      <h3 className="heading-3">Pickup List</h3>
       
       <PickupList
         pickups={[
@@ -1160,7 +1309,7 @@ const TagList = () => {
       title: "Receiving",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Receiving Component</h3>
+          <h3 className="heading-3">Receiving</h3>
           
           <Receiving
             pickups={[
@@ -1209,18 +1358,32 @@ const TagList = () => {
       )
     },
     {
-      title: "Regular Pickup Request Form",
+      title: "Pickup Request Form",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Regular Pickup Request Form</h3>
-          <PickupRequestForm 
-            onSubmit={(data) => {
-              console.log('Regular form submitted:', data);
-            }}
+          <h3 className="heading-3">Pickup Request Form</h3>
+          <PickupRequestForm
+            onSubmit={(data) => console.log('Form submitted:', data)}
+            availableDates={[
+              { date: '2024-03-19', requestCount: 0 },
+              { date: '2024-03-20', requestCount: 1 },
+              { date: '2024-03-21', requestCount: 2 }
+            ]}
           />
+          <CodeSample code={`const availableDates = [
+  { date: '2024-03-19', requestCount: 0 },
+  { date: '2024-03-20', requestCount: 1 },
+  { date: '2024-03-21', requestCount: 2 }
+];
+
+<PickupRequestForm
+  onSubmit={(data) => handleFormSubmit(data)}
+  availableDates={availableDates}
+/>`} />
         </div>
       )
     },
+    
     ...newContentItems
   ];
 

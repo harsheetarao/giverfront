@@ -6,13 +6,19 @@ import { CustomButton } from './CustomButton';
 import { cn } from '@/lib/utils';
 import { ShoppingCart } from 'lucide-react';
 
+interface ProductAttribute {
+  label: string;
+  value: string;
+}
+
 interface ProductCardProps {
   imageUrl: string;
   title: string;
   category: string;
   description: string;
   price: number;
-  attributes: string[];
+  salePrice?: number;
+  attributes?: ProductAttribute[];
   onAddToCart?: () => void;
   className?: string;
 }
@@ -23,6 +29,7 @@ export const ProductCard = ({
   category,
   description,
   price,
+  salePrice,
   attributes,
   onAddToCart,
   className,
@@ -62,10 +69,10 @@ export const ProductCard = ({
 
           {/* Attributes */}
           <div className="flex flex-wrap gap-2">
-            {attributes.map((attr, index) => (
+            {attributes?.map((attr, index) => (
               <Tag
                 key={index}
-                text={attr}
+                text={attr.label}
                 variant="secondary"
               />
             ))}

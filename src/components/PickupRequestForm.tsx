@@ -24,8 +24,16 @@ interface PickupRequestFormProps {
   renderDetailsStep?: (
     items: UploadedItem[],
     handleItemDescription: (id: string, description: string) => void,
-    handleQuantityChange: (id: string, quantity: string) => void
+    handleQuantityChange: (id: string, quantity: string) => void,
+    availableDates: Array<{
+      date: string;
+      requestCount: number;
+    }>
   ) => React.ReactNode;
+  availableDates?: Array<{
+    date: string;
+    requestCount: number;
+  }>;
 }
 
 interface ConfirmationState {
@@ -115,6 +123,7 @@ export const PickupRequestForm = ({
   className,
   skipContactStep = false,
   renderDetailsStep,
+  availableDates,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -148,8 +157,8 @@ export const PickupRequestForm = ({
   };
 
   const steps = skipContactStep 
-    ? ['Photos', 'Details', 'Dates', 'Location']
-    : ['Contact', 'Photos', 'Details', 'Dates', 'Location'];
+    ? ['Items', 'Schedule']
+    : ['Contact', 'Items', 'Schedule'];
 
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
@@ -206,19 +215,25 @@ export const PickupRequestForm = ({
               maxFiles={5}
             />
 
-            {/* Uploaded Photos Preview */}
             {uploadedItems.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="space-y-6">
                 {uploadedItems.map((item) => (
-                  <div 
-                    key={item.id}
-                    className="aspect-square rounded-lg overflow-hidden border-2 border-[#5A7C6F]"
-                  >
-                    <img 
-                      src={item.imageUrl} 
-                      alt="Uploaded item" 
-                      className="w-full h-full object-cover"
-                    />
+                  <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
+                    <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                      <img 
+                        src={item.imageUrl} 
+                        alt="Item" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <FormInput
+                        label="Item Description"
+                        placeholder="Describe the item, including condition and any relevant details"
+                        value={item.description || ''}
+                        onChange={(value: string) => handleItemDescription(item.id, value)}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -227,35 +242,22 @@ export const PickupRequestForm = ({
         );
 
       case 3:
-        return renderDetailsStep ? 
-          renderDetailsStep(uploadedItems, handleItemDescription, handleQuantityChange) :
-          (
-            <div className="space-y-6">
-              {uploadedItems.map((item) => (
-                <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
-                  <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                    <img 
-                      src={item.imageUrl} 
-                      alt="Item" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    <FormInput
-                      label="Item Description"
-                      placeholder="Describe the item, including condition and any relevant details"
-                      value={item.description || ''}
-                      onChange={(value: string) => handleItemDescription(item.id, value)}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-
-      case 4:
         return (
           <div className="space-y-6">
+            <div className="bg-[#F8FAF9] rounded-xl p-4">
+              <PlacesAutocomplete
+                value={address}
+                onChange={setAddress}
+                onSelect={async (address) => {
+                  setAddress(address);
+                }}
+              />
+              <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Please ensure the address is accurate and items will be accessible at this location
+              </p>
+            </div>
+
             <div className="bg-[#F8FAF9] rounded-xl p-4">
               <h3 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 Available Pickup Times
@@ -282,25 +284,6 @@ export const PickupRequestForm = ({
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-6">
-            <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <PlacesAutocomplete
-                value={address}
-                onChange={setAddress}
-                onSelect={async (address) => {
-                  setAddress(address);
-                }}
-              />
-              <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                Please ensure the address is accurate and items will be accessible at this location
-              </p>
             </div>
 
             <div className="mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4">
@@ -390,10 +373,6 @@ export const PickupRequestForm = ({
       case 2:
         return uploadedItems.length > 0;
       case 3:
-        return true;
-      case 4:
-        return availableTimes.length > 0;
-      case 5:
         return address.trim().length > 0 && 
                confirmations.ownership &&
                confirmations.address &&
@@ -404,7 +383,7 @@ export const PickupRequestForm = ({
   };
 
   const handleNext = () => {
-    if (currentStep === 5) {
+    if (currentStep === 3) {
       onSubmit({
         fullName: contactInfo.fullName,
         contact: contactInfo.contact,
@@ -452,8 +431,8 @@ export const PickupRequestForm = ({
           disabled={!canProceed()}
           className="flex items-center gap-2 ml-auto"
         >
-          {currentStep === 5 ? 'Submit Request' : 'Continue'}
-          {currentStep < 5 && <ChevronRight className="h-4 w-4" />}
+          {currentStep === 3 ? 'Submit Request' : 'Continue'}
+          {currentStep < 3 && <ChevronRight className="h-4 w-4" />}
         </CustomButton>
       </div>
     </div>

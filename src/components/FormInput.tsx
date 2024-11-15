@@ -18,6 +18,7 @@ interface FormInputProps {
   placeholder?: string;
   disabled?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  error?: string;
 }
 
 const stateStyles = {
