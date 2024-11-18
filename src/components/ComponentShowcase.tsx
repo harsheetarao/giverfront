@@ -1407,7 +1407,11 @@ const [currentStep, setCurrentStep] = useState(1);
         </div>
       </main>
 
-      <Footer />
+      <Footer 
+        copyrightText="© 2024 gone.com Component Library. All rights reserved."
+        // optionally add additional content:
+        // additionalContent={<div>Additional footer content</div>}
+      />
     </Page>
   );
 };

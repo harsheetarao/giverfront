@@ -156,9 +156,7 @@ export const PickupRequestForm = ({
     );
   };
 
-  const steps = skipContactStep 
-    ? ['Items', 'Schedule']
-    : ['Contact', 'Items', 'Schedule'];
+  const steps = ['What', 'When', 'Where'];
 
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
@@ -169,45 +167,8 @@ export const PickupRequestForm = ({
   };
 
   const renderStepContent = () => {
-    const adjustedStep = skipContactStep ? currentStep + 1 : currentStep;
-
-    switch (adjustedStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <p className="text-[#4B7163] mb-4">
-                To better serve you, we need:
-              </p>
-              <ul className="list-disc ml-6 mb-4">
-                <li>Your name</li>
-                <li>Either an email address or mobile number</li>
-              </ul>
-              <p className="text-[#4B7163]">
-                This allows us to send service updates through your preferred contact method. We'll only use these details to communicate about your specific request.
-              </p>
-              
-              <div className="mt-6">
-                <FormInput
-                  label="Full Name"
-                  value={contactInfo.fullName}
-                  onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
-                />
-                
-                <div className="mt-6">
-                  <FormInput
-                    label="Email Address or Mobile Number"
-                    value={contactInfo.contact}
-                    onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
-                    hint="Choose the contact method you check most frequently for fastest updates."
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 2:
+    switch (currentStep) {
+      case 1: // What
         return (
           <div className="space-y-6">
             <ImageUpload
@@ -241,23 +202,9 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 3:
+      case 2: // When
         return (
           <div className="space-y-6">
-            <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <PlacesAutocomplete
-                value={address}
-                onChange={setAddress}
-                onSelect={async (address) => {
-                  setAddress(address);
-                }}
-              />
-              <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                Please ensure the address is accurate and items will be accessible at this location
-              </p>
-            </div>
-
             <div className="bg-[#F8FAF9] rounded-xl p-4">
               <h3 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 Available Pickup Times
@@ -285,8 +232,44 @@ export const PickupRequestForm = ({
                 ))}
               </div>
             </div>
+          </div>
+        );
 
-            <div className="mt-8 space-y-4 bg-[#F8FAF9] rounded-xl p-4">
+      case 3: // Where
+        return (
+          <div className="space-y-6">
+            <div className="bg-[#F8FAF9] rounded-xl p-4">
+              <FormInput
+                label="Full Name"
+                value={contactInfo.fullName}
+                onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
+              />
+              
+              <div className="mt-6">
+                <FormInput
+                  label="Email Address or Mobile Number"
+                  value={contactInfo.contact}
+                  onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
+                  hint="Choose the contact method you check most frequently for fastest updates."
+                />
+              </div>
+            </div>
+
+            <div className="bg-[#F8FAF9] rounded-xl p-4">
+              <PlacesAutocomplete
+                value={address}
+                onChange={setAddress}
+                onSelect={async (address) => {
+                  setAddress(address);
+                }}
+              />
+              <p className="mt-2 text-sm text-[#5A7C6F] flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Please ensure the address is accurate and items will be accessible at this location
+              </p>
+            </div>
+
+            <div className="space-y-4 bg-[#F8FAF9] rounded-xl p-4">
               <h3 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 Final Confirmation
               </h3>
@@ -342,18 +325,6 @@ export const PickupRequestForm = ({
                 </span>
               </label>
             </div>
-
-            {showTerms && (
-              <Modal onClose={() => setShowTerms(false)}>
-                <div className="p-6">
-                  <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Terms of Service</h2>
-                  {/* Add your terms of service content here */}
-                  <div className="prose prose-sm max-w-none">
-                    {/* Terms content */}
-                  </div>
-                </div>
-              </Modal>
-            )}
           </div>
         );
 
@@ -364,16 +335,14 @@ export const PickupRequestForm = ({
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1:
-        if (skipContactStep) {
-          return uploadedItems.length > 0;
-        }
-        return contactInfo.fullName.trim().length > 0 && 
-               contactInfo.contact.trim().length > 0;
-      case 2:
+      case 1: // What
         return uploadedItems.length > 0;
-      case 3:
-        return address.trim().length > 0 && 
+      case 2: // When
+        return availableTimes.length > 0;
+      case 3: // Where
+        return contactInfo.fullName.trim().length > 0 && 
+               contactInfo.contact.trim().length > 0 &&
+               address.trim().length > 0 && 
                confirmations.ownership &&
                confirmations.address &&
                confirmations.terms;
