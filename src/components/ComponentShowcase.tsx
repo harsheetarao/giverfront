@@ -38,6 +38,7 @@ import Logo from '@/styles/ui/logos/gone.svg';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Page } from './page';
+import { DocumentationSection } from './DocumentationSection';
 
 import type { AcceptedRequest } from '@/types/AcceptedRequest';
 import { RequestStatus } from '@/types/PickupItem';
@@ -927,17 +928,26 @@ const [currentStep, setCurrentStep] = useState(1);
       )
     },
     {
-      title: "Image Upload",
+      title: "ImageUpload",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Image Upload</h3>
-          <ImageUpload 
-            onUpload={(photos) => {
-              console.log('Showcase ImageUpload - Received photos:', photos);
-              // Add any showcase-specific handling here
+          <h3 className="heading-3">ImageUpload</h3>
+          <ImageUpload
+            onUpload={(files) => {
+              console.log('Files uploaded:', files);
+              // Handle the upload logic here
             }}
             maxFiles={3}
           />
+          <CodeSample code={`const handleUpload = (files: File[]) => {
+  console.log('Files uploaded:', files);
+  // Handle the upload logic here
+};
+
+<ImageUpload
+  onUpload={handleUpload}
+  maxFiles={3}
+/>`} />
         </div>
       )
     },
@@ -1298,19 +1308,404 @@ const [currentStep, setCurrentStep] = useState(1);
     }
   ];
 
+  const documentationItems = [
+    {
+      title: "CustomButton",
+      documentation: {
+        description: "A versatile button component that supports multiple variants, sizes, and states.",
+        props: [
+          {
+            name: "variant",
+            type: "'primary' | 'secondary' | 'cta'",
+            description: "Determines the button's visual style",
+            required: false
+          },
+          {
+            name: "size",
+            type: "'sm' | 'md' | 'lg'",
+            description: "Controls the button's size",
+            required: false
+          },
+          {
+            name: "disabled",
+            type: "boolean",
+            description: "Disables the button when true",
+            required: false
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<CustomButton variant="primary" size="md">
+  Click Me
+</CustomButton>`
+          }
+        ]
+      }
+    },
+    {
+      title: "FormInput",
+      documentation: {
+        description: "A form input component with support for various states and validation.",
+        props: [
+          {
+            name: "label",
+            type: "string",
+            description: "Input label text",
+            required: true
+          },
+          {
+            name: "state",
+            type: "'normal' | 'completed' | 'error' | 'required' | 'blankRequired'",
+            description: "Current input state",
+            required: false
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<FormInput
+  label="Email"
+  value={email}
+  onChange={setEmail}
+  state="required"
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "Tag",
+      documentation: {
+        description: "A tag component for displaying labels with optional delete functionality.",
+        props: [
+          {
+            name: "text",
+            type: "string",
+            description: "The text to display in the tag",
+            required: true
+          },
+          {
+            name: "variant",
+            type: "'primary' | 'secondary' | 'cta'",
+            description: "Visual style variant of the tag",
+            required: false
+          },
+          {
+            name: "onDelete",
+            type: "() => void",
+            description: "Callback function when delete button is clicked",
+            required: false
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<Tag text="React" onDelete={() => handleDelete()} />`
+          }
+        ]
+      }
+    },
+    {
+      title: "Progress",
+      documentation: {
+        description: "A step progress indicator for multi-step workflows.",
+        props: [
+          {
+            name: "steps",
+            type: "string[]",
+            description: "Array of step labels",
+            required: true
+          },
+          {
+            name: "currentStep",
+            type: "number",
+            description: "Current active step (1-based index)",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `const steps = ['Profile', 'Address', 'Payment', 'Review'];
+<Progress steps={steps} currentStep={2} />`
+          }
+        ]
+      }
+    },
+    {
+      title: "MessageBubble",
+      documentation: {
+        description: "A chat message bubble component with different states.",
+        props: [
+          {
+            name: "state",
+            type: "'primary' | 'secondary' | 'tertiary'",
+            description: "Visual style of the message bubble",
+            required: true
+          },
+          {
+            name: "children",
+            type: "React.ReactNode",
+            description: "Content to display inside the bubble",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<MessageBubble state="primary">Hello, how can I help?</MessageBubble>`
+          }
+        ]
+      }
+    },
+    {
+      title: "SwipeCardDeck",
+      documentation: {
+        description: "A swipeable card deck component for interactive decision making.",
+        props: [
+          {
+            name: "cards",
+            type: "Array<{ id: number; imageUrl: string; alt: string; content: React.ReactNode }>",
+            description: "Array of card data to display",
+            required: true
+          },
+          {
+            name: "onSwipeLeft",
+            type: "(card: Card) => void",
+            description: "Callback when card is swiped left",
+            required: true
+          },
+          {
+            name: "onSwipeRight",
+            type: "(card: Card) => void",
+            description: "Callback when card is swiped right",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<SwipeCardDeck
+  cards={cards}
+  onSwipeLeft={(card) => handleReject(card)}
+  onSwipeRight={(card) => handleApprove(card)}
+  onEmpty={() => handleEmptyDeck()}
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "ShoppingCart",
+      documentation: {
+        description: "A shopping cart component for e-commerce applications.",
+        props: [
+          {
+            name: "items",
+            type: "Array<{ id: string; name: string; price: number; imageUrl: string }>",
+            description: "Array of items in the cart",
+            required: true
+          },
+          {
+            name: "onRemoveItem",
+            type: "(id: string) => void",
+            description: "Callback when removing an item",
+            required: true
+          },
+          {
+            name: "onCheckout",
+            type: "() => void",
+            description: "Callback when checkout button is clicked",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<ShoppingCart
+  items={cartItems}
+  onRemoveItem={(id) => handleRemoveItem(id)}
+  onCheckout={() => handleCheckout()}
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "PickupRequestManager",
+      documentation: {
+        description: "A component for managing pickup requests and their workflow states.",
+        props: [
+          {
+            name: "pickupRequests",
+            type: "Array<PickupRequest>",
+            description: "Array of pickup requests to manage",
+            required: true
+          },
+          {
+            name: "onAcceptRequest",
+            type: "(id: string) => void",
+            description: "Callback when a request is accepted",
+            required: true
+          },
+          {
+            name: "onRejectRequest",
+            type: "(id: string) => void",
+            description: "Callback when a request is rejected",
+            required: true
+          },
+          {
+            name: "onUpdateStatus",
+            type: "(id: string, status: RequestStatus) => void",
+            description: "Callback when request status is updated",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<PickupRequestManager
+  pickupRequests={requests}
+  onAcceptRequest={handleAccept}
+  onRejectRequest={handleReject}
+  onUpdateStatus={handleStatusUpdate}
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "DriverPickupWorkflow",
+      documentation: {
+        description: "A workflow component for drivers to manage pickup processes.",
+        props: [
+          {
+            name: "requests",
+            type: "Array<AcceptedRequest>",
+            description: "Array of accepted pickup requests",
+            required: true
+          },
+          {
+            name: "onUpdateItemStatus",
+            type: "(requestId: string, itemId: string, status: string) => void",
+            description: "Callback when item status is updated",
+            required: true
+          },
+          {
+            name: "onAddPhoto",
+            type: "(requestId: string, itemId: string, photo: File, note?: string) => void",
+            description: "Callback when verification photo is added",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<DriverPickupWorkflow
+  requests={acceptedRequests}
+  onUpdateItemStatus={handleStatusUpdate}
+  onAddPhoto={handlePhotoUpload}
+  onReschedule={handleReschedule}
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "ListingWorkflow",
+      documentation: {
+        description: "A workflow component for creating and managing product listings.",
+        props: [
+          {
+            name: "items",
+            type: "Array<InventoryItem>",
+            description: "Array of items to be listed",
+            required: true
+          },
+          {
+            name: "onUpdateDetails",
+            type: "(itemId: string, details: object) => void",
+            description: "Callback when item details are updated",
+            required: true
+          },
+          {
+            name: "onUpdateStatus",
+            type: "(itemId: string, status: string) => void",
+            description: "Callback when item status changes",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<ListingWorkflow
+  items={inventoryItems}
+  onUpdateDetails={handleDetailsUpdate}
+  onUpdateStatus={handleStatusUpdate}
+  onSaveDraft={handleSaveDraft}
+/>`
+          }
+        ]
+      }
+    },
+    {
+      title: "ReceivingWorkflow",
+      documentation: {
+        description: "A workflow component for receiving and processing incoming items.",
+        props: [
+          {
+            name: "items",
+            type: "Array<PickupItem>",
+            description: "Array of items to be received",
+            required: true
+          },
+          {
+            name: "onReceiveItem",
+            type: "(id: string) => void",
+            description: "Callback when item is received",
+            required: true
+          },
+          {
+            name: "onRejectItem",
+            type: "(id: string) => void",
+            description: "Callback when item is rejected",
+            required: true
+          }
+        ],
+        examples: [
+          {
+            title: "Basic Usage",
+            code: `<ReceivingWorkflow
+  items={receivingItems}
+  onReceiveItem={handleReceive}
+  onRejectItem={handleReject}
+  onUpdateStatus={handleStatusUpdate}
+/>`
+          }
+        ]
+      }
+    }
+  ];
+
   return (
     <Page>
-      <Header menuItems={menuItems} />
+      <Header 
+        menuItems={menuItems} 
+        logo={{
+          src: Logo,
+          alt: "Gone Logo",
+          width: 300,
+          height: 75
+        }} 
+      />
       
-      {/* Main Content */}
-      <main className="flex-grow w-full">
+      {/* Add id="components" to the main showcase section */}
+      <main id="components" className="flex-grow w-full">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
             {[...newContentItems, ...contentItems].map((item, index) => (
-              <div 
-                key={index}
-                className="bg-white rounded-lg shadow p-6 flex flex-col"
-              >
+              <div key={index} className="bg-white rounded-lg shadow p-6 flex flex-col">
                 {item.content}
               </div>
             ))}
@@ -1318,11 +1713,12 @@ const [currentStep, setCurrentStep] = useState(1);
         </div>
       </main>
 
-      <Footer 
-        copyrightText="© 2024 gone.com Component Library. All rights reserved."
-        // optionally add additional content:
-        // additionalContent={<div>Additional footer content</div>}
-      />
+      {/* Add id="documentation" to the Documentation Section */}
+      <div id="documentation">
+        <DocumentationSection contentItems={documentationItems} />
+      </div>
+
+      <Footer copyrightText="© 2024 gone.com Component Library. All rights reserved." />
     </Page>
   );
 };
