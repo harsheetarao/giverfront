@@ -236,7 +236,6 @@ const ComponentShowcase = () => {
   const menuItems = [
     { label: 'Components', href: '#components' },
     { label: 'Documentation', href: '#documentation' },
-    { label: 'Examples', href: '#examples' },
     { label: 'Github', href: 'https://github.com/Get-it-Gone/ComponentLibrary' }
   ];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
@@ -1696,7 +1695,8 @@ const [currentStep, setCurrentStep] = useState(1);
           src: Logo,
           alt: "Gone Logo",
           width: 300,
-          height: 75
+          height: 75,
+          href: "https://gone.com"
         }} 
       />
       

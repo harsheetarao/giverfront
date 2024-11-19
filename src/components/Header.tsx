@@ -22,6 +22,7 @@ interface HeaderProps {
     alt: string;
     width?: number;
     height?: number;
+    href: string;
   };
 }
 
@@ -30,17 +31,19 @@ export const Header: React.FC<HeaderProps> = ({ menuItems, logo }) => {
     <header className="sticky top-0 z-50 w-full bg-[#4B7163] text-white shadow-lg">
       <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-16 flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo with Link */}
           <div className="flex shrink-0 items-center">
             {logo && (
-              <NextImage
-                src={logo.src}
-                alt={logo.alt}
-                width={logo.width || 300}
-                height={logo.height || 75}
-                className="h-16 w-auto"
-                priority
-              />
+              <a href={logo.href} className="flex items-center">
+                <NextImage
+                  src={logo.src}
+                  alt={logo.alt}
+                  width={logo.width || 300}
+                  height={logo.height || 75}
+                  className="h-16 w-auto"
+                  priority
+                />
+              </a>
             )}
           </div>
 
