@@ -24,6 +24,14 @@ interface PickupRequestManagerProps {
         requestCount: number;
       }>;
       location: string;
+      pickupPhoto: string;
+      pickupDate: Date;
+      pickupAddress: string;
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string;
+      messages: Message[];
+      address: string;
     }>;
     messages: any[];
     status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
@@ -66,7 +74,7 @@ export const PickupRequestManager = ({
       )
     : null;
 
-  const handleSwipe = (direction: 'left' | 'right', item: PickupItem) => {
+  const handleSwipe = (direction: 'left' | 'right', item: any) => {
     if (direction === 'right') {
       onAcceptRequest(pickupRequests[currentRequestIndex].id);
     } else {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProcessingQueue } from './ProcessingQueue';
-import { InventoryItemProcessing } from './InventoryItemProcessing';
+import { ListingWorkflow } from './ListingWorkflow';
 
 interface ProcessingItem {
   id: string;
@@ -53,7 +53,7 @@ export const InventoryProcessingManager = ({
         >
           ← Back to Queue
         </button>
-        <InventoryItemProcessing
+        <ListingWorkflow
           items={processingItems.filter(item => item.id === selectedItemId)}
           onUpdateDetails={onUpdateDetails}
           onUpdateStatus={onUpdateStatus}

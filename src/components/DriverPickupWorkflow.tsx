@@ -5,7 +5,7 @@ import { CustomButton } from './CustomButton';
 import { Camera, Calendar, MapPin, Check, X, MessageCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MessageThread } from './MessageThread';
-import { AcceptedRequest } from '@/types/PickupRequest';
+import { AcceptedRequest } from '@/types/AcceptedRequest';
 import { AcceptedPickupItem } from '@/types/PickupItem';
 import { FormDropdown } from './FormDropdown';
 import { SwipeCard } from './SwipeCard';
@@ -23,7 +23,7 @@ interface AcceptedRequestManagerProps {
   className?: string;
 }
 
-export const AcceptedRequestManager = ({
+export const DriverPickupWorkflow = ({
   requests = [],
   onUpdateItemStatus,
   onAddPhoto,
@@ -41,8 +41,12 @@ export const AcceptedRequestManager = ({
 
   // Sort requests by pickup date
   const filteredRequests = (requests || [])
-    .sort((a, b) => new Date(a.pickupDate || '').getTime() - new Date(b.pickupDate || '').getTime())
-    .filter(request => !selectedDate || request.pickupDate === selectedDate);
+    .sort((a, b) => {
+      const dateA = a.pickupDate ? new Date(a.pickupDate).getTime() : 0;
+      const dateB = b.pickupDate ? new Date(b.pickupDate).getTime() : 0;
+      return dateA - dateB;
+    })
+    .filter(request => !selectedDate || request.pickupDate?.toISOString().split('T')[0] === selectedDate);
 
   if (!selectedRequest) {
     return (
@@ -117,7 +121,7 @@ export const AcceptedRequestManager = ({
           <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">Customer Information</h3>
           <div className="bg-[#F8FAF9] p-4 rounded-xl">
             <p className="text-[#5A7C6F] mb-2"><strong>Name:</strong> {selectedRequest.customerName}</p>
-            <p className="text-[#5A7C6F] mb-2"><strong>Contact:</strong> {selectedRequest.email || selectedRequest.phone}</p>
+            <p className="text-[#5A7C6F] mb-2"><strong>Contact:</strong> {selectedRequest.customerEmail || selectedRequest.customerPhone}</p>
             <div 
               className="flex items-center gap-2 text-[#5A7C6F] cursor-pointer hover:text-[#4B7163] transition-colors"
               onClick={() => setIsMapModalOpen(true)}
@@ -150,7 +154,7 @@ export const AcceptedRequestManager = ({
                 <div className="absolute inset-0 -mx-8">
                   <div className="relative h-full mx-8">
                     <SwipeCard
-                      imageUrl={item.photos?.[0] || ''}
+                      imageUrl={item.verificationPhotos?.[0]?.imageUrl || item.imageUrl || ''}
                       alt={item.name}
                       onSwipe={(direction) => {
                         onUpdateItemStatus(

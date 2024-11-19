@@ -23,26 +23,24 @@ import { ShoppingCart } from '@/components/ShoppingCart';
 import { PickupRequestForm } from '@/components/PickupRequestForm';
 import { Modal } from '@/components/Modal';
 import { MessageThread } from '@/components/MessageThread';
-import { Dashboard } from './Dashboard';
-import { AcceptedRequestManager } from '@/components/AcceptedRequestManager';
+import { DriverPickupWorkflow } from '@/components/DriverPickupWorkflow';
 import { MapModal } from '@/components/MapModal';
 import { MapPin } from 'lucide-react';
 import { InventoryProcessing } from '@/components/InventoryProcessing';
 import { ImageUpload } from '@/components/ImageUpload';
-import { PickupItemQueue } from '@/components/PickupItemQueue';
-import { InventoryItemProcessing } from '@/components/InventoryItemProcessing';
-import { ProcessingQueue } from '@/components/ProcessingQueue';
-import { InventoryProcessingManager } from '@/components/InventoryProcessingManager';
-import { PickupList } from '@/components/PickupList';
-import { Receiving } from '@/components/Receiving';
+import { ReceivingWorkflow } from '@/components/ReceivingWorkflow';
 import { PartnerPickupRequestForm } from '@/components/PartnerPickupRequestForm';
 import { CodeSample } from '@/components/CodeSample';
+import { ListingWorkflow } from '@/components/ListingWorkflow';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Page } from './page';
+
+import type { AcceptedRequest } from '@/types/AcceptedRequest';
+import { RequestStatus } from '@/types/PickupItem';
 
 // Add this near the top with other interfaces
 interface Message {
@@ -64,27 +62,15 @@ interface AcceptedPickupItem {
     timestamp: Date;
     note?: string;
   }>;
-  scheduledDate?: string;
   imageUrl: string;
   availableDates: Array<{
     date: string;
     requestCount: number;
   }>;
-  location: string;
+  pickupAddress: string;
+  scheduledDate?: string;
 }
 
-interface AcceptedRequest {
-  id: string;
-  items: AcceptedPickupItem[];
-  messages: Message[];
-  status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  address: string;
-}
-
-// Add this interface near the other interfaces at the top of the file
 interface Pickup {
   id: string;
   status: 'pending' | 'approved' | 'rejected' | 'completed' | 'in_progress' | 'cancelled' | 'scheduled' | 'in_inventory' | 'ready_for_sale';
@@ -120,8 +106,132 @@ interface CartItem {
   imageUrl: string;
 }
 
+interface PickupItem {
+  id: string;
+  name: string;
+  description: string;
+  status: 'pending' | 'verified' | 'incorrect' | 'picked_up';
+  imageUrl: string;
+  availableDates: Array<{
+    date: string;
+    requestCount: number;
+  }>;
+  location: string;
+  verificationPhotos: Array<{
+    id: string;
+    imageUrl: string;
+    timestamp: Date;
+    note?: string;
+  }>;
+}
+
+const ContentWithControls = ({ title, children, controls }: {
+  title: string;
+  children: React.ReactNode;
+  controls: React.ReactNode;
+}) => (
+  <div className="space-y-4">
+    <h3 className="heading-3">{title}</h3>
+    <div className="grid grid-cols-1 gap-4">
+      <div className="bg-gray-50 rounded-lg p-4">
+        {controls}
+      </div>
+      <div className="bg-white rounded-lg p-4">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+// Move sampleMessages outside of ComponentShowcase
+const sampleMessages: Message[] = [
+  {
+    id: '1',
+    content: 'Hello! I have a question about pickup services.',
+    timestamp: new Date(Date.now() - 86400000), // 1 day ago
+    isRead: true,
+    sender: 'user'
+  },
+  {
+    id: '2',
+    content: 'Of course! How can I help you today?',
+    timestamp: new Date(Date.now() - 82800000), // 23 hours ago
+    isRead: true,
+    sender: 'admin'
+  },
+  {
+    id: '3',
+    content: 'Is it possible to schedule a pickup for next week?',
+    timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+    isRead: false,
+    sender: 'user'
+  }
+];
+
+const MessageThreadWithControls = () => {
+  const [messages, setMessages] = useState(sampleMessages);
+  const [newMessage, setNewMessage] = useState('');
+
+  return (
+    <ContentWithControls
+      title="Message Thread"
+      controls={
+        <div className="space-y-4">
+          <FormInput
+            label="New Message"
+            value={newMessage}
+            onChange={setNewMessage}
+            placeholder="Type a message..."
+          />
+          <div className="flex gap-2">
+            <CustomButton onClick={() => {
+              if (!newMessage.trim()) return;
+              const newMsg: Message = {
+                id: String(Date.now()),
+                content: newMessage,
+                timestamp: new Date(),
+                isRead: false,
+                sender: 'user'
+              };
+              setMessages([...messages, newMsg]);
+              setNewMessage('');
+            }}>
+              Send Message
+            </CustomButton>
+          </div>
+        </div>
+      }
+    >
+      <div className="h-[400px] overflow-y-auto">
+        <MessageThread
+          messages={messages}
+          onSendMessage={(message) => {
+            const newMsg: Message = {
+              id: String(Date.now()),
+              content: message,
+              timestamp: new Date(),
+              isRead: false,
+              sender: 'admin'
+            };
+            setMessages([...messages, newMsg]);
+          }}
+          onMessageRead={(messageId) => {
+            setMessages(messages.map(msg => 
+              msg.id === messageId ? { ...msg, isRead: true } : msg
+            ));
+          }}
+        />
+      </div>
+    </ContentWithControls>
+  );
+};
+
 const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  // All mock data declarations
   const menuItems = [
     { label: 'Components', href: '#components' },
     { label: 'Documentation', href: '#documentation' },
@@ -130,93 +240,111 @@ const ComponentShowcase = () => {
   ];
   const steps = ['Profile', 'Address', 'Payment', 'Review'];
 
-  // Add this sample data
-  const pickupRequests = [
-    {
-      id: '1',
-      items: [
-        {
-          id: 'item1',
-          name: 'Vintage Chair',
-          status: 'pending' as const,
-          imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-          description: 'Beautiful vintage chair',
-          availableDates: [{ 
-            date: '2024-12-31',
-            requestCount: 0 
-          }],
-          location: '123 Main St'
-        }
-      ],
-      messages: [],
-      status: 'pending' as const,
-      customerName: 'John Doe',
-      customerEmail: 'john@example.com',
-      customerPhone: '555-0123',
-      address: '123 Main St',
-      pickupPhoto: '',
-      pickupDate: new Date('2024-12-31'),
-      pickupAddress: '123 Main St'
-    }
-  ];
-
-  // Add near other mock data
-  const sampleMessages: Message[] = [
-    {
-      id: '1',
-      content: 'Hello! I have a question about pickup services.',
-      timestamp: new Date(Date.now() - 86400000), // 1 day ago
-      isRead: true,
-      sender: 'user'
-    },
-    {
-      id: '2',
-      content: 'Of course! How can I help you today?',
-      timestamp: new Date(Date.now() - 82800000), // 23 hours ago
-      isRead: true,
-      sender: 'admin'
-    },
-    {
-      id: '3',
-      content: 'Is it possible to schedule a pickup for next week?',
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      isRead: false,
-      sender: 'user'
-    }
-  ];
-
-  const acceptedRequests: AcceptedRequest[] = [
+  const driverWorkflowRequests: AcceptedRequest[] = [
     {
       id: '1',
       items: [{
         id: 'item1',
         name: 'Vintage Chair',
-        description: 'Beautiful vintage chair in excellent condition',
+        description: 'Beautiful vintage chair',
         status: 'pending',
         verificationPhotos: [{
-          id: 'photo1',
+          id: '1',
           imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-          timestamp: new Date(),
-          note: 'Front view'
+          timestamp: new Date()
         }],
-        scheduledDate: '2024-03-20',
         imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-        availableDates: [{
-          date: '2024-03-19',
-          requestCount: 0
-        }],
-        location: '123 Main St'
+        availableDates: [{ date: '2024-03-19', requestCount: 0 }],
+        pickupAddress: '123 Main St',
+        scheduledDate: '2024-03-19',
+        pickupPhoto: 'https://example.com/photo.jpg',
+        pickupDate: new Date(),
+        items: [],
+        messages: [],
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '555-0123',
+        address: '123 Main St',
+        photos: []
       }],
       messages: sampleMessages,
       status: 'pending',
       customerName: 'John Doe',
       customerEmail: 'john@example.com',
       customerPhone: '555-0123',
-      address: '123 Main St'
+      pickupDate: new Date(),
+      address: '123 Main St',
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupAddress: '123 Main St'
     }
   ];
 
-  // Add this to your mock data section
+  const pickupRequests = [
+    {
+      id: '1',
+      items: [{
+        id: 'item1',
+        name: 'Vintage Chair',
+        status: 'pending' as const,
+        imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+        description: 'Beautiful vintage chair',
+        availableDates: [{ date: '2024-03-19', requestCount: 0 }],
+        location: '123 Main St',
+        pickupPhoto: 'https://example.com/photo.jpg',
+        pickupDate: new Date(),
+        pickupAddress: '123 Main St',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '555-0123',
+        messages: sampleMessages,
+        address: '123 Main St'
+      }],
+      messages: sampleMessages,
+      status: 'pending' as const,
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      address: '123 Main St',
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupDate: new Date(),
+      pickupAddress: '123 Main St'
+    }
+  ];
+
+  const acceptedRequests = [
+    {
+      id: '1',
+      items: [{
+        id: 'item1',
+        name: 'Vintage Chair',
+        description: 'Beautiful vintage chair',
+        status: 'pending' as const,
+        imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+        availableDates: [{
+          date: '2024-03-19',
+          requestCount: 0
+        }],
+        location: '123 Main St',
+        pickupPhoto: 'https://example.com/photo.jpg',
+        pickupDate: new Date(),
+        pickupAddress: '123 Main St',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '555-0123',
+        address: '123 Main St'
+      }],
+      messages: sampleMessages,
+      status: 'pending' as const,
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      pickupDate: '2024-03-20',
+      address: '123 Main St',
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupAddress: '123 Main St'
+    }
+  ];
+
   const samplePickupRequest = {
     id: '1',
     status: 'completed' as const,
@@ -241,30 +369,61 @@ const ComponentShowcase = () => {
     address: '123 Main St'
   };
 
-  // Interactive example component
-const TagList = () => {
-  const [tags, setTags] = React.useState([
-    { id: 1, text: 'React' },
-    { id: 2, text: 'TypeScript' },
-    { id: 3, text: 'Tailwind CSS' },
-  ]);
-
-  const handleDelete = (id: number) => {
-    setTags(tags.filter(tag => tag.id !== id));
+  const inventoryRequest = {
+    id: '1',
+    items: [{
+      id: 'item1',
+      name: 'Vintage Chair',
+      description: 'Beautiful vintage chair',
+      status: 'pending' as const,
+      imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+      availableDates: [{ date: '2024-03-19', requestCount: 0 }],
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupDate: new Date(),
+      pickupAddress: '123 Main St',
+      items: [],
+      messages: [],
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      address: '123 Main St',
+      verificationPhotos: []
+    }],
+    status: 'pending' as const,
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St',
+    pickupPhoto: 'https://example.com/photo.jpg',
+    pickupDate: new Date(),
+    pickupAddress: '123 Main St',
+    messages: sampleMessages
   };
 
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tags.map(tag => (
-        <Tag
-          key={tag.id}
-          text={tag.text}
-          onDelete={() => handleDelete(tag.id)}
-        />
-      ))}
-    </div>
-  );
-};
+  // Component definitions
+  const TagList = () => {
+    const [tags, setTags] = React.useState([
+      { id: 1, text: 'React' },
+      { id: 2, text: 'TypeScript' },
+      { id: 3, text: 'Tailwind CSS' },
+    ]);
+
+    const handleDelete = (id: number) => {
+      setTags(tags.filter(tag => tag.id !== id));
+    };
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {tags.map(tag => (
+          <Tag
+            key={tag.id}
+            text={tag.text}
+            onDelete={() => handleDelete(tag.id)}
+          />
+        ))}
+      </div>
+    );
+  };
   
   const ToggleExample = ({ 
     variant, 
@@ -292,9 +451,7 @@ const TagList = () => {
     );
   };
 
-  const [showDemoModal, setShowDemoModal] = useState(false);
-  const [showMapModal, setShowMapModal] = useState(false);
-
+  // Content arrays
   const newContentItems = [
     {
       title: "Modal",
@@ -346,28 +503,13 @@ const TagList = () => {
       title: "Message Thread",
       content: (
         <div className="space-y-4">
-          <h3 className="heading-3">Message Thread</h3>
-          <MessageThread
-            messages={sampleMessages}
-            onSendMessage={(message) => console.log('New message:', message)}
-            onMessageRead={(messageId) => console.log('Message read:', messageId)}
-            className="border border-gray-200"
-          />
-          <CodeSample code={`const messages = [
-  {
-    id: '1',
-    content: 'Hello!',
-    timestamp: new Date(),
-    isRead: true,
-    sender: 'user'
-  }
-];
+          <MessageThreadWithControls />
+          <CodeSample code={`const [messages, setMessages] = useState(sampleMessages);
 
 <MessageThread
   messages={messages}
-  onSendMessage={(message) => handleNewMessage(message)}
+  onSendMessage={(message) => handleSendMessage(message)}
   onMessageRead={(messageId) => handleMessageRead(messageId)}
-  className="border border-gray-200"
 />`} />
         </div>
       )
@@ -784,6 +926,125 @@ const [currentStep, setCurrentStep] = useState(1);
         </div>
       )
     },
+    {
+      title: "Image Upload",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Image Upload</h3>
+          <ImageUpload 
+            onUpload={(photos) => {
+              console.log('Showcase ImageUpload - Received photos:', photos);
+              // Add any showcase-specific handling here
+            }}
+            maxFiles={3}
+          />
+        </div>
+      )
+    },
+      {
+        title: "Swipe Cards Example",
+        content: (
+          <div className="space-y-4">
+            <h3 className="heading-3">Basic Swipe Card</h3>
+            <div className="h-[400px] w-full relative">
+              <SwipeCardDeck
+                cards={[
+                  {
+                    id: 1,
+                    imageUrl: "https://gone.com/assets/img/photo2.webp",
+                    alt: "Card 1",
+                    content: (
+                      <div>
+                        <h4 className="font-bold mb-1">Card One</h4>
+                        <p>Swipe right to approve, left to reject</p>
+                      </div>
+                    )
+                  },
+                  {
+                    id: 2,
+                    imageUrl: "https://gone.com/assets/img/photo3.webp",
+                    alt: "Card 2",
+                    content: (
+                      <div>
+                        <h4 className="font-bold mb-1">Card Two</h4>
+                        <p>Another swipeable card example</p>
+                      </div>
+                    )
+                  },
+                  // Add more cards as needed
+                ]}
+                onSwipeLeft={(card) => console.log('Rejected:', card)}
+                onSwipeRight={(card) => console.log('Approved:', card)}
+                onEmpty={() => console.log('No more cards!')}
+              />
+            </div>
+            <CodeSample code={`const cards = [
+      {
+        id: 1,
+        imageUrl: "/path/to/image1.jpg",
+        alt: "Card 1",
+        content: (
+          <div>
+            <h4 className="font-bold mb-1">Card One</h4>
+            <p>Swipe right to approve, left to reject</p>
+          </div>
+        )
+      }
+    ];
+  
+    <SwipeCardDeck
+      cards={cards}
+      onSwipeLeft={(card) => handleReject(card)}
+      onSwipeRight={(card) => handleApprove(card)}
+      onEmpty={() => handleEmptyDeck()}
+    />`} />
+          </div>
+        )
+      },
+        // Shopping Components
+    {
+      title: "Shopping Cart",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Shopping Cart</h3>
+          <ShoppingCart
+            items={[
+              {
+                id: '1',
+                name: 'Vintage Chair',
+                description: 'Beautiful vintage chair in excellent condition',
+                price: 199.99,
+                imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg'
+              },
+              {
+                id: '2',
+                name: 'Antique Lamp',
+                description: 'Classic design table lamp',
+                price: 89.99,
+                imageUrl: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg'
+              }
+            ]}
+            onRemoveItem={(id) => console.log('Removed item:', id)}
+            onCheckout={() => console.log('Proceeding to checkout')}
+          />
+          <CodeSample code={`const cartItems = [
+    {
+      id: '1',
+      name: 'Vintage Chair',
+      description: 'Beautiful vintage chair',
+      price: 199.99,
+      imageUrl: '/path/to/image.jpg'
+    }
+  ];
+  
+  <ShoppingCart
+    items={cartItems}
+    onRemoveItem={(id) => handleRemoveItem(id)}
+    onCheckout={() => handleCheckout()}
+  />`} />
+        </div>
+      )
+    },
     // Cards and Display Components
   {
     title: "Product Card",
@@ -817,534 +1078,7 @@ const [currentStep, setCurrentStep] = useState(1);
       </div>
     )
   },
-    {
-      title: "Swipe Cards Example",
-      content: (
-        <div className="space-y-4">
-          <h3 className="heading-3">Basic Swipe Card</h3>
-          <div className="h-[400px] w-full relative">
-            <SwipeCardDeck
-              cards={[
-                {
-                  id: 1,
-                  imageUrl: "https://gone.com/assets/img/photo2.webp",
-                  alt: "Card 1",
-                  content: (
-                    <div>
-                      <h4 className="font-bold mb-1">Card One</h4>
-                      <p>Swipe right to approve, left to reject</p>
-                    </div>
-                  )
-                },
-                {
-                  id: 2,
-                  imageUrl: "https://gone.com/assets/img/photo3.webp",
-                  alt: "Card 2",
-                  content: (
-                    <div>
-                      <h4 className="font-bold mb-1">Card Two</h4>
-                      <p>Another swipeable card example</p>
-                    </div>
-                  )
-                },
-                // Add more cards as needed
-              ]}
-              onSwipeLeft={(card) => console.log('Rejected:', card)}
-              onSwipeRight={(card) => console.log('Approved:', card)}
-              onEmpty={() => console.log('No more cards!')}
-            />
-          </div>
-          <CodeSample code={`const cards = [
-    {
-      id: 1,
-      imageUrl: "/path/to/image1.jpg",
-      alt: "Card 1",
-      content: (
-        <div>
-          <h4 className="font-bold mb-1">Card One</h4>
-          <p>Swipe right to approve, left to reject</p>
-        </div>
-      )
-    }
-  ];
-
-  <SwipeCardDeck
-    cards={cards}
-    onSwipeLeft={(card) => handleReject(card)}
-    onSwipeRight={(card) => handleApprove(card)}
-    onEmpty={() => handleEmptyDeck()}
-  />`} />
-        </div>
-      )
-    },
-      // Shopping Components
-  {
-    title: "Shopping Cart",
-    content: (
-      <div className="space-y-4">
-        <h3 className="heading-3">Shopping Cart</h3>
-        <ShoppingCart
-          items={[
-            {
-              id: '1',
-              name: 'Vintage Chair',
-              description: 'Beautiful vintage chair in excellent condition',
-              price: 199.99,
-              imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg'
-            },
-            {
-              id: '2',
-              name: 'Antique Lamp',
-              description: 'Classic design table lamp',
-              price: 89.99,
-              imageUrl: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg'
-            }
-          ]}
-          onRemoveItem={(id) => console.log('Removed item:', id)}
-          onCheckout={() => console.log('Proceeding to checkout')}
-        />
-        <CodeSample code={`const cartItems = [
-  {
-    id: '1',
-    name: 'Vintage Chair',
-    description: 'Beautiful vintage chair',
-    price: 199.99,
-    imageUrl: '/path/to/image.jpg'
-  }
-];
-
-<ShoppingCart
-  items={cartItems}
-  onRemoveItem={(id) => handleRemoveItem(id)}
-  onCheckout={() => handleCheckout()}
-/>`} />
-      </div>
-    )
-  },
-
-  // Pickup Request Flow
-  {
-    title: "Pickup Request Manager",
-    content: (
-      <div className="space-y-4">
-        <h3 className="heading-3">Pickup Request Manager</h3>
-        <PickupRequestManager
-          pickupRequests={pickupRequests}
-          onAcceptRequest={(id) => console.log('Accepted request:', id)}
-          onRejectRequest={(id) => console.log('Rejected request:', id)}
-          onUpdateStatus={(id, status) => console.log('Updated status:', id, status)}
-          onSendMessage={(id, message) => console.log('Sent message:', id, message)}
-        />
-        <CodeSample code={`const pickupRequests = [
-  {
-    id: '1',
-    status: 'pending',
-    items: [],
-    customerName: 'John Doe',
-    customerEmail: 'john@example.com',
-    customerPhone: '555-0123',
-    address: '123 Main St'
-  }
-];
-
-<PickupRequestManager
-  pickupRequests={pickupRequests}
-  onAcceptRequest={(id) => handleAccept(id)}
-  onRejectRequest={(id) => handleReject(id)}
-  onUpdateStatus={(id, status) => handleStatusUpdate(id, status)}
-  onSendMessage={(id, message) => handleSendMessage(id, message)}
-/>`} />
-      </div>
-    )
-  },
-    {
-      title: "Dashboard",
-      content: (
-        <div className="space-y-4">
-          <h3 className="heading-3">Admin Dashboard</h3>
-          <Dashboard
-            pickupRequests={[
-              {
-                id: '1',
-                status: 'pending',
-                lastStatusChange: new Date(Date.now() - 3600000),
-                messages: [
-                  {
-                    id: 'm1',
-                    content: 'When can you pick up my items?',
-                    timestamp: new Date(Date.now() - 7200000),
-                    isRead: false,
-                    sender: 'user'
-                  }
-                ]
-              },
-              {
-                id: '2',
-                status: 'completed',
-                lastStatusChange: new Date(Date.now() - 7200000),
-                messages: [
-                  {
-                    id: 'm2',
-                    content: 'Your items have been picked up!',
-                    timestamp: new Date(Date.now() - 3600000),
-                    isRead: true,
-                    sender: 'admin'
-                  }
-                ]
-              }
-            ]}
-            acceptedRequests={acceptedRequests}
-            availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
-            onRequestClick={(requestId) => console.log('Clicked request:', requestId)}
-            onUpdateItemStatus={(requestId, itemId, status) => 
-              console.log('Status updated:', requestId, itemId, status)}
-            onAddPhoto={(requestId, itemId, photo, note) => 
-              console.log('Photo added:', requestId, itemId, photo, note)}
-            onReschedule={(requestId, newDate) => 
-              console.log('Rescheduled:', requestId, newDate)}
-            onCompletePickup={(requestId) => 
-              console.log('Pickup completed:', requestId)}
-            onSendMessage={(requestId, message) => 
-              console.log('Message sent:', requestId, message)}
-            onMessageRead={(requestId, messageId) => 
-              console.log('Message read:', requestId, messageId)}
-          />
-          <CodeSample code={`const dashboardData = {
-  pickupRequests: [],
-  acceptedRequests: [],
-  availableDates: ['2024-03-19', '2024-03-20', '2024-03-21']
-};
-
-<Dashboard
-  pickupRequests={dashboardData.pickupRequests}
-  acceptedRequests={dashboardData.acceptedRequests}
-  availableDates={dashboardData.availableDates}
-  onRequestClick={(requestId) => handleRequestClick(requestId)}
-  onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
-  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
-  onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
-  onCompletePickup={(requestId) => handleCompletePickup(requestId)}
-  onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
-  onMessageRead={(requestId, messageId) => handleMessageRead(requestId, messageId)}
-/>`} />
-        </div>
-      )
-    },
-    {
-      title: "Accepted Request Manager",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Pickups By Date</h3>
-          <AcceptedRequestManager
-            requests={acceptedRequests}
-            onUpdateItemStatus={(requestId, itemId, status) => 
-              console.log('Status updated:', requestId, itemId, status)}
-            onAddPhoto={(requestId, itemId, photo, note) => 
-              console.log('Photo added:', requestId, itemId, photo, note)}
-            onReschedule={(requestId, newDate) => 
-              console.log('Rescheduled:', requestId, newDate)}
-            onCompletePickup={(requestId) => 
-              console.log('Pickup completed:', requestId)}
-            onSendMessage={(requestId, message) => 
-              console.log('Message sent:', requestId, message)}
-            onMessageRead={(requestId, messageId) => 
-              console.log('Message read:', requestId, messageId)}
-            availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
-          />
-          <CodeSample code={`const acceptedRequests = [
-  {
-    id: '1',
-    items: [],
-    messages: [],
-    status: 'pending',
-    customerName: 'John Doe',
-    customerEmail: 'john@example.com',
-    customerPhone: '555-0123',
-    address: '123 Main St'
-  }
-];
-
-<AcceptedRequestManager
-  requests={acceptedRequests}
-  onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
-  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
-  onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
-  onCompletePickup={(requestId) => handleCompletePickup(requestId)}
-  onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
-  onMessageRead={(requestId, messageId) => handleMessageRead(requestId, messageId)}
-  availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
-/>`} />
-        </div>
-      )
-    },
-    {
-      title: "Inventory Processing",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Recieving  Card</h3>
-          
-          <InventoryProcessing
-            request={samplePickupRequest}
-            onUpdateStatus={(status) => console.log('Status updated:', status)}
-            onUpdateDetails={(details) => console.log('Details updated:', details)}
-            onAddProcessingPhotos={(photos) => console.log('Photos added:', photos)}
-            onConfirmReceipt={() => console.log('Receipt confirmed')}
-          />
-        </div>
-      )
-    },
-    {
-      title: "Image Upload",
-      content: (
-        <div className="space-y-4">
-          <h3 className="heading-3">Image Upload</h3>
-          <ImageUpload 
-            onUpload={(photos) => {
-              console.log('Showcase ImageUpload - Received photos:', photos);
-              // Add any showcase-specific handling here
-            }}
-            maxFiles={3}
-          />
-        </div>
-      )
-    },
-    {
-      title: "Pickup Item Queue",
-      content: (
-        <div className="space-y-4">
-          <h3 className="heading-3">Pickup Item Card</h3>
-        <PickupItemQueue
-          items={[
-            {
-              id: '1',
-              name: 'Vintage Desk',
-              description: 'Mid-century modern desk in walnut finish',
-              imageUrl: 'https://example.com/desk.jpg',
-              status: 'pending'
-            },
-            {
-              id: '2',
-              name: 'Other Name',
-              description: 'Other Description',
-              imageUrl: 'https://example.com/desk.jpg',
-              status: 'pending'
-            }
-          ]}
-          onReceiveItem={(id) => console.log('Received item:', id)}
-          onRejectItem={(id) => console.log('Rejected item:', id)}
-          onUpdateStatus={(id, status) => console.log('Status updated:', id, status)}
-          onUpdateDetails={(id, details) => console.log('Details updated:', id, details)}
-          onAddProcessingPhotos={(id, photos) => console.log('Photos added:', id, photos)}
-          />
-        </div>
-      )
-    },
-    {
-      title: "Inventory Item Processing",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Item Listing</h3>
-          
-          <InventoryItemProcessing
-            items={[
-              {
-                id: '1',
-                productId: 'PROD-001',
-                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-                pickupDescription: 'Vintage wooden chair in good condition',
-                receivedDate: new Date(),
-                status: 'in_inventory',
-                customerName: 'John Doe'
-              }
-            ]}
-            onUpdateDetails={(itemId, details) => console.log('Details updated:', itemId, details)}
-            onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
-            onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
-          />
-          <CodeSample code={`const inventoryItems = [
-    {
-      id: '1',
-      productId: 'PROD-001',
-      pickupPhoto: '/path/to/photo.jpg',
-      pickupDescription: 'Vintage chair',
-      receivedDate: new Date(),
-      status: 'in_inventory',
-      customerName: 'John Doe'
-    }
-  ];
-
-  <InventoryItemProcessing
-    items={inventoryItems}
-    onUpdateDetails={(itemId, details) => handleDetailsUpdate(itemId, details)}
-    onUpdateStatus={(itemId, status) => handleStatusUpdate(itemId, status)}
-    onSaveDraft={(itemId, details) => handleSaveDraft(itemId, details)}
-  />`} />
-        </div>
-      )
-    },
-    {
-      title: "Inventory Processing Manager",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Inventory Processing Manager</h3>
-          
-          <InventoryProcessingManager
-            items={[
-              {
-                id: '1',
-                productId: 'PROD-001',
-                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-                pickupDescription: 'Vintage wooden chair in excellent condition',
-                receivedDate: new Date(),
-                customerName: 'John Doe'
-              },
-              {
-                id: '2',
-                productId: 'PROD-002',
-                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
-                pickupDescription: 'Mid-century modern desk lamp, working condition',
-                receivedDate: new Date(Date.now() - 86400000),
-                customerName: 'Jane Smith'
-              }
-            ]}
-            onUpdateDetails={(itemId, details) => console.log('Details updated:', itemId, details)}
-            onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
-            onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
-            className="w-full"
-          />
-          <CodeSample code={`const items = [
-    {
-      id: '1',
-      productId: 'PROD-001',
-      pickupPhoto: '/path/to/photo.jpg',
-      pickupDescription: 'Vintage chair',
-      receivedDate: new Date(),
-      customerName: 'John Doe'
-    }
-  ];
-
-  <InventoryProcessingManager
-    items={items}
-    onUpdateDetails={(itemId, details) => handleDetailsUpdate(itemId, details)}
-    onUpdateStatus={(itemId, status) => handleStatusUpdate(itemId, status)}
-    onSaveDraft={(itemId, details) => handleSaveDraft(itemId, details)}
-    className="w-full"
-  />`} />
-        </div>
-      )
-    },
-    {
-      title: "Processing Queue",
-      content: (
-        <div className="space-y-6">
-          <h3 className="heading-3">Processing Queue</h3>
-          
-          <ProcessingQueue
-            items={[
-              {
-                id: '1',
-                productId: 'PROD-001',
-                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-                pickupDescription: 'Vintage wooden chair in excellent condition',
-                receivedDate: new Date(),
-                customerName: 'John Doe'
-              },
-              {
-                id: '2',
-                productId: 'PROD-002',
-                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
-                pickupDescription: 'Mid-century modern desk lamp, working condition',
-                receivedDate: new Date(Date.now() - 86400000), // 1 day ago
-                customerName: 'Jane Smith'
-              }
-            ]}
-            onSelectItem={(itemId) => console.log('Selected item:', itemId)}
-            className="w-full"
-          />
-        </div>
-      )
-    },
-    // ... existing code ...
 {
-  title: "Pickup List",
-  content: (
-    <div className="space-y-4">
-      <h3 className="heading-3">Pickup List</h3>
-      
-      <PickupList
-        pickups={[
-          {
-            id: '1',
-            status: 'pending',
-            pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-            pickupDate: new Date('2024-03-20'),
-            pickupAddress: '123 Main St',
-            items: [],
-            messages: [],
-            customerName: 'John Doe',
-            customerEmail: 'john@example.com',
-            customerPhone: '555-0123',
-            address: '123 Main St'
-          },
-          {
-            id: '2',
-            status: 'completed',
-            pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
-            pickupDate: new Date('2024-03-21'),
-            pickupAddress: '456 Oak St',
-            items: [],
-            messages: [],
-            customerName: 'Jane Smith',
-            customerEmail: 'jane@example.com',
-            customerPhone: '555-0124',
-            address: '456 Oak St'
-          }
-        ]}
-        onSelectPickup={(pickup: Pickup) => console.log('Selected pickup:', pickup)}
-      />
-    </div>
-      )
-    },
-    {
-      title: "Receiving",
-      content: (
-        <div className="space-y-4">
-          <h3 className="heading-3">Receiving</h3>
-          
-          <Receiving
-            pickups={[
-              {
-                id: '1',
-                status: 'pending',
-                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
-                pickupDate: new Date('2024-03-20'),
-                pickupAddress: '123 Main St',
-                items: [],
-                messages: [],
-                customerName: 'John Doe',
-                customerEmail: 'john@example.com',
-                customerPhone: '555-0123',
-                address: '123 Main St'
-              },
-              {
-                id: '2',
-                status: 'completed',
-                pickupPhoto: 'https://assets.wfcdn.com/im/29927673/resize-h500-w500%5Ecompr-r85/2649/264941059/default_name.jpg',
-                pickupDate: new Date('2024-03-21'),
-                pickupAddress: '456 Oak St',
-                items: [],
-                messages: [],
-                customerName: 'Jane Smith',
-                customerEmail: 'jane@example.com',
-                customerPhone: '555-0124',
-                address: '456 Oak St'
-              }
-            ]}
-          />
-        </div>
-      )
-    },
-    {
       title: "Partner Pickup Request Form",
       content: (
         <div className="space-y-4">
@@ -1383,8 +1117,185 @@ const [currentStep, setCurrentStep] = useState(1);
         </div>
       )
     },
-    
-    ...newContentItems
+  // === Workflow Components ===
+  {
+    title: "Pickup Request Workflow",
+    content: (
+      <div className="space-y-4">
+        <h3 className="heading-3">Pickup Request Workflow</h3>
+        <PickupRequestManager
+          pickupRequests={pickupRequests}
+          onAcceptRequest={(id) => console.log('Accepted request:', id)}
+          onRejectRequest={(id) => console.log('Rejected request:', id)}
+          onUpdateStatus={(id, status) => console.log('Updated status:', id, status)}
+          onSendMessage={(id, message) => console.log('Sent message:', id, message)}
+        />
+        <CodeSample code={`const pickupRequests = [
+  {
+    id: '1',
+    items: [{
+      id: 'item1',
+      name: 'Vintage Chair',
+      status: 'pending',
+      imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+      description: 'Beautiful vintage chair',
+      availableDates: [{ date: '2024-03-19', requestCount: 0 }],
+      location: '123 Main St',
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupDate: new Date(),
+      pickupAddress: '123 Main St',
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      messages: sampleMessages,
+      address: '123 Main St'
+    }],
+    messages: sampleMessages,
+    status: 'pending',
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St',
+    pickupPhoto: 'https://example.com/photo.jpg',
+    pickupDate: new Date(),
+    pickupAddress: '123 Main St'
+  }
+];
+
+<PickupRequestManager
+  pickupRequests={pickupRequests}
+  onAcceptRequest={(id) => handleAccept(id)}
+  onRejectRequest={(id) => handleReject(id)}
+  onUpdateStatus={(id, status) => handleStatusUpdate(id, status)}
+  onSendMessage={(id, message) => handleSendMessage(id, message)}
+/>`} />
+      </div>
+    )
+  },
+    {
+      title: "Driver Pickup Workflow",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Driver Pickup Workflow</h3>
+          <DriverPickupWorkflow
+            requests={driverWorkflowRequests}
+            onUpdateItemStatus={(requestId, itemId, status) => 
+              console.log('Status updated:', requestId, itemId, status)}
+            onAddPhoto={(requestId, itemId, photo, note) => 
+              console.log('Photo added:', requestId, itemId, photo, note)}
+            onReschedule={(requestId, newDate) => 
+              console.log('Rescheduled:', requestId, newDate)}
+            onCompletePickup={(requestId) => 
+              console.log('Pickup completed:', requestId)}
+            onSendMessage={(requestId, message) => 
+              console.log('Message sent:', requestId, message)}
+            onMessageRead={(requestId, messageId) => 
+              console.log('Message read:', requestId, messageId)}
+            availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
+          />
+          <CodeSample code={`const acceptedRequests = [
+  {
+    id: '1',
+    items: [],
+    messages: [],
+    status: 'pending',
+    customerName: 'John Doe',
+    customerEmail: 'john@example.com',
+    customerPhone: '555-0123',
+    address: '123 Main St'
+  }
+];
+
+<DriverPickupWorkflow
+  requests={acceptedRequests}
+  onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
+  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
+  onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
+  onCompletePickup={(requestId) => handleCompletePickup(requestId)}
+  onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
+  onMessageRead={(requestId, messageId) => handleMessageRead(requestId, messageId)}
+  availableDates={['2024-03-19', '2024-03-20', '2024-03-21']}
+/>`} />
+        </div>
+      )
+    },
+    {
+      title: "Listing Workflow",
+      content: (
+        <div className="space-y-6">
+          <h3 className="heading-3">Listing Workflow</h3>
+          
+          <ListingWorkflow
+            items={[
+              {
+                id: '1',
+                productId: 'PROD-001',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDescription: 'Vintage wooden chair in good condition',
+                receivedDate: new Date(),
+                status: 'in_inventory',
+                customerName: 'John Doe'
+              }
+            ]}
+            onUpdateDetails={(itemId, details) => console.log('Details updated:', itemId, details)}
+            onUpdateStatus={(itemId, status) => console.log('Status updated:', itemId, status)}
+            onSaveDraft={(itemId, details) => console.log('Draft saved:', itemId, details)}
+          />
+          <CodeSample code={`const inventoryItems = [
+    {
+      id: '1',
+      productId: 'PROD-001',
+      pickupPhoto: '/path/to/photo.jpg',
+      pickupDescription: 'Vintage chair',
+      receivedDate: new Date(),
+      status: 'in_inventory',
+      customerName: 'John Doe'
+    }
+  ];
+
+  <InventoryItemProcessing
+    items={inventoryItems}
+    onUpdateDetails={(itemId, details) => handleDetailsUpdate(itemId, details)}
+    onUpdateStatus={(itemId, status) => handleStatusUpdate(itemId, status)}
+    onSaveDraft={(itemId, details) => handleSaveDraft(itemId, details)}
+  />`} />
+        </div>
+      )
+    },
+    {
+      title: "Receiving Workflow",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Receiving Workflow</h3>
+          
+          <ReceivingWorkflow
+            items={[
+              {
+                id: '1',
+                name: 'Vintage Chair',
+                description: 'Mid-century modern chair',
+                status: 'pending',
+                imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupPhoto: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                pickupDate: new Date(),
+                pickupAddress: '123 Main St',
+                items: [],
+                messages: [],
+                customerName: 'John Doe',
+                customerEmail: 'john@example.com',
+                customerPhone: '555-0123',
+                address: '123 Main St',
+              }
+            ]}
+            onReceiveItem={(id) => console.log('Received:', id)}
+            onRejectItem={(id) => console.log('Rejected:', id)}
+            onUpdateStatus={(id, status) => console.log('Status updated:', id, status)}
+            onUpdateDetails={(id, details) => console.log('Details updated:', id, details)}
+            onAddProcessingPhotos={(id, photos) => console.log('Photos added:', id, photos)}
+          />
+        </div>
+      )
+    }
   ];
 
   return (
@@ -1395,7 +1306,7 @@ const [currentStep, setCurrentStep] = useState(1);
       <main className="flex-grow w-full">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-            {contentItems.map((item, index) => (
+            {[...newContentItems, ...contentItems].map((item, index) => (
               <div 
                 key={index}
                 className="bg-white rounded-lg shadow p-6 flex flex-col"

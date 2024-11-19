@@ -38,9 +38,11 @@ interface ItemDetails {
   defects: string;
   storageLocation: string;
   processingPhotos: string[];
+  price: number;
+  costToAcquire: number;
 }
 
-interface InventoryItemProcessingProps {
+interface ListingWorkflowProps {
   items: ProcessingItem[];
   onUpdateDetails: (itemId: string, details: ItemDetails) => void;
   onUpdateStatus: (itemId: string, status: 'ready_for_sale') => void;
@@ -48,13 +50,13 @@ interface InventoryItemProcessingProps {
   className?: string;
 }
 
-export const InventoryItemProcessing = ({
+export const ListingWorkflow = ({
   items,
   onUpdateDetails,
   onUpdateStatus,
   onSaveDraft,
   className
-}: InventoryItemProcessingProps) => {
+}: ListingWorkflowProps) => {
   const [selectedItem, setSelectedItem] = useState<ProcessingItem | null>(null);
   const [processingPhotos, setProcessingPhotos] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<ItemDetails>>({
@@ -70,6 +72,8 @@ export const InventoryItemProcessing = ({
     features: '',
     defects: '',
     storageLocation: '',
+    price: 0,
+    costToAcquire: 0,
   });
   const [newAttribute, setNewAttribute] = useState('');
 
@@ -98,6 +102,8 @@ export const InventoryItemProcessing = ({
       formData.condition &&
       formData.category &&
       formData.storageLocation &&
+      formData.price &&
+      formData.costToAcquire &&
       processingPhotos.length > 0
     );
   };
@@ -122,7 +128,7 @@ export const InventoryItemProcessing = ({
     return (
       <div className={cn('bg-white rounded-2xl border-2 border-[#4B7163] p-6', className)}>
         <h2 className="font-rockwell text-2xl text-[#4B7163] mb-6">
-          Items Pending Processing ({items.length})
+          Items Pending Listing ({items.length})
         </h2>
         
         <div className="space-y-4">
@@ -158,12 +164,22 @@ export const InventoryItemProcessing = ({
 
   return (
     <div className={cn('space-y-6', className)}>
+      <CustomButton
+        onClick={() => setSelectedItem(null)}
+        variant="secondary"
+        className="flex items-center gap-2"
+      >
+        ← Back to List
+      </CustomButton>
+
       <Card imageUrl={selectedItem.pickupPhoto} alt="Original pickup photo">
         <div className="space-y-6">
           <div className="flex justify-between items-start">
-            <h3 className="font-rockwell text-lg text-[#4B7163]">
-              Processing Item: {selectedItem.productId}
-            </h3>
+            <div className="flex items-center gap-4">
+              <h3 className="font-rockwell text-lg text-[#4B7163]">
+                Item ID: {selectedItem.productId}
+              </h3>
+            </div>
             <Tag text={selectedItem.status} variant="primary" />
           </div>
 
@@ -230,7 +246,33 @@ export const InventoryItemProcessing = ({
             state={formData.description ? "completed" : "required"}
           />
 
-          {/* Add more form fields as needed */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput
+              label="Set Price ($)"
+              type="number"
+              value={formData.price?.toString() ?? ''}
+              onChange={(value) => setFormData({ 
+                ...formData, 
+                price: value ? parseFloat(value) : 0 
+              })}
+              state={formData.price ? "completed" : "required"}
+              min={0}
+              step={0.01}
+            />
+            
+            <FormInput
+              label="Cost to Acquire ($)"
+              type="number"
+              value={formData.costToAcquire?.toString() ?? ''}
+              onChange={(value) => setFormData({ 
+                ...formData, 
+                costToAcquire: value ? parseFloat(value) : 0 
+              })}
+              state={formData.costToAcquire ? "completed" : "required"}
+              min={0}
+              step={0.01}
+            />
+          </div>
 
           <div className="flex justify-end gap-4 mt-6">
             <CustomButton

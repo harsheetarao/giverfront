@@ -5,17 +5,9 @@ import { SwipeCardDeck } from './SwipeCardDeck';
 import { InventoryProcessing } from './InventoryProcessing';
 import { cn } from '@/lib/utils';
 import { PickupRequest, RequestStatus } from '@/types/PickupRequest';
-import { ItemDetails } from '@/types/PickupItem';
+import { ItemDetails, PickupItem } from '@/types/PickupItem';
 
-interface PickupItem {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  status: 'pending' | 'completed' | 'in_inventory';
-}
-
-interface PickupItemQueueProps {
+interface ReceivingWorkflowProps {
   items: PickupItem[];
   onReceiveItem: (id: string) => void;
   onRejectItem: (itemId: string) => void;
@@ -25,7 +17,7 @@ interface PickupItemQueueProps {
   className?: string;
 }
 
-export const PickupItemQueue = ({
+export const ReceivingWorkflow = ({
   items,
   onReceiveItem,
   onRejectItem,
@@ -33,7 +25,7 @@ export const PickupItemQueue = ({
   onUpdateDetails,
   onAddProcessingPhotos,
   className
-}: PickupItemQueueProps) => {
+}: ReceivingWorkflowProps) => {
   const [selectedItem, setSelectedItem] = useState<PickupItem | null>(null);
   const [processingItem, setProcessingItem] = useState<PickupItem | null>(null);
 
