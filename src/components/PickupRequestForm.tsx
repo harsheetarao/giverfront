@@ -372,7 +372,11 @@ export const PickupRequestForm = ({
     )}>
       {/* Progress Indicator */}
       <div className="mb-8">
-        <Progress steps={steps} currentStep={currentStep} />
+        <Progress steps={steps} currentStep={currentStep} onStepClick={(stepIndex) => {
+    // Handle step click here
+    setCurrentStep(stepIndex);
+    // Additional navigation logic if needed
+  }}/>
       </div>
 
       {/* Step Content */}

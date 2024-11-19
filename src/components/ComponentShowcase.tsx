@@ -813,7 +813,11 @@ const ComponentShowcase = () => {
       content: (
         <div className="space-y-4">
           <h3 className="heading-3">Progress</h3>
-          <Progress steps={steps} currentStep={currentStep} />
+          <Progress steps={steps} currentStep={currentStep} onStepClick={(stepIndex) => {
+    // Handle step click here
+    setCurrentStep(stepIndex);
+    // Additional navigation logic if needed
+  }} />
           <div className="flex gap-2">
             <CustomButton onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>
               Previous
