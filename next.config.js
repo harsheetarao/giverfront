@@ -1,15 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'gone.com',
-        pathname: '/assets/img/**',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'gone.com',
+        port: '',
+        pathname: '/assets/**',
+      }
     ],
   },
-}
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.(png|jpg|jpeg|gif|svg)$/i,
+      type: 'asset/resource'
+    });
+    return config;
+  }
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
