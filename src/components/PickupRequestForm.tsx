@@ -4,11 +4,12 @@ import React, { useState } from 'react';
 import { Progress } from './Progress';
 import { CustomButton } from './CustomButton';
 import { FormInput } from './FormInput';
-import { Upload, Image as ImageIcon, Info, MapPin, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Upload, Image as ImageIcon, Info, MapPin, Calendar, ChevronLeft, ChevronRight, Camera, UserCircle2, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 import { Modal } from './Modal';
 import { ImageUpload } from './ImageUpload';
+import { ProgressStep } from './Progress';
 
 interface UploadedItem {
   id: string;
@@ -41,6 +42,12 @@ interface ConfirmationState {
   address: boolean;
   terms: boolean;
 }
+
+type StepType = {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+};
 
 const PlacesAutocomplete = ({
   value,
@@ -156,7 +163,23 @@ export const PickupRequestForm = ({
     );
   };
 
-  const steps = ['What', 'When', 'Where'];
+  const steps: ProgressStep[] = [
+    {
+      label: 'Item Photos',
+      description: 'Take photos of items you want to rehome',
+      icon: Camera
+    },
+    {
+      label: 'Pickup Time',
+      description: 'Choose a convenient pickup slot',
+      icon: Calendar
+    },
+    {
+      label: 'Contact Info',
+      description: 'Share your details for pickup',
+      icon: UserCircle2
+    }
+  ];
 
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
@@ -240,17 +263,17 @@ export const PickupRequestForm = ({
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-4">
               <FormInput
-                label="Full Name"
+                label="First and Last Name"
                 value={contactInfo.fullName}
                 onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
               />
               
               <div className="mt-6">
                 <FormInput
-                  label="Email Address or Mobile Number"
+                  label="Email or Mobile Number"
                   value={contactInfo.contact}
                   onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
-                  hint="Choose the contact method you check most frequently for fastest updates."
+                  hint="Choose the contact method you check most frequently for convenient updates."
                 />
               </div>
             </div>
@@ -370,20 +393,34 @@ export const PickupRequestForm = ({
       'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
-      {/* Progress Indicator */}
+      {/* Progress Indicator with Icons */}
       <div className="mb-8">
-        <Progress steps={steps} currentStep={currentStep} onStepClick={(stepIndex) => {
-    // Handle step click here
-    setCurrentStep(stepIndex);
-    // Additional navigation logic if needed
-  }}/>
+        <Progress 
+          steps={steps.map(step => ({
+            label: step.label,
+            description: step.description,
+            icon: step.icon
+          }))} 
+          currentStep={currentStep} 
+          onStepClick={setCurrentStep}
+        />
       </div>
 
-      {/* Step Content */}
+      {/* Step Content with Icon Headers */}
       <div className="mb-8">
-        <h2 className="font-rockwell text-2xl text-[#4B7163] mb-6">
-          {steps[currentStep - 1]}
-        </h2>
+        <div className="flex items-center gap-3 mb-6">
+          {steps[currentStep - 1]?.icon && (
+            <div className="w-6 h-6 text-[#4B7163]">
+              {React.createElement(steps[currentStep - 1].icon)}
+            </div>
+          )}
+          <h2 className="font-rockwell text-2xl text-[#4B7163]">
+            {steps[currentStep - 1].label}
+          </h2>
+        </div>
+        <p className="text-gray-600 mb-6">
+          {steps[currentStep - 1].description}
+        </p>
         {renderStepContent()}
       </div>
 

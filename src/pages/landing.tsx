@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Camera, Home, Truck, Leaf } from 'lucide-react';
+import { ArrowRight, Camera, Clock, Home, Truck, Leaf } from 'lucide-react';
 import '@/styles/globals.css';
 import { Page } from '@/components/page';
 import NextImage from 'next/image';
@@ -16,18 +16,18 @@ const LandingPage = () => {
 
   const steps = [
     {
-      title: "Send Photos",
-      description: "Snap and send photos of your items - it takes less than 2 minutes",
+      title: "Take Photos",
+      description: "Snap quick photos of your items with your phone - no need for perfect shots, just clear views of what you'd like to rehome",
       icon: Camera
     },
     {
-      title: "We Pick Up",
-      description: "Schedule a convenient time and we'll collect your items from your home",
-      icon: Truck
+      title: "Schedule Pickup",
+      description: "Choose a convenient time slot that works for you. We'll come right to your door at the scheduled time",
+      icon: Clock
     },
     {
-      title: "Best Use Found",
-      description: "We ensure your items find their ideal new purpose, whether through donation, recycling, or reuse",
+      title: "Find New Homes",
+      description: "We'll ensure your items reach the right destination - whether that's a local family, charity, or recycling facility",
       icon: Home
     }
   ];

@@ -25,7 +25,7 @@ import { Modal } from '@/components/Modal';
 import { MessageThread } from '@/components/MessageThread';
 import { DriverPickupWorkflow } from '@/components/DriverPickupWorkflow';
 import { MapModal } from '@/components/MapModal';
-import { MapPin } from 'lucide-react';
+import { MapPin, UserCircle2, CreditCard, CheckCircle } from 'lucide-react';
 import { InventoryProcessing } from '@/components/InventoryProcessing';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ReceivingWorkflow } from '@/components/ReceivingWorkflow';
@@ -124,6 +124,13 @@ interface PickupItem {
     timestamp: Date;
     note?: string;
   }>;
+}
+
+// Add this interface with the other interfaces
+interface ProgressStep {
+  label: string;
+  description: string;
+  icon: React.ComponentType;
 }
 
 const ContentWithControls = ({ title, children, controls }: {
@@ -238,7 +245,28 @@ const ComponentShowcase = () => {
     { label: 'Documentation', href: '#documentation' },
     { label: 'Github', href: 'https://github.com/Get-it-Gone/ComponentLibrary' }
   ];
-  const steps = ['Profile', 'Address', 'Payment', 'Review'];
+  const steps: ProgressStep[] = [
+    {
+      label: 'Profile',
+      description: 'Personal details',
+      icon: UserCircle2
+    },
+    {
+      label: 'Address',
+      description: 'Shipping info',
+      icon: MapPin
+    },
+    {
+      label: 'Payment',
+      description: 'Payment details',
+      icon: CreditCard
+    },
+    {
+      label: 'Review',
+      description: 'Order summary',
+      icon: CheckCircle
+    }
+  ];
 
   const driverWorkflowRequests: AcceptedRequest[] = [
     {
@@ -813,11 +841,11 @@ const ComponentShowcase = () => {
       content: (
         <div className="space-y-4">
           <h3 className="heading-3">Progress</h3>
-          <Progress steps={steps} currentStep={currentStep} onStepClick={(stepIndex) => {
-    // Handle step click here
-    setCurrentStep(stepIndex);
-    // Additional navigation logic if needed
-  }} />
+          <Progress 
+            steps={steps} 
+            currentStep={currentStep} 
+            onStepClick={setCurrentStep} 
+          />
           <div className="flex gap-2">
             <CustomButton onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>
               Previous
