@@ -125,6 +125,14 @@ const handlePhotoUpload = (
   }
 };
 
+const isValidEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const isValidPhone = (phone: string) => {
+  return /^\+?[\d\s-()]{10,}$/.test(phone);
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -274,6 +282,11 @@ export const PickupRequestForm = ({
                   value={contactInfo.contact}
                   onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
                   hint="Choose the contact method you check most frequently for convenient updates."
+                  error={
+                    contactInfo.contact && !isValidEmail(contactInfo.contact) && !isValidPhone(contactInfo.contact)
+                      ? "Please enter a valid email address or phone number"
+                      : undefined
+                  }
                 />
               </div>
             </div>
@@ -364,7 +377,7 @@ export const PickupRequestForm = ({
         return availableTimes.length > 0;
       case 3: // Where
         return contactInfo.fullName.trim().length > 0 && 
-               contactInfo.contact.trim().length > 0 &&
+               (isValidEmail(contactInfo.contact) || isValidPhone(contactInfo.contact)) &&
                address.trim().length > 0 && 
                confirmations.ownership &&
                confirmations.address &&

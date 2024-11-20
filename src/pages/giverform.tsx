@@ -6,6 +6,9 @@ import { PickupRequestForm } from '@/components/PickupRequestForm';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Logo from '@/styles/ui/logos/gone.svg';
+import Script from 'next/script';
+
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const GiverForm = () => {
   const menuItems = [
@@ -21,6 +24,10 @@ const GiverForm = () => {
 
   return (
     <Page>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="beforeInteractive"
+      />
       <Header 
         menuItems={menuItems}
         logo={{
