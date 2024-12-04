@@ -36,6 +36,16 @@ export const SwipeCard = ({
     }
   };
 
+  const handleAccept = () => {
+    setExitX(200); // Move card to the right
+    onSwipe('right');
+  };
+
+  const handleReject = () => {
+    setExitX(-200); // Move card to the left
+    onSwipe('left');
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -70,15 +80,43 @@ export const SwipeCard = ({
 
       {/* Card Content */}
       <div className="absolute inset-0 bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col">
-        <div className="relative w-full h-3/5 rounded-2xl overflow-hidden mb-4">
+        <div className="relative w-full h-[50%] rounded-2xl overflow-hidden mb-4">
           <img 
             src={imageUrl} 
             alt={alt} 
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto mb-4">
           {children}
+        </div>
+
+        {/* Swipe instructions - only show on mobile */}
+        <div className="sm:hidden text-center text-sm text-gray-500 mb-2">
+          <p>Swipe right to accept</p>
+          <p>Swipe left to reject</p>
+        </div>
+
+        {/* Accept/Reject Buttons - only show on tablet and up */}
+        <div className="hidden sm:flex justify-between mt-auto relative z-50">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReject();
+            }} 
+            className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Reject
+          </button>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAccept();
+            }} 
+            className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition-colors"
+          >
+            Accept
+          </button>
         </div>
       </div>
     </motion.div>

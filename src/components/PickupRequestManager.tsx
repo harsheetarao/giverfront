@@ -164,8 +164,8 @@ export const PickupRequestManager = ({
             </SwipeCard>
           ))}
           
-          {/* Swipe Instructions */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-8 pb-4 text-sm text-gray-500">
+          {/* Mobile Swipe Instructions */}
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-8 pb-4 text-sm text-gray-500 sm:hidden">
             <div className="flex items-center gap-1">
               <X className="h-4 w-4 text-red-500" /> Swipe left to reject
             </div>
