@@ -13,7 +13,8 @@ interface FormInputProps {
   className?: string;
   value: string;
   type?: string;
-  min?: number;
+  min?: number | string;
+  minDate?: string;
   step?: number;
   onChange: (value: string) => void;
   placeholder?: string;

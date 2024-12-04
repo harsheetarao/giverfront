@@ -35,6 +35,11 @@ interface PickupRequestFormProps {
     date: string;
     requestCount: number;
   }>;
+  skipConfirmationStep?: boolean;
+  selectedDate?: string;
+  selectedTime?: string;
+  onDateSelect?: (date: string) => void;
+  onTimeSelect?: (time: string) => void;
 }
 
 interface ConfirmationState {
@@ -139,6 +144,11 @@ export const PickupRequestForm = ({
   skipContactStep = false,
   renderDetailsStep,
   availableDates,
+  skipConfirmationStep = false,
+  selectedDate,
+  selectedTime,
+  onDateSelect,
+  onTimeSelect,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -178,15 +188,17 @@ export const PickupRequestForm = ({
       icon: Camera
     },
     {
-      label: 'Pickup Time',
-      description: 'Choose a convenient pickup slot',
+      label: skipConfirmationStep ? 'Drop Off Time' : 'Pickup Time',
+      description: skipConfirmationStep 
+        ? 'Choose a convenient drop off slot'
+        : 'Choose a convenient pickup slot',
       icon: Calendar
     },
-    {
+    ...(skipConfirmationStep ? [] : [{
       label: 'Contact Info',
       description: 'Share your details for pickup',
       icon: UserCircle2
-    }
+    }])
   ];
 
   const handleTimeSelection = (time: string) => {
@@ -234,39 +246,50 @@ export const PickupRequestForm = ({
         );
 
       case 2: // When
+        if (renderDetailsStep) {
+          return renderDetailsStep(
+            uploadedItems,
+            handleItemDescription,
+            handleQuantityChange,
+            availableDates || []
+          );
+        }
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <h3 className="font-rockwell text-lg text-[#4B7163] mb-4">
-                Available Pickup Times
+              <h3 className="text-lg font-semibold mb-4">
+                {skipConfirmationStep 
+                  ? "When will you drop off these items?"
+                  : "When would you like your items picked up?"}
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  'Monday AM', 'Monday PM',
-                  'Tuesday AM', 'Tuesday PM',
-                  'Wednesday AM', 'Wednesday PM',
-                  'Thursday AM', 'Thursday PM',
-                  'Friday AM', 'Friday PM'
-                ].map((time) => (
-                  <button
-                    key={time}
-                    onClick={() => handleTimeSelection(time)}
-                    className={cn(
-                      'p-3 rounded-lg border-2 font-sourceSans transition-colors',
-                      availableTimes.includes(time)
-                        ? 'border-[#6AB098] bg-[#6AB098] text-white'
-                        : 'border-[#5A7C6F] text-[#5A7C6F] hover:bg-[#F0F4F2]'
-                    )}
-                  >
-                    {time}
-                  </button>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  type="date"
+                  label={skipConfirmationStep ? "Drop Off Date" : "Pickup Date"}
+                  value={selectedDate || ''}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(value: string) => {
+                    if (onDateSelect) onDateSelect(value);
+                  }}
+                />
+                <FormInput
+                  type="time"
+                  label={skipConfirmationStep ? "Drop Off Time" : "Pickup Time"}
+                  value={selectedTime || ''}
+                  onChange={(value: string) => {
+                    if (onTimeSelect) onTimeSelect(value);
+                  }}
+                />
               </div>
+              <p className="text-sm text-[#5A7C6F] mt-2">
+                Please select a date and time during our business hours (Mon-Fri, 9AM-5PM)
+              </p>
             </div>
           </div>
         );
 
       case 3: // Where
+        if (skipConfirmationStep) return null;
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-4">
@@ -374,8 +397,13 @@ export const PickupRequestForm = ({
       case 1: // What
         return uploadedItems.length > 0;
       case 2: // When
+        if (renderDetailsStep) {
+          // Adjust validation for partner form
+          return selectedDate && selectedTime;
+        }
         return availableTimes.length > 0;
       case 3: // Where
+        if (skipConfirmationStep) return false;
         return contactInfo.fullName.trim().length > 0 && 
                (isValidEmail(contactInfo.contact) || isValidPhone(contactInfo.contact)) &&
                address.trim().length > 0 && 
@@ -388,7 +416,7 @@ export const PickupRequestForm = ({
   };
 
   const handleNext = () => {
-    if (currentStep === 3) {
+    if (currentStep === (skipConfirmationStep ? 2 : 3)) {
       onSubmit({
         fullName: contactInfo.fullName,
         contact: contactInfo.contact,
@@ -454,8 +482,8 @@ export const PickupRequestForm = ({
           disabled={!canProceed()}
           className="flex items-center gap-2 ml-auto"
         >
-          {currentStep === 3 ? 'Submit Request' : 'Continue'}
-          {currentStep < 3 && <ChevronRight className="h-4 w-4" />}
+          {currentStep === (skipConfirmationStep ? 2 : 3) ? 'Submit Request' : 'Continue'}
+          {currentStep < (skipConfirmationStep ? 2 : 3) && <ChevronRight className="h-4 w-4" />}
         </CustomButton>
       </div>
     </div>
