@@ -243,6 +243,7 @@ const ComponentShowcase = () => {
   const menuItems = [
     { label: 'Components', href: '#components' },
     { label: 'Documentation', href: '#documentation' },
+    { label: 'Pages', href: '#pages' },
     { label: 'Github', href: 'https://github.com/Get-it-Gone/ComponentLibrary' }
   ];
   const steps: ProgressStep[] = [
@@ -1748,6 +1749,24 @@ const [currentStep, setCurrentStep] = useState(1);
       {/* Add id="documentation" to the Documentation Section */}
       <div id="documentation">
         <DocumentationSection contentItems={documentationItems} />
+      </div>
+
+      {/* Add id="pages" to the Pages Section */}
+      <div id="pages" className="w-full">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h2 className="heading-2 mb-6">Pages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a href="/landing" className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              Landing Page
+            </a>
+            <a href="/giverform" className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              Giver Form
+            </a>
+            <a href="/inventory" className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              Inventory
+            </a>
+          </div>
+        </div>
       </div>
 
       <Footer copyrightText="© 2024 gone.com Component Library. All rights reserved." />

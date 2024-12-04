@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 
 interface SwipeCardProps {
@@ -24,10 +24,6 @@ export const SwipeCard = ({
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
 
-  // Background color indicators for swipe direction
-  const rightBgOpacity = useTransform(x, [0, 125], [0, 1]);
-  const leftBgOpacity = useTransform(x, [-125, 0], [1, 0]);
-
   const dragEndHandler = (event: any, info: any) => {
     if (Math.abs(info.offset.x) > 100) {
       setExitX(info.offset.x);
@@ -37,12 +33,12 @@ export const SwipeCard = ({
   };
 
   const handleAccept = () => {
-    setExitX(200); // Move card to the right
+    setExitX(200);
     onSwipe('right');
   };
 
   const handleReject = () => {
-    setExitX(-200); // Move card to the left
+    setExitX(-200);
     onSwipe('left');
   };
 
@@ -56,68 +52,41 @@ export const SwipeCard = ({
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={dragEndHandler}
       animate={{ x: exitX }}
-      whileDrag={{ cursor: 'grabbing' }}
-      initial={{ x: 0 }}
+      transition={{ type: "spring", duration: 0.5 }}
     >
-      {/* Swipe Indicators */}
-      <motion.div 
-        className="absolute inset-0 bg-green-500/20 rounded-2xl z-10"
-        style={{ opacity: rightBgOpacity }}
-      >
-        <div className="absolute top-1/2 right-8 transform -translate-y-1/2">
-          <Check className="w-12 h-12 text-green-500" />
-        </div>
-      </motion.div>
-      
-      <motion.div 
-        className="absolute inset-0 bg-red-500/20 rounded-2xl z-10"
-        style={{ opacity: leftBgOpacity }}
-      >
-        <div className="absolute top-1/2 left-8 transform -translate-y-1/2">
-          <X className="w-12 h-12 text-red-500" />
-        </div>
-      </motion.div>
-
-      {/* Card Content */}
-      <div className="absolute inset-0 bg-white rounded-2xl border border-[#4B7163] p-4 flex flex-col">
-        <div className="relative w-full h-[50%] rounded-2xl overflow-hidden mb-4">
-          <img 
-            src={imageUrl} 
-            alt={alt} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="flex-1 overflow-auto mb-4">
-          {children}
+      <div className="relative w-full h-full">
+        {/* Card Content */}
+        <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-lg">
+          <div className="relative w-full h-3/5">
+            <img
+              src={imageUrl}
+              alt={alt}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="p-4 h-2/5">
+            {children}
+          </div>
         </div>
 
-        {/* Swipe instructions - only show on mobile */}
-        <div className="sm:hidden text-center text-sm text-gray-500 mb-2">
-          <p>Swipe right to accept</p>
-          <p>Swipe left to reject</p>
-        </div>
-
-        {/* Accept/Reject Buttons - only show on tablet and up */}
-        <div className="hidden sm:flex justify-between mt-auto relative z-50">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleReject();
-            }} 
-            className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 transition-colors"
+        {/* Action Buttons */}
+        <motion.div 
+          className="absolute bottom-4 left-0 right-0 flex justify-center gap-4"
+          style={{ opacity: useTransform(x, [-50, 0, 50], [0, 1, 0]) }}
+        >
+          <button
+            onClick={handleReject}
+            className="p-3 rounded-full bg-white shadow-lg hover:bg-gray-50"
           >
-            Reject
+            <X className="w-6 h-6 text-red-500" />
           </button>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAccept();
-            }} 
-            className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition-colors"
+          <button
+            onClick={handleAccept}
+            className="p-3 rounded-full bg-white shadow-lg hover:bg-gray-50"
           >
-            Accept
+            <Check className="w-6 h-6 text-green-500" />
           </button>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );
