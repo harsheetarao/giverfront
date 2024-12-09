@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Camera, ArrowRight, Clock, Leaf } from 'lucide-react';
 import '@/styles/globals.css';
 import { Page } from '@/components/page';
@@ -11,6 +11,9 @@ import Script from 'next/script';
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const GiverForm = () => {
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+
   const menuItems = [
     { label: 'Home', href: '/' },
     { label: 'How It Works', href: '#how-it-works' },
@@ -49,20 +52,58 @@ const GiverForm = () => {
             <p className="text-lg text-gray-600 mb-6">
               You're about to join thousands of others who've chosen to declutter mindfully
             </p>
+          
+            <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
+                Welcome to Gone.com!
+              </h3>
+              <p className="text-[#5A7C6F] mb-4">
+                Send us information about what you would like to have "gone", we review it and
+                if we think we can find a home, in a sustainable way we'll schedule a free pickup. 
+              </p>
+          </div>
+          {/* Accepted Items Info */}
+          <div className="mb-8 space-y-6">
+
+            <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#E67C45]">
+              <h3 className="font-rockwell text-lg text-[#E67C45] mb-2">
+                Items We Accept
+              </h3>
+              <p className="text-gray-700 mb-2">
+                We accept reusable and working household items.
+              </p>
+              <div className="mt-3">
+                <h4 className="font-semibold text-[#E67C45] mb-2">IMPORTANT:</h4>
+                <p className="text-gray-700">
+                  We do not take:
+                </p>
+                <ul className="list-disc list-inside text-gray-700 ml-2 mt-1 space-y-1">
+                  <li>Pianos</li>
+                  <li>Mattresses</li>
+                  <li>Construction materials</li>
+                  <li>Hazardous or flammable materials</li>
+                  <li>Damaged or malodorous furniture</li>
+                  <li>Food</li>
+                  <li>Infant products</li>
+                  <li>Personal hygiene/care products</li>
+                  <li>Swimming pools</li>
+                  <li>Firearms</li>
+                  <li>Anything that is damaged, incomplete or not readily reusable by another</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Form Column */}
             <div className="flex-1 bg-white p-6 rounded-xl shadow-sm">
-              <div className="flex items-center gap-2 text-green-600 font-medium mb-4">
-                <Camera className="w-5 h-5" /> <br />
-                Start with photos. It takes less than 2 minutes <br /> <br />
-              </div>
               
-              {/* Replace placeholder with PickupRequestForm */}
               <PickupRequestForm 
                 onSubmit={handleSubmit}
                 className="border-none shadow-none p-0"
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+                onDateSelect={setSelectedDate}
+                onTimeSelect={setSelectedTime}
                 availableDates={[
                   { date: '2024-03-20', requestCount: 2 },
                   { date: '2024-03-21', requestCount: 1 },

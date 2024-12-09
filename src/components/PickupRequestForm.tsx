@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Progress } from './Progress';
 import { CustomButton } from './CustomButton';
 import { FormInput } from './FormInput';
-import { Upload, Image as ImageIcon, Info, MapPin, Calendar, ChevronLeft, ChevronRight, Camera, UserCircle2, type LucideIcon } from 'lucide-react';
+import { Upload, Image as ImageIcon, Info, MapPin, Calendar, ChevronLeft, ChevronRight, Camera, UserCircle2, type LucideIcon, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 import { Modal } from './Modal';
@@ -40,12 +40,15 @@ interface PickupRequestFormProps {
   selectedTime?: string;
   onDateSelect?: (date: string) => void;
   onTimeSelect?: (time: string) => void;
+  steps?: ProgressStep[];
+  renderCustomStep?: (currentStep: number) => React.ReactNode;
 }
 
 interface ConfirmationState {
   ownership: boolean;
-  address: boolean;
   terms: boolean;
+  liability: boolean;
+  marketing: boolean;
 }
 
 type StepType = {
@@ -53,6 +56,11 @@ type StepType = {
   description: string;
   icon: LucideIcon;
 };
+
+interface SuccessModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 const PlacesAutocomplete = ({
   value,
@@ -72,6 +80,7 @@ const PlacesAutocomplete = ({
     requestOptions: { componentRestrictions: { country: 'us' } },
     debounce: 300,
     defaultValue: value,
+    cache: 24 * 60 * 60,
   });
 
   return (
@@ -84,6 +93,7 @@ const PlacesAutocomplete = ({
           onChange(val);
         }}
         disabled={!ready}
+        placeholder={ready ? "Enter your address" : "Loading Places API..."}
       />
       {data.length > 0 && (
         <ul className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg">
@@ -138,6 +148,34 @@ const isValidPhone = (phone: string) => {
   return /^\+?[\d\s-()]{10,}$/.test(phone);
 };
 
+const getMinDate = () => {
+  const today = new Date();
+  today.setHours(today.getHours() + 72);
+  return today.toISOString().split('T')[0];
+};
+
+const SuccessModal = ({ isOpen, onClose }: SuccessModalProps) => {
+  if (!isOpen) return null;
+  
+  return (
+    <Modal onClose={onClose}>
+      <div className="text-center p-6">
+        <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
+        <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">
+          Thank You for Your Request!
+        </h2>
+        <p className="text-[#5A7C6F] mb-6">
+          We'll review your request and get back to you via text or email shortly. 
+          Thank you for being a sustainable citizen and giving your items a second life!
+        </p>
+        <CustomButton onClick={onClose}>
+          Close
+        </CustomButton>
+      </div>
+    </Modal>
+  );
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -149,6 +187,8 @@ export const PickupRequestForm = ({
   selectedTime,
   onDateSelect,
   onTimeSelect,
+  steps,
+  renderCustomStep,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -161,9 +201,12 @@ export const PickupRequestForm = ({
   const [showTerms, setShowTerms] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({
     ownership: false,
-    address: false,
     terms: false,
+    liability: false,
+    marketing: false,
   });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
@@ -181,26 +224,6 @@ export const PickupRequestForm = ({
     );
   };
 
-  const steps: ProgressStep[] = [
-    {
-      label: 'Item Photos',
-      description: 'Take photos of items you want to rehome',
-      icon: Camera
-    },
-    {
-      label: skipConfirmationStep ? 'Drop Off Time' : 'Pickup Time',
-      description: skipConfirmationStep 
-        ? 'Choose a convenient drop off slot'
-        : 'Choose a convenient pickup slot',
-      icon: Calendar
-    },
-    ...(skipConfirmationStep ? [] : [{
-      label: 'Contact Info',
-      description: 'Share your details for pickup',
-      icon: UserCircle2
-    }])
-  ];
-
   const handleTimeSelection = (time: string) => {
     setAvailableTimes(current =>
       current.includes(time)
@@ -210,10 +233,26 @@ export const PickupRequestForm = ({
   };
 
   const renderStepContent = () => {
+    // If there's a custom step renderer, use it first
+    if (renderCustomStep) {
+      const customContent = renderCustomStep(currentStep);
+      if (customContent !== null) {
+        return customContent;
+      }
+    }
+
+    // Fall back to default step content
     switch (currentStep) {
       case 1: // What
         return (
           <div className="space-y-6">
+            {/* Info Message Box */}
+            <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
+              <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
+                Looking to rehome your items? Just upload a photo of each item you would like to rehome.
+              </h3>
+            </div>
+
             <ImageUpload
               onUpload={(photos) => handlePhotoUpload(photos, setUploadedItems, skipContactStep)}
               maxFiles={5}
@@ -256,33 +295,115 @@ export const PickupRequestForm = ({
         }
         return (
           <div className="space-y-6">
-            <div className="bg-[#F8FAF9] rounded-xl p-4">
-              <h3 className="text-lg font-semibold mb-4">
-                {skipConfirmationStep 
-                  ? "When will you drop off these items?"
-                  : "When would you like your items picked up?"}
+            {/* Info Message Box */}
+            <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
+              <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
+                Schedule Your Pickup
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <p className="text-[#5A7C6F]">
+                Please select at least two preferred pickup times. Having multiple options helps us 
+                plan the most efficient and sustainable pickup route, reducing our carbon footprint.
+              </p>
+            </div>
+
+            <div className="bg-[#F8FAF9] rounded-xl p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <FormInput
                   type="date"
-                  label={skipConfirmationStep ? "Drop Off Date" : "Pickup Date"}
+                  label="Pickup Date"
                   value={selectedDate || ''}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={getMinDate()}
                   onChange={(value: string) => {
                     if (onDateSelect) onDateSelect(value);
                   }}
                 />
                 <FormInput
                   type="time"
-                  label={skipConfirmationStep ? "Drop Off Time" : "Pickup Time"}
+                  label="Pickup Time"
                   value={selectedTime || ''}
                   onChange={(value: string) => {
                     if (onTimeSelect) onTimeSelect(value);
                   }}
                 />
               </div>
-              <p className="text-sm text-[#5A7C6F] mt-2">
-                Please select a date and time during our business hours (Mon-Fri, 9AM-5PM)
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedDate && selectedTime) {
+                    const timeSlot = `${selectedDate} ${selectedTime}`;
+                    if (!availableTimes.includes(timeSlot)) {
+                      setAvailableTimes(prev => [...prev, timeSlot]);
+                    }
+                  }
+                }}
+                disabled={!selectedDate || !selectedTime}
+                className={cn(
+                  "w-full p-3 rounded-md text-center transition-colors",
+                  selectedDate && selectedTime
+                    ? "bg-[#4B7163] text-white hover:bg-[#3D5B51]"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                )}
+              >
+                Add This Time Slot
+              </button>
+
+              {/* Selected Time Slots Display */}
+              <div className="mt-8">
+                <h4 className="font-medium text-[#4B7163] mb-4">
+                  Your Selected Time Slots {availableTimes.length < 2 && 
+                    <span className="text-[#E67C45] text-sm">
+                      (Please select {2 - availableTimes.length} more)
+                    </span>
+                  }
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {availableTimes.map((timeSlot, index) => (
+                    <div 
+                      key={timeSlot}
+                      className="bg-white p-4 rounded-lg border-2 border-[#4B7163] relative"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setAvailableTimes(prev => prev.filter(t => t !== timeSlot))}
+                        className="absolute top-2 right-2 text-[#E67C45] hover:text-[#D15E25]"
+                      >
+                        ×
+                      </button>
+                      <p className="text-[#4B7163] font-medium">
+                        Option {index + 1}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(timeSlot).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(timeSlot).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  ))}
+                  {[...Array(Math.max(0, 3 - availableTimes.length))].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center"
+                    >
+                      <p className="text-gray-400 text-center">
+                        Select a time slot
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-sm text-[#5A7C6F] mt-6">
+                Business hours: Mon-Fri, 9AM-5PM
               </p>
             </div>
           </div>
@@ -344,22 +465,7 @@ export const PickupRequestForm = ({
                   className="mt-1"
                 />
                 <span className="text-sm text-[#5A7C6F]">
-                  I confirm I own this item or have permission to request service for it
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={confirmations.address}
-                  onChange={(e) => setConfirmations(prev => ({
-                    ...prev,
-                    address: e.target.checked
-                  }))}
-                  className="mt-1"
-                />
-                <span className="text-sm text-[#5A7C6F]">
-                  I confirm the address provided is correct and I can receive services there
+                  I am the owner of the household goods I am requesting for pick up.
                 </span>
               </label>
 
@@ -374,15 +480,75 @@ export const PickupRequestForm = ({
                   className="mt-1"
                 />
                 <span className="text-sm text-[#5A7C6F]">
-                  I accept the{' '}
+                  I have read and agree to the{' '}
                   <button 
                     onClick={() => setShowTerms(true)}
                     className="text-[#6AB098] underline hover:text-[#4B7163]"
                   >
                     Terms of Service
                   </button>
+                  {' '}and Privacy Policy.
                 </span>
               </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmations.liability}
+                  onChange={(e) => setConfirmations(prev => ({
+                    ...prev,
+                    liability: e.target.checked
+                  }))}
+                  className="mt-1"
+                />
+                <span className="text-sm text-[#5A7C6F]">
+                  I assume all risk associated with items being picked up at my residence and release Gone from any and all claims.
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmations.marketing}
+                  onChange={(e) => setConfirmations(prev => ({
+                    ...prev,
+                    marketing: e.target.checked
+                  }))}
+                  className="mt-1"
+                />
+                <span className="text-sm text-[#5A7C6F]">
+                  I acknowledge my number will be stored and used to schedule pick-up and used for marketing and promotional purposes. I may opt out at any time by responding "Stop" to any text messages I receive.
+                </span>
+              </label>
+            </div>
+          </div>
+        );
+
+      case 4: // Success & Feedback
+        return (
+          <div className="space-y-6">
+            <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
+              <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
+              <h3 className="font-rockwell text-2xl text-[#4B7163] mb-4">
+                Thank You for Your Request!
+              </h3>
+              <p className="text-[#5A7C6F] mb-6">
+                We'll review your request and get back to you via text or email shortly.
+                Thank you for being a sustainable citizen and giving your items a second life!
+              </p>
+            </div>
+
+            <div className="bg-[#F8FAF9] rounded-xl p-6">
+              <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
+                How was your experience?
+              </h4>
+              <textarea
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B7163]"
+                placeholder="Tell us about your experience with our pickup request process..."
+                rows={4}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+              />
             </div>
           </div>
         );
@@ -407,9 +573,7 @@ export const PickupRequestForm = ({
         return contactInfo.fullName.trim().length > 0 && 
                (isValidEmail(contactInfo.contact) || isValidPhone(contactInfo.contact)) &&
                address.trim().length > 0 && 
-               confirmations.ownership &&
-               confirmations.address &&
-               confirmations.terms;
+               Object.values(confirmations).every(value => value === true);
       default:
         return false;
     }
@@ -424,10 +588,44 @@ export const PickupRequestForm = ({
         availableTimes,
         address
       });
+      setCurrentStep(prev => prev + 1);
+    } else if (currentStep === 4) {
+      // Submit feedback if provided
+      if (feedback.trim()) {
+        // You can handle feedback submission here
+        console.log('Feedback submitted:', feedback);
+      }
+      // You can handle final close/reset here
     } else {
       setCurrentStep(prev => prev + 1);
     }
   };
+
+  const defaultSteps: ProgressStep[] = [
+    {
+      label: 'Item Photos',
+      description: '',
+      icon: Camera
+    },
+    {
+      label: 'Pickup Time',
+      description: 'Choose a convenient pickup slot',
+      icon: Calendar
+    },
+    ...(skipConfirmationStep ? [] : [{
+      label: 'Contact Info',
+      description: 'We\'ll use your contact info to coordinate pickup details and keep you updated on status',
+      icon: UserCircle2
+    }]),
+    {
+      label: 'Thank You',
+      description: 'Your request has been submitted',
+      icon: CheckCircle2
+    }
+  ];
+
+  // Use provided steps or fall back to defaults
+  const formSteps = steps || defaultSteps;
 
   return (
     <div className={cn(
@@ -437,11 +635,11 @@ export const PickupRequestForm = ({
       {/* Progress Indicator with Icons */}
       <div className="mb-8">
         <Progress 
-          steps={steps.map(step => ({
+          steps={formSteps.map(step => ({
             label: step.label,
             description: step.description,
             icon: step.icon
-          }))} 
+          })) || []} 
           currentStep={currentStep} 
           onStepClick={setCurrentStep}
         />
@@ -450,17 +648,17 @@ export const PickupRequestForm = ({
       {/* Step Content with Icon Headers */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
-          {steps[currentStep - 1]?.icon && (
+          {formSteps[currentStep - 1]?.icon && (
             <div className="w-6 h-6 text-[#4B7163]">
-              {React.createElement(steps[currentStep - 1].icon)}
+              {React.createElement(formSteps[currentStep - 1].icon)}
             </div>
           )}
           <h2 className="font-rockwell text-2xl text-[#4B7163]">
-            {steps[currentStep - 1].label}
+            {formSteps[currentStep - 1].label}
           </h2>
         </div>
         <p className="text-gray-600 mb-6">
-          {steps[currentStep - 1].description}
+          {formSteps[currentStep - 1].description}
         </p>
         {renderStepContent()}
       </div>
@@ -482,10 +680,15 @@ export const PickupRequestForm = ({
           disabled={!canProceed()}
           className="flex items-center gap-2 ml-auto"
         >
-          {currentStep === (skipConfirmationStep ? 2 : 3) ? 'Submit Request' : 'Continue'}
+          {currentStep === 4 ? 'Close' : currentStep === (skipConfirmationStep ? 2 : 3) ? 'Submit Request' : 'Continue'}
           {currentStep < (skipConfirmationStep ? 2 : 3) && <ChevronRight className="h-4 w-4" />}
         </CustomButton>
       </div>
+
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={() => setShowSuccessModal(false)} 
+      />
     </div>
   );
 };

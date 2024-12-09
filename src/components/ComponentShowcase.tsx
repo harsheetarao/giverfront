@@ -32,6 +32,7 @@ import { ReceivingWorkflow } from '@/components/ReceivingWorkflow';
 import { PartnerPickupRequestForm } from '@/components/PartnerPickupRequestForm';
 import { CodeSample } from '@/components/CodeSample';
 import { ListingWorkflow } from '@/components/ListingWorkflow';
+import { BulkPartnerPickupRequestForm } from '@/components/BulkPartnerPickupRequestForm';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -1335,6 +1336,15 @@ const [currentStep, setCurrentStep] = useState(1);
             onUpdateDetails={(id, details) => console.log('Details updated:', id, details)}
             onAddProcessingPhotos={(id, photos) => console.log('Photos added:', id, photos)}
           />
+        </div>
+      )
+    },
+    {
+      title: "Bulk Partner Pickup Request Form",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Bulk Partner Pickup Request Form</h3>
+          <BulkPartnerPickupRequestForm />
         </div>
       )
     }

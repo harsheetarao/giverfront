@@ -23,8 +23,8 @@ export default function RootLayout({
       <head>
         {process.env.NODE_ENV === 'development' && (
           <script
-            async
-            src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+            defer
+            src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`}
           />
         )}
       </head>
