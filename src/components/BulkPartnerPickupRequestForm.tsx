@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { PickupRequestForm } from './PickupRequestForm';
 import { FormInput } from './FormInput';
 import { CustomButton } from './CustomButton';
-import { Upload, FolderUp, Calendar } from 'lucide-react';
+import { Upload, FolderUp, Calendar, CheckCircle2 } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
 import { ProgressStep } from './Progress';
 
@@ -33,6 +33,11 @@ export const BulkPartnerPickupRequestForm = (props: any) => {
       label: 'Schedule Drop-off',
       description: 'Choose a drop-off time',
       icon: Calendar
+    },
+    {
+      label: 'Thank You',
+      description: 'Your drop-off request has been submitted',
+      icon: CheckCircle2
     }
   ];
 
@@ -178,6 +183,21 @@ export const BulkPartnerPickupRequestForm = (props: any) => {
             </div>
             <p className="text-sm text-[#5A7C6F] mt-2">
               Please select a date and time during our business hours (Mon-Fri, 9AM-5PM)
+            </p>
+          </div>
+        </div>
+      );
+    } else if (currentStep === 3) {
+      return (
+        <div className="space-y-6">
+          <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
+            <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
+            <h3 className="font-rockwell text-2xl text-[#4B7163] mb-4">
+              Thank You for Your Request!
+            </h3>
+            <p className="text-[#5A7C6F] mb-6">
+              We'll review your request and get back to you shortly.
+              Thank you for being a sustainable partner!
             </p>
           </div>
         </div>

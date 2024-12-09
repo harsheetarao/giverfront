@@ -42,6 +42,7 @@ interface PickupRequestFormProps {
   onTimeSelect?: (time: string) => void;
   steps?: ProgressStep[];
   renderCustomStep?: (currentStep: number) => React.ReactNode;
+  validateStep?: (step: number) => boolean;
 }
 
 interface ConfirmationState {
@@ -189,6 +190,7 @@ export const PickupRequestForm = ({
   onTimeSelect,
   steps,
   renderCustomStep,
+  validateStep,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -255,7 +257,7 @@ export const PickupRequestForm = ({
 
             <ImageUpload
               onUpload={(photos) => handlePhotoUpload(photos, setUploadedItems, skipContactStep)}
-              maxFiles={5}
+              maxFiles={50}
             />
 
             {uploadedItems.length > 0 && (
@@ -559,12 +561,15 @@ export const PickupRequestForm = ({
   };
 
   const canProceed = () => {
+    if (validateStep) {
+      return validateStep(currentStep);
+    }
+
     switch (currentStep) {
       case 1: // What
         return uploadedItems.length > 0;
       case 2: // When
         if (renderDetailsStep) {
-          // Adjust validation for partner form
           return selectedDate && selectedTime;
         }
         return availableTimes.length > 0;
@@ -604,12 +609,12 @@ export const PickupRequestForm = ({
   const defaultSteps: ProgressStep[] = [
     {
       label: 'Item Photos',
-      description: '',
+      description: 'Upload item photos to get started',
       icon: Camera
     },
     {
       label: 'Pickup Time',
-      description: 'Choose a convenient pickup slot',
+      description: 'Choose convenient pickup time slots',
       icon: Calendar
     },
     ...(skipConfirmationStep ? [] : [{
