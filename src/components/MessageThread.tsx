@@ -73,16 +73,19 @@ export const MessageThread = ({
 
       {isExpanded && (
         <div className="mt-4 space-y-4">
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <div key={message.id}>
               <MessageBubble
-                state={message.sender === 'admin' ? 'secondary' : 'primary'}
+                state={
+                  index === messages.length - 1 && message.sender !== 'admin' ? 'tertiary' :
+                  message.sender === 'admin' ? 'secondary' : 'primary'
+                }
                 className={cn(
                   message.sender === 'admin' ? "ml-8" : "mr-8"
                 )}
               >
-                <p className="text-[#4B7163]">{message.content}</p>
-                <span className="text-sm text-gray-500 mt-2 block">
+                <p>{message.content}</p>
+                <span className="text-sm opacity-75 mt-2 block">
                   {message.timestamp.toLocaleString()}
                 </span>
               </MessageBubble>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
-import '@/app/globals.css'
+import '@/styles/globals.css'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -9,8 +9,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'Component Library',
-  description: 'A showcase of our custom React components',
+  title: 'Gone Inventory',
+  description: 'Inventory management system',
 }
 
 export default function RootLayout({
@@ -19,16 +19,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head>
-        {process.env.NODE_ENV === 'development' && (
-          <script
-            defer
-            src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`}
-          />
-        )}
-      </head>
-      <body className={`${poppins.variable} font-sans`}>
+    <html lang="en" className={poppins.variable}>
+      <body className="min-h-screen bg-white font-sans">
         {children}
       </body>
     </html>

@@ -1,13 +1,14 @@
 'use client';
 
+import { cn } from '@/lib/utils';
+
 interface PageProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-export const Page: React.FC<PageProps> = ({ children }) => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      {children}
-    </div>
-  );
-};
+export const Page = ({ children, className }: PageProps) => (
+  <div className={cn("min-h-screen flex flex-col", className)}>
+    {children}
+  </div>
+);

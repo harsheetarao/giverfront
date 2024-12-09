@@ -33,6 +33,7 @@ import { PartnerPickupRequestForm } from '@/components/PartnerPickupRequestForm'
 import { CodeSample } from '@/components/CodeSample';
 import { ListingWorkflow } from '@/components/ListingWorkflow';
 import { BulkPartnerPickupRequestForm } from '@/components/BulkPartnerPickupRequestForm';
+import { SearchInput } from '@/components/SearchInput';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -239,6 +240,7 @@ const ComponentShowcase = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   // All mock data declarations
   const menuItems = [
@@ -1345,6 +1347,26 @@ const [currentStep, setCurrentStep] = useState(1);
         <div className="space-y-4">
           <h3 className="heading-3">Bulk Partner Pickup Request Form</h3>
           <BulkPartnerPickupRequestForm />
+        </div>
+      )
+    },
+    {
+      title: "Search Input",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Search Input</h3>
+          <div className="space-y-6">
+            <SearchInput
+              value={searchValue}
+              onChange={setSearchValue}
+              placeholder="Search items..."
+            />
+          </div>
+          <CodeSample code={`<SearchInput
+  value={searchValue}
+  onChange={setSearchValue}
+  placeholder="Search items..."
+/>`} />
         </div>
       )
     }
