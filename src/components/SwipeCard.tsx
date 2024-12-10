@@ -53,18 +53,20 @@ export const SwipeCard = ({
       onDragEnd={dragEndHandler}
       animate={{ x: exitX }}
       transition={{ type: "spring", duration: 0.5 }}
+      whileTap={{ cursor: "grabbing" }}
     >
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full select-none">
         {/* Card Content */}
         <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-lg">
-          <div className="relative w-full h-3/5">
+          <div className="relative w-full h-3/5 pointer-events-none">
             <img
               src={imageUrl}
               alt={alt}
               className="w-full h-full object-cover"
+              draggable="false"
             />
           </div>
-          <div className="p-4 h-2/5">
+          <div className="p-4 h-2/5 pointer-events-none">
             {children}
           </div>
         </div>

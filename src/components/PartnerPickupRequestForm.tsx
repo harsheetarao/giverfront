@@ -87,7 +87,7 @@ export const PartnerPickupRequestForm = (props: any) => {
           <div className="bg-[#F8FAF9] rounded-xl p-6">
             <ImageUpload
               onUpload={(photos) => handlePhotoUpload(photos)}
-              maxFiles={5}
+              maxFiles={50}
             />
           </div>
 

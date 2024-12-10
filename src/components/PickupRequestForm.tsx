@@ -770,16 +770,18 @@ export const PickupRequestForm = ({
       'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
-      {!isLastStep && ( // Only show progress when not on the last step
-        <Progress
-          steps={steps || defaultSteps}
-          currentStep={currentStep}
-          onStepClick={(step) => {
-            if (step < currentStep && !isLastStep) { // Prevent going back if on last step
-              setCurrentStep(step);
-            }
-          }}
-        />
+      {!isLastStep && (
+        <div className="mb-12">
+          <Progress
+            steps={steps || defaultSteps}
+            currentStep={currentStep}
+            onStepClick={(step) => {
+              if (step < currentStep && !isLastStep) {
+                setCurrentStep(step);
+              }
+            }}
+          />
+        </div>
       )}
 
       {/* Step Content with Icon Headers */}

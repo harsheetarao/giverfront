@@ -148,7 +148,7 @@ export const DriverPickupWorkflow = ({
           <div className="grid grid-cols-1 gap-8 mb-4">
             {selectedRequest.items.map((item) => (
               <div 
-                className="aspect-[16/9] w-full relative"
+                className="aspect-[3/4] w-full relative"
                 key={item.id}
               >
                 <div className="absolute inset-0 -mx-8">
@@ -164,7 +164,7 @@ export const DriverPickupWorkflow = ({
                         );
                       }}
                     >
-                      <div className="bg-[#F8FAF9] p-4 rounded-xl">
+                      <div className="bg-[#F8FAF9] p-4 rounded-xl h-full overflow-y-auto">
                         <h4 className="font-semibold text-[#4B7163] mb-2">{item.name}</h4>
                         <p className="text-sm text-[#5A7C6F] mb-2">{item.description}</p>
                         <div className="flex items-center gap-2">
