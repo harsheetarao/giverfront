@@ -34,6 +34,7 @@ import { CodeSample } from '@/components/CodeSample';
 import { ListingWorkflow } from '@/components/ListingWorkflow';
 import { BulkPartnerPickupRequestForm } from '@/components/BulkPartnerPickupRequestForm';
 import { SearchInput } from '@/components/SearchInput';
+import { LogisticsCalendar } from './LogisticsCalendar';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -241,6 +242,8 @@ const ComponentShowcase = () => {
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [selectedLogisticsDate, setSelectedLogisticsDate] = useState('');
+  const [selectedLogisticsTime, setSelectedLogisticsTime] = useState('');
 
   // All mock data declarations
   const menuItems = [
@@ -432,6 +435,69 @@ const ComponentShowcase = () => {
     messages: sampleMessages
   };
 
+  // Add demo data near other mock data
+  const logisticsCalendarData = [
+    {
+      date: new Date().toISOString().split('T')[0], // Today
+      timeSlots: [
+        {
+          time: '09:00',
+          availableDrivers: 3,
+          pickupCount: 2,
+          dropoffCount: 1,
+          pickups: [
+            {
+              id: '1',
+              customerName: 'John Doe',
+              address: '123 Main St, Seattle, WA',
+              items: [
+                {
+                  id: 'item1',
+                  name: 'Vintage Chair',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Beautiful vintage chair in good condition'
+                }
+              ]
+            },
+            {
+              id: '2',
+              customerName: 'Jane Smith',
+              address: '456 Pine St, Seattle, WA',
+              items: [
+                {
+                  id: 'item2',
+                  name: 'Dining Table',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Large dining table, seats 6'
+                }
+              ]
+            }
+          ],
+          dropoffs: [
+            {
+              id: '3',
+              customerName: 'Bob Wilson',
+              address: '789 Oak St, Seattle, WA',
+              items: [
+                {
+                  id: 'item3',
+                  name: 'Sofa',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Modern 3-seater sofa'
+                }
+              ]
+            }
+          ]
+        },
+        // Add more time slots with similar data structure
+      ],
+      totalPickups: 3,
+      totalDropoffs: 4,
+      availableDrivers: 5
+    },
+    // Add tomorrow's data with similar structure
+  ];
+
   // Component definitions
   const TagList = () => {
     const [tags, setTags] = React.useState([
@@ -571,6 +637,21 @@ const ComponentShowcase = () => {
               />
             )}
           </div>
+        </div>
+      )
+    },
+    {
+      title: "Logistics Calendar",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Logistics Calendar</h3>
+          <LogisticsCalendar
+            selectedDate={selectedLogisticsDate}
+            selectedTime={selectedLogisticsTime}
+            onDateSelect={setSelectedLogisticsDate}
+            onTimeSelect={setSelectedLogisticsTime}
+            calendarData={logisticsCalendarData}
+          />
         </div>
       )
     }
@@ -1366,6 +1447,62 @@ const [currentStep, setCurrentStep] = useState(1);
   value={searchValue}
   onChange={setSearchValue}
   placeholder="Search items..."
+/>`} />
+        </div>
+      )
+    },
+    {
+      title: "Logistics Calendar",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Logistics Calendar</h3>
+          <LogisticsCalendar
+            onDateSelect={(date) => console.log('Selected date:', date)}
+            onTimeSelect={(time) => console.log('Selected time:', time)}
+            selectedDate={new Date().toISOString().split('T')[0]}
+            selectedTime="09:00"
+            calendarData={logisticsCalendarData}
+          />
+          <CodeSample code={`const logisticsCalendarData = [
+  {
+    date: new Date().toISOString().split('T')[0], // Today
+    timeSlots: [
+      { time: '09:00', availableDrivers: 3, pickupCount: 2, dropoffCount: 1 },
+      { time: '10:00', availableDrivers: 2, pickupCount: 1, dropoffCount: 2 },
+      { time: '11:00', availableDrivers: 4, pickupCount: 0, dropoffCount: 1 },
+      { time: '12:00', availableDrivers: 3, pickupCount: 2, dropoffCount: 1 },
+      { time: '13:00', availableDrivers: 2, pickupCount: 1, dropoffCount: 2 },
+      { time: '14:00', availableDrivers: 4, pickupCount: 0, dropoffCount: 1 },
+      { time: '15:00', availableDrivers: 3, pickupCount: 2, dropoffCount: 1 },
+      { time: '16:00', availableDrivers: 2, pickupCount: 1, dropoffCount: 2 },
+      { time: '17:00', availableDrivers: 4, pickupCount: 0, dropoffCount: 1 }
+    ],
+    totalPickups: 10,
+    totalDropoffs: 4,
+    availableDrivers: 5
+  },
+  {
+    date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
+    timeSlots: [
+      { time: '09:00', availableDrivers: 2, pickupCount: 1, dropoffCount: 2 },
+      { time: '10:00', availableDrivers: 3, pickupCount: 2, dropoffCount: 1 },
+      { time: '14:00', availableDrivers: 4, pickupCount: 1, dropoffCount: 3 },
+      { time: '15:00', availableDrivers: 3, pickupCount: 2, dropoffCount: 1 },
+      { time: '16:00', availableDrivers: 2, pickupCount: 1, dropoffCount: 2 },
+      { time: '17:00', availableDrivers: 4, pickupCount: 0, dropoffCount: 1 }
+    ],
+    totalPickups: 8,
+    totalDropoffs: 6,
+    availableDrivers: 6
+  }
+];
+
+<LogisticsCalendar
+  onDateSelect={(date) => handleDateSelect(date)}
+  onTimeSelect={(time) => handleTimeSelect(time)}
+  selectedDate={selectedDate}
+  selectedTime={selectedTime}
+  calendarData={logisticsCalendarData}
 />`} />
         </div>
       )

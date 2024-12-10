@@ -6,20 +6,13 @@ import { Check, X, AlertCircle } from 'lucide-react';
 
 type InputState = 'normal' | 'completed' | 'error' | 'required' | 'blankRequired' | 'disabled';
 
-interface FormInputProps {
+interface FormInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label: string;
   hint?: string;
   state?: InputState;
   className?: string;
   value: string;
-  type?: string;
-  min?: number | string;
-  minDate?: string;
-  step?: number;
   onChange: (value: string) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   error?: string;
 }
 

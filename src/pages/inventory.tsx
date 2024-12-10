@@ -3,15 +3,18 @@ import { Page } from '@/components/page';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ListingWorkflow } from '@/components/ListingWorkflow';
-import { Package, DollarSign, BarChart, Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Package, DollarSign, BarChart, Search, Filter, ArrowUpDown, Truck, PackageOpen, Tag, BarChart2, PackageCheck } from 'lucide-react';
 import { FormInput } from '@/components/FormInput';
 import { CustomButton } from '@/components/CustomButton';
 import Logo from '@/styles/ui/logos/gone.svg';
 import { SearchInput } from '@/components/SearchInput';
+import { cn } from '@/lib/utils';
+import { PickupRequestManager } from '@/components/PickupRequestManager';
 
 const InventoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'in_inventory' | 'ready_for_sale'>('all');
+  const [activeTab, setActiveTab] = useState('inventory');
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -36,6 +39,78 @@ const InventoryPage = () => {
       customerName: 'John Doe'
     },
     // Add more mock items...
+  ];
+
+  const tabs = [
+    {
+      id: 'pickups',
+      label: 'Pickup Requests',
+      icon: Truck,
+      description: 'Manage incoming pickup requests'
+    },
+    {
+      id: 'dropoffs',
+      label: 'Drop-offs',
+      icon: PackageCheck,
+      description: 'Manage partner drop-offs'
+    },
+    {
+      id: 'receiving',
+      label: 'Receiving',
+      icon: Package,
+      description: 'Process and accept incoming items'
+    },
+    {
+      id: 'inventory',
+      label: 'Inventory',
+      icon: PackageOpen,
+      description: 'Manage warehouse inventory'
+    },
+    {
+      id: 'listings',
+      label: 'Listings',
+      icon: Tag,
+      description: 'Create and manage listings'
+    },
+    {
+      id: 'sales',
+      label: 'Sales',
+      icon: BarChart2,
+      description: 'Track sales and performance'
+    }
+  ];
+
+  // Add mock data for pickup requests
+  const mockPickupRequests = [
+    {
+      id: '1',
+      items: [{
+        id: 'item1',
+        name: 'Vintage Chair',
+        status: 'pending' as const,
+        imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+        description: 'Beautiful vintage chair in good condition',
+        availableDates: [{ date: '2024-03-19', requestCount: 1 }],
+        location: 'Seattle, WA',
+        pickupPhoto: 'https://example.com/photo.jpg',
+        pickupDate: new Date(),
+        pickupAddress: '123 Main St',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '555-0123',
+        messages: [],
+        address: '123 Main St'
+      }],
+      messages: [],
+      status: 'pending' as const,
+      customerName: 'John Doe',
+      customerEmail: 'john@example.com',
+      customerPhone: '555-0123',
+      address: '123 Main St',
+      pickupPhoto: 'https://example.com/photo.jpg',
+      pickupDate: new Date(),
+      pickupAddress: '123 Main St'
+    }
   ];
 
   return (
@@ -88,52 +163,70 @@ const InventoryPage = () => {
           <div className="bg-white py-6 border-b">
             <div className="max-w-6xl mx-auto px-4">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex-1 w-full md:w-auto relative">
+                <div className="flex-1 w-full md:w-auto">
                   <SearchInput
                     value={searchTerm}
                     onChange={setSearchTerm}
                     placeholder="Search inventory..."
-                    className="w-full"
+                    onSearch={() => console.log('Search:', searchTerm)}
+                    onFilter={() => console.log('Filter clicked')}
                   />
-                </div>
-                <div className="flex gap-4">
-                  <CustomButton
-                    variant="secondary"
-                    onClick={() => {}}
-                    className="flex items-center gap-2"
-                  >
-                    <Filter className="w-4 h-4" />
-                    Filter
-                  </CustomButton>
-                  <CustomButton
-                    variant="secondary"
-                    onClick={() => {}}
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowUpDown className="w-4 h-4" />
-                    Sort
-                  </CustomButton>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ListingWorkflow Section */}
+          {/* Tab Navigation */}
+          <div className="bg-white border-b">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="flex overflow-x-auto">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "flex items-center gap-2 px-6 py-4 border-b-2 whitespace-nowrap",
+                      activeTab === tab.id
+                        ? "border-[#4B7163] text-[#4B7163]"
+                        : "border-transparent text-gray-500 hover:text-[#4B7163] hover:border-[#4B7163]/30"
+                    )}
+                  >
+                    <tab.icon className="w-5 h-5" />
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Section */}
           <div className="py-12 bg-gray-50">
             <div className="max-w-6xl mx-auto px-4">
-              <ListingWorkflow
-                items={mockItems}
-                onUpdateDetails={(itemId, details) => {
-                  console.log('Update details:', itemId, details);
-                }}
-                onUpdateStatus={(itemId, status) => {
-                  console.log('Update status:', itemId, status);
-                }}
-                onSaveDraft={(itemId, details) => {
-                  console.log('Save draft:', itemId, details);
-                }}
-                className="bg-white shadow-xl rounded-xl"
-              />
+              {activeTab === 'pickups' && (
+                <PickupRequestManager
+                  pickupRequests={mockPickupRequests}
+                  onAcceptRequest={(id) => console.log('Accept:', id)}
+                  onRejectRequest={(id) => console.log('Reject:', id)}
+                  onUpdateStatus={(id, status) => console.log('Update status:', id, status)}
+                  onSendMessage={(id, message) => console.log('Send message:', id, message)}
+                  className="bg-white shadow-xl rounded-xl p-6"
+                />
+              )}
+              {activeTab === 'inventory' && (
+                <ListingWorkflow
+                  items={mockItems}
+                  onUpdateDetails={(itemId, details) => {
+                    console.log('Update details:', itemId, details);
+                  }}
+                  onUpdateStatus={(itemId, status) => {
+                    console.log('Update status:', itemId, status);
+                  }}
+                  onSaveDraft={(itemId, details) => {
+                    console.log('Save draft:', itemId, details);
+                  }}
+                  className="bg-white shadow-xl rounded-xl p-6"
+                />
+              )}
             </div>
           </div>
         </div>
