@@ -207,6 +207,27 @@ const getMinDate = () => {
   return today.toISOString().split('T')[0];
 };
 
+const formatPhoneNumber = (value: string) => {
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, '');
+  
+  // Format as (XXX) XXX-XXXX
+  if (digits.length >= 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
+  }
+  // Partial formatting as user types
+  else if (digits.length > 6) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+  else if (digits.length > 3) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+  }
+  else if (digits.length > 0) {
+    return `(${digits}`;
+  }
+  return '';
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -470,7 +491,17 @@ export const PickupRequestForm = ({
                 <FormInput
                   label="Email or Mobile Number"
                   value={contactInfo.contact}
-                  onChange={(value: string) => setContactInfo(prev => ({ ...prev, contact: value }))}
+                  onChange={(value: string) => {
+                    // If it looks like a phone number (starts with number or parenthesis)
+                    if (/^[\d(]/.test(value)) {
+                      setContactInfo(prev => ({ 
+                        ...prev, 
+                        contact: formatPhoneNumber(value)
+                      }));
+                    } else {
+                      setContactInfo(prev => ({ ...prev, contact: value }));
+                    }
+                  }}
                   hint="Choose the contact method you check most frequently for convenient updates."
                   error={
                     contactInfo.contact && !isValidEmail(contactInfo.contact) && !isValidPhone(contactInfo.contact)
