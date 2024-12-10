@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Camera, Clock, Home, Truck, Leaf } from 'lucide-react';
-import '@/styles/globals.css';
+
 import { Page } from '@/components/page';
 import NextImage from 'next/image';
 import { Header } from '@/components/Header';

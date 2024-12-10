@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Camera, ArrowRight, Clock, Leaf } from 'lucide-react';
-import '@/styles/globals.css';
+
 import { Page } from '@/components/page';
 import { PickupRequestForm } from '@/components/PickupRequestForm';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Logo from '@/styles/ui/logos/gone.svg';
 import Script from 'next/script';
+import { db } from '@/firebaseConfig';  // Update import path as needed
+import { addDoc, collection } from 'firebase/firestore';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const GiverForm = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -20,9 +23,87 @@ const GiverForm = () => {
     { label: 'Contact', href: '#contact' }
   ];
 
-  const handleSubmit = (data: any) => {
-    console.log('Form submitted:', data);
-    // Handle form submission here
+  const handleSubmit = async (data: any) => {
+    console.log('handleSubmit called with data:', data);
+    setIsSubmitting(true);
+    try {
+      // 1. Upload files first
+      const fileUploadPromises = data.items
+        .filter((item: any) => item.selectedFiles && item.selectedFiles.length > 0)
+        .map(async (item: any) => {
+          const formData = new FormData();
+          Array.from(item.selectedFiles as FileList).forEach((file: File) => {
+            formData.append('files', file);
+          });
+
+          // Log the FormData contents
+          console.log('Uploading files for item:', {
+            description: item.description,
+            files: Array.from(formData.getAll('files')).map(f => (f as File).name)
+          });
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Upload failed:', errorText);
+            throw new Error(`Failed to upload files: ${errorText}`);
+          }
+
+          const { fileUrls } = await response.json();
+          console.log('Received fileUrls:', fileUrls);
+          
+          return {
+            description: item.description,
+            fileUrls: fileUrls,
+            status: 'pending',
+          };
+        });
+
+      console.log('Starting file uploads...');
+      const processedItems = await Promise.all(fileUploadPromises);
+      console.log('File uploads completed:', processedItems);
+
+      // 2. Create Firestore document
+      const pickupData = {
+        name: data.fullName,
+        phoneNumber: data.contact.includes('@') ? '' : data.contact,
+        email: data.contact.includes('@') ? data.contact : '',
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        items: processedItems,
+        availableTimes: data.availableTimes,
+        address: data.address,
+        messages: [] // Initialize empty messages array
+      };
+
+      console.log('Submitting to Firestore:', pickupData);
+      const docRef = await addDoc(collection(db, 'pickupRequests'), pickupData);
+      console.log('Document written with ID:', docRef.id);
+
+      // 3. Send notification
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notify-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          requestId: docRef.id,
+          phoneNumber: data.contact,
+          name: data.fullName,
+          email: data.contact.includes('@') ? data.contact : ''
+        }),
+      });
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,6 +180,7 @@ const GiverForm = () => {
               
               <PickupRequestForm 
                 onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
                 className="border-none shadow-none p-0"
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}

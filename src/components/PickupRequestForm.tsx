@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Progress } from './Progress';
 import { CustomButton } from './CustomButton';
 import { FormInput } from './FormInput';
@@ -10,12 +10,19 @@ import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
 import { Modal } from './Modal';
 import { ImageUpload } from './ImageUpload';
 import { ProgressStep } from './Progress';
+import TermsOfService from './TermsOfService';
+import axios from 'axios';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../firebaseConfig'; 
+import Privacy from './Privacy';
 
 interface UploadedItem {
   id: string;
   imageUrl: string;
   description?: string;
   quantity?: number;
+  selectedFiles?: File[];
+  status?: string;
 }
 
 interface PickupRequestFormProps {
@@ -43,6 +50,7 @@ interface PickupRequestFormProps {
   steps?: ProgressStep[];
   renderCustomStep?: (currentStep: number) => React.ReactNode;
   validateStep?: (step: number) => boolean;
+  isSubmitting?: boolean;
 }
 
 interface ConfirmationState {
@@ -61,6 +69,21 @@ type StepType = {
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface UploadResponse {
+  fileUrls: string[];
+}
+
+interface FormData {
+  fullName: string;
+  contact: string;
+  items: Array<{
+    description: string;
+    selectedFiles: File[];
+  }>;
+  availableTimes: string[];
+  address: string;
 }
 
 const PlacesAutocomplete = ({
@@ -117,27 +140,61 @@ const PlacesAutocomplete = ({
   );
 };
 
-const handlePhotoUpload = (
+const handlePhotoUpload = async (
   photos: string[], 
   setUploadedItems: React.Dispatch<React.SetStateAction<UploadedItem[]>>,
   skipContactStep: boolean
 ) => {
-  const instanceId = Math.random().toString(36).substr(2, 9); // Generate unique instance ID
-  console.log(`PickupRequestForm ${instanceId} - Processing photos:`, photos);
+  const instanceId = Math.random().toString(36).substr(2, 9);
+  let newItems: UploadedItem[] = [];
   
   if (photos.length > 0) {
-    const newItems = photos.map(photoUrl => ({
-      id: `${instanceId}-${Math.random().toString(36).substr(2, 9)}`,
-      imageUrl: photoUrl,
-      quantity: 1,
-    }));
-    
-    setUploadedItems(prevItems => {
-      // Only update items for this specific instance
-      const updatedItems = [...prevItems, ...newItems];
-      console.log(`PickupRequestForm ${instanceId} - Updated items:`, updatedItems);
-      return updatedItems;
-    });
+    try {
+      // Immediately show previews with temporary IDs
+      newItems = photos.map((photoUrl) => ({
+        id: `${instanceId}-${Math.random().toString(36).substr(2, 9)}`,
+        imageUrl: photoUrl,
+        quantity: 1,
+        selectedFiles: [],
+        status: 'uploading'
+      }));
+      
+      setUploadedItems(prevItems => [...prevItems, ...newItems]);
+
+      // Convert base64 strings to Files in the background
+      const files = await Promise.all(photos.map(async (photo, index) => {
+        const response = await fetch(photo);
+        const blob = await response.blob();
+        return new File([blob], `photo-${index}.jpg`, { type: 'image/jpeg' });
+      }));
+
+      // Update items with actual files
+      setUploadedItems(prevItems => 
+        prevItems.map(item => {
+          const matchingNewItem = newItems.find(newItem => newItem.id === item.id);
+          if (matchingNewItem) {
+            return {
+              ...item,
+              selectedFiles: [files[newItems.indexOf(matchingNewItem)]],
+              status: 'ready'
+            };
+          }
+          return item;
+        })
+      );
+      
+      // Note: Actual upload to backend will happen during form submission
+      
+    } catch (error) {
+      console.error('Error processing files:', error);
+      // Update status to error for failed items
+      setUploadedItems(prevItems =>
+        prevItems.map(item => ({
+          ...item,
+          status: newItems.some(newItem => newItem.id === item.id) ? 'error' : item.status
+        }))
+      );
+    }
   }
 };
 
@@ -191,6 +248,7 @@ export const PickupRequestForm = ({
   steps,
   renderCustomStep,
   validateStep,
+  isSubmitting,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
@@ -209,6 +267,10 @@ export const PickupRequestForm = ({
   });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [isTermsVisible, setIsTermsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formMessage, setFormMessage] = useState('');
+  const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
 
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
@@ -264,12 +326,22 @@ export const PickupRequestForm = ({
               <div className="space-y-6">
                 {uploadedItems.map((item) => (
                   <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
-                    <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 relative">
                       <img 
                         src={item.imageUrl} 
                         alt="Item" 
                         className="w-full h-full object-cover"
                       />
+                      {item.status === 'uploading' && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        </div>
+                      )}
+                      {item.status === 'error' && (
+                        <div className="absolute inset-0 bg-red-500 bg-opacity-50 flex items-center justify-center">
+                          <span className="text-white text-sm">Error</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-grow">
                       <FormInput
@@ -433,6 +505,13 @@ export const PickupRequestForm = ({
                       ? "Please enter a valid email address or phone number"
                       : undefined
                   }
+                  state={
+                    contactInfo.contact
+                      ? (isValidEmail(contactInfo.contact) || isValidPhone(contactInfo.contact))
+                        ? 'completed'
+                        : 'error'
+                      : 'normal'
+                  }
                 />
               </div>
             </div>
@@ -483,13 +562,21 @@ export const PickupRequestForm = ({
                 />
                 <span className="text-sm text-[#5A7C6F]">
                   I have read and agree to the{' '}
-                  <button 
-                    onClick={() => setShowTerms(true)}
+                  <button
+                    type="button"
+                    onClick={() => setIsTermsVisible(true)}
                     className="text-[#6AB098] underline hover:text-[#4B7163]"
                   >
                     Terms of Service
                   </button>
-                  {' '}and Privacy Policy.
+                  {' '}and{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsPrivacyVisible(true)}
+                    className="text-[#6AB098] underline hover:text-[#4B7163]"
+                  >
+                    Privacy Policy
+                  </button>
                 </span>
               </label>
 
@@ -584,23 +671,28 @@ export const PickupRequestForm = ({
     }
   };
 
-  const handleNext = () => {
-    if (currentStep === (skipConfirmationStep ? 2 : 3)) {
-      onSubmit({
-        fullName: contactInfo.fullName,
-        contact: contactInfo.contact,
-        items: uploadedItems,
-        availableTimes,
-        address
-      });
-      setCurrentStep(prev => prev + 1);
-    } else if (currentStep === 4) {
-      // Submit feedback if provided
-      if (feedback.trim()) {
-        // You can handle feedback submission here
-        console.log('Feedback submitted:', feedback);
+  const handleNext = async () => {
+    if (currentStep === 3) { // When on the contact/confirmation step
+      try {
+        const formData = {
+          fullName: contactInfo.fullName,
+          contact: contactInfo.contact,
+          items: uploadedItems.map(item => ({
+            description: item.description || '',
+            imageUrl: item.imageUrl,
+            status: 'pending',
+          })),
+          availableTimes: availableTimes,
+          address: address
+        };
+        
+        console.log('Submitting form data:', formData);
+        await onSubmit(formData); // Wait for submission to complete
+        setCurrentStep(4); // Move to thank you page after successful submission
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        // Optionally handle error state here
       }
-      // You can handle final close/reset here
     } else {
       setCurrentStep(prev => prev + 1);
     }
@@ -680,19 +772,33 @@ export const PickupRequestForm = ({
             Back
           </CustomButton>
         )}
-        <CustomButton
+        <CustomButton 
+          variant="primary"
+          className="next-button"
+          disabled={!canProceed() || isSubmitting}
           onClick={handleNext}
-          disabled={!canProceed()}
-          className="flex items-center gap-2 ml-auto"
         >
-          {currentStep === 4 ? 'Close' : currentStep === (skipConfirmationStep ? 2 : 3) ? 'Submit Request' : 'Continue'}
-          {currentStep < (skipConfirmationStep ? 2 : 3) && <ChevronRight className="h-4 w-4" />}
+          {isSubmitting 
+            ? 'Submitting...' 
+            : currentStep === 3 
+              ? 'Submit Request'
+              : 'Continue'}
         </CustomButton>
       </div>
 
       <SuccessModal 
         isOpen={showSuccessModal} 
         onClose={() => setShowSuccessModal(false)} 
+      />
+
+      <TermsOfService 
+        isVisible={isTermsVisible} 
+        onClose={() => setIsTermsVisible(false)} 
+      />
+
+      <Privacy 
+        isVisible={isPrivacyVisible} 
+        onClose={() => setIsPrivacyVisible(false)} 
       />
     </div>
   );

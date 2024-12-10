@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -16,13 +17,8 @@ const nextConfig = {
       }
     ],
   },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.(png|jpg|jpeg|gif|svg)$/i,
-      type: 'asset/resource'
-    });
-    return config;
-  }
+  trailingSlash: true,
+  output: 'export',
 };
 
 module.exports = nextConfig;
