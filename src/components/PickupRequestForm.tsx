@@ -616,26 +616,80 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 4: // Success & Feedback
+      case 4: // Success & Summary
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
               <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
               <h3 className="font-rockwell text-2xl text-[#4B7163] mb-4">
-                Thank You for Your Request!
+                Request Submitted Successfully!
               </h3>
               <p className="text-[#5A7C6F] mb-6">
-                We'll review your request and get back to you via text or email shortly.
+                We'll review your request and get back to you via {contactInfo.contact.includes('@') ? 'email' : 'text'} shortly.
                 Thank you for being a sustainable citizen and giving your items a second life!
               </p>
             </div>
 
+            {/* Request Summary */}
+            <div className="bg-[#F8FAF9] rounded-xl p-6">
+              <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
+                Your Pickup Request Details
+              </h4>
+              
+              <div className="space-y-4">
+                {/* Contact Info */}
+                <div className="border-b border-[#4B7163]/10 pb-4">
+                  <p className="text-sm text-[#5A7C6F] font-medium mb-2">Contact Information</p>
+                  <div className="space-y-1">
+                    <p className="text-[#4B7163]">{contactInfo.fullName}</p>
+                    <p className="text-[#4B7163]">{contactInfo.contact}</p>
+                    <p className="text-[#4B7163]">{address}</p>
+                  </div>
+                </div>
+
+                {/* Items */}
+                <div className="border-b border-[#4B7163]/10 pb-4">
+                  <p className="text-sm text-[#5A7C6F] font-medium mb-2">Items for Pickup ({uploadedItems.length})</p>
+                  <div className="grid gap-3">
+                    {uploadedItems.map((item, index) => (
+                      <div key={item.id} className="flex items-center gap-3 bg-white p-2 rounded-lg">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.description || `Item ${index + 1}`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div>
+                          <p className="text-[#4B7163] font-medium">{item.description || `Item ${index + 1}`}</p>
+                          {item.quantity && item.quantity > 1 && (
+                            <p className="text-sm text-[#5A7C6F]">Quantity: {item.quantity}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pickup Times */}
+                <div>
+                  <p className="text-sm text-[#5A7C6F] font-medium mb-2">Preferred Pickup Times</p>
+                  <div className="flex flex-wrap gap-2">
+                    {availableTimes.map((time) => (
+                      <div key={time} className="bg-[#4B7163]/10 rounded-full px-3 py-1 text-sm text-[#4B7163]">
+                        {time}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feedback Section */}
             <div className="bg-[#F8FAF9] rounded-xl p-6">
               <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 How was your experience?
               </h4>
               <textarea
-                placeholder="How was your experience?"
+                placeholder="Share your feedback with us"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={4}
@@ -651,7 +705,7 @@ export const PickupRequestForm = ({
                 onClick={handleNewRequest}
                 variant="secondary"
               >
-                Start New Request
+                Submit Another Request
               </CustomButton>
               <CustomButton
                 onClick={() => {
@@ -714,17 +768,7 @@ export const PickupRequestForm = ({
         
         await onSubmit(formData);
         setCurrentStep(4); // Move to thank you page
-        // Reset form data
-        setUploadedItems([]);
-        setAvailableTimes([]);
-        setAddress('');
-        setContactInfo({ fullName: '', contact: '' });
-        setConfirmations({
-          ownership: false,
-          terms: false,
-          liability: false,
-          marketing: false,
-        });
+        // Don't reset form data here - move it to handleNewRequest
       } catch (error) {
         console.error('Error submitting form:', error);
       }
@@ -734,6 +778,17 @@ export const PickupRequestForm = ({
   };
 
   const handleNewRequest = () => {
+    // Reset form data when starting a new request
+    setUploadedItems([]);
+    setAvailableTimes([]);
+    setAddress('');
+    setContactInfo({ fullName: '', contact: '' });
+    setConfirmations({
+      ownership: false,
+      terms: false,
+      liability: false,
+      marketing: false,
+    });
     setCurrentStep(1);
   };
 
@@ -752,18 +807,13 @@ export const PickupRequestForm = ({
       label: 'Contact Info',
       description: 'We\'ll use your contact info to coordinate pickup details and keep you updated on status',
       icon: UserCircle2
-    }]),
-    {
-      label: 'Thank You',
-      description: 'Your request has been submitted',
-      icon: CheckCircle2
-    }
+    }])
   ];
 
   // Use provided steps or fall back to defaults
   const formSteps = steps || defaultSteps;
 
-  const isLastStep = currentStep === (steps?.length || defaultSteps.length);
+  const isLastStep = currentStep === 4 || currentStep === (steps?.length || defaultSteps.length);
   
   return (
     <div className={cn(
@@ -786,19 +836,32 @@ export const PickupRequestForm = ({
 
       {/* Step Content with Icon Headers */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          {formSteps[currentStep - 1]?.icon && (
+        {currentStep === 4 ? (
+          <div className="flex items-center gap-3 mb-6">
             <div className="w-6 h-6 text-[#4B7163]">
-              {React.createElement(formSteps[currentStep - 1].icon)}
+              <CheckCircle2 />
             </div>
-          )}
-          <h2 className="font-rockwell text-2xl text-[#4B7163]">
-            {formSteps[currentStep - 1].label}
-          </h2>
-        </div>
-        <p className="text-gray-600 mb-6">
-          {formSteps[currentStep - 1].description}
-        </p>
+            <h2 className="font-rockwell text-2xl text-[#4B7163]">
+              Request Summary
+            </h2>
+          </div>
+        ) : formSteps[currentStep - 1] ? (
+          <>
+            <div className="flex items-center gap-3 mb-6">
+              {formSteps[currentStep - 1].icon && (
+                <div className="w-6 h-6 text-[#4B7163]">
+                  {React.createElement(formSteps[currentStep - 1].icon)}
+                </div>
+              )}
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                {formSteps[currentStep - 1].label}
+              </h2>
+            </div>
+            <p className="text-gray-600 mb-6">
+              {formSteps[currentStep - 1].description}
+            </p>
+          </>
+        ) : null}
         {renderStepContent()}
       </div>
 
