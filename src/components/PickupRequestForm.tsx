@@ -770,11 +770,12 @@ export const PickupRequestForm = ({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="mt-8 flex justify-between">
-        {currentStep > 1 && !isLastStep && ( // Hide back button on last step
+      <div className="mt-8 flex justify-end">
+        {currentStep > 1 && !isLastStep && (
           <CustomButton
             onClick={() => setCurrentStep(currentStep - 1)}
             variant="secondary"
+            className="mr-auto"
           >
             Back
           </CustomButton>
