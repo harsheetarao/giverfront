@@ -35,6 +35,7 @@ import { ListingWorkflow } from '@/components/ListingWorkflow';
 import { BulkPartnerPickupRequestForm } from '@/components/BulkPartnerPickupRequestForm';
 import { SearchInput } from '@/components/SearchInput';
 import { LogisticsCalendar } from './LogisticsCalendar';
+import { DropoffRequestManager } from '@/components/DropoffRequestManager';
 
 import Logo from '@/styles/ui/logos/gone.svg';
 
@@ -496,6 +497,49 @@ const ComponentShowcase = () => {
       availableDrivers: 5
     },
     // Add tomorrow's data with similar structure
+  ];
+
+  // Add mock data
+  const mockDropoffRequests = [
+    {
+      id: '1',
+      partnerName: 'Goodwill Seattle',
+      partnerEmail: 'donations@goodwill.org',
+      partnerPhone: '206-555-0123',
+      scheduledDate: '2024-03-20',
+      status: 'pending' as const,
+      items: [
+        {
+          id: 'item1',
+          name: 'Dining Chairs',
+          description: 'Set of 4 wooden dining chairs',
+          quantity: 4,
+          condition: 'Good',
+          category: 'Furniture',
+          imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+          estimatedValue: 200
+        },
+        {
+          id: 'item2',
+          name: 'Coffee Table',
+          description: 'Solid wood coffee table',
+          quantity: 1,
+          condition: 'Excellent',
+          category: 'Furniture',
+          imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+          estimatedValue: 150
+        }
+      ],
+      messages: [
+        {
+          id: 'm1',
+          content: 'We have a bulk donation to drop off',
+          timestamp: new Date(),
+          isRead: true,
+          sender: 'user' as const
+        }
+      ]
+    }
   ];
 
   // Component definitions
@@ -1335,7 +1379,7 @@ const [currentStep, setCurrentStep] = useState(1);
 <DriverPickupWorkflow
   requests={acceptedRequests}
   onUpdateItemStatus={(requestId, itemId, status) => handleStatusUpdate(requestId, itemId, status)}
-  onAddPhoto={(requestId, itemId, photo, note) => handleAddPhoto(requestId, itemId, photo, note)}
+  onAddPhoto={(requestId, itemId, photo, note) => handlePhotoUpload(requestId, itemId, photo, note)}
   onReschedule={(requestId, newDate) => handleReschedule(requestId, newDate)}
   onCompletePickup={(requestId) => handleCompletePickup(requestId)}
   onSendMessage={(requestId, message) => handleSendMessage(requestId, message)}
@@ -1504,6 +1548,24 @@ const [currentStep, setCurrentStep] = useState(1);
   selectedTime={selectedTime}
   calendarData={logisticsCalendarData}
 />`} />
+        </div>
+      )
+    },
+    {
+      title: "Drop-off Request Manager",
+      content: (
+        <div className="space-y-4">
+          <h3 className="heading-3">Drop-off Request Manager</h3>
+          <DropoffRequestManager
+            dropoffRequests={mockDropoffRequests}
+            onApproveRequest={(id) => console.log('Approve:', id)}
+            onRejectRequest={(id) => console.log('Reject:', id)}
+            onUpdateStatus={(id, status) => console.log('Status:', id, status)}
+            onSendMessage={(id, message) => console.log('Message:', id, message)}
+            onUpdateQuantity={(requestId, itemId, quantity) => 
+              console.log('Update quantity:', requestId, itemId, quantity)
+            }
+          />
         </div>
       )
     }

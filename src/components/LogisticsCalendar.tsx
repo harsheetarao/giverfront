@@ -27,7 +27,7 @@ interface TimeSlot {
   dropoffs: TimeSlotDetails[];
 }
 
-interface DayDetails {
+export interface DayDetails {
   date: string;
   timeSlots: TimeSlot[];
   totalPickups: number;

@@ -10,11 +10,14 @@ import Logo from '@/styles/ui/logos/gone.svg';
 import { SearchInput } from '@/components/SearchInput';
 import { cn } from '@/lib/utils';
 import { PickupRequestManager } from '@/components/PickupRequestManager';
+import { LogisticsCalendar, type DayDetails } from '@/components/LogisticsCalendar';
 
 const InventoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'in_inventory' | 'ready_for_sale'>('all');
   const [activeTab, setActiveTab] = useState('inventory');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -113,6 +116,78 @@ const InventoryPage = () => {
     }
   ];
 
+  // Change the mock data name
+  const mockLogisticsData: DayDetails[] = [
+    {
+      date: new Date().toISOString().split('T')[0],
+      timeSlots: [
+        {
+          time: '09:00',
+          availableDrivers: 3,
+          pickupCount: 2,
+          dropoffCount: 1,
+          pickups: [
+            {
+              id: '1',
+              customerName: 'John Smith',
+              address: '123 Pine St, Seattle, WA',
+              items: [
+                {
+                  id: 'p1',
+                  name: 'Vintage Sofa',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Mid-century modern sofa in excellent condition'
+                }
+              ]
+            },
+            {
+              id: '2',
+              customerName: 'Sarah Wilson',
+              address: '456 Oak Ave, Seattle, WA',
+              items: [
+                {
+                  id: 'p2',
+                  name: 'Dining Set',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Table with 6 chairs'
+                }
+              ]
+            }
+          ],
+          dropoffs: [
+            {
+              id: '3',
+              customerName: 'Mike Johnson',
+              address: '789 Maple Dr, Seattle, WA',
+              items: [
+                {
+                  id: 'd1',
+                  name: 'Bookshelf',
+                  imageUrl: 'https://assets.wfcdn.com/im/08536462/resize-h400-w400%5Ecompr-r85/2752/275244502/default_name.jpg',
+                  description: 'Tall wooden bookshelf'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          time: '14:00',
+          availableDrivers: 4,
+          pickupCount: 1,
+          dropoffCount: 2,
+          pickups: [/* Similar structure */],
+          dropoffs: [/* Similar structure */]
+        }
+      ],
+      totalPickups: 3,
+      totalDropoffs: 3,
+      availableDrivers: 5
+    }
+  ];
+
+  // Use it to initialize state
+  const [logisticsCalendarData, setLogisticsCalendarData] = useState<DayDetails[]>(mockLogisticsData);
+
   return (
     <Page className="flex flex-col min-h-screen">
       <Header 
@@ -162,14 +237,28 @@ const InventoryPage = () => {
           {/* Controls Section */}
           <div className="bg-white py-6 border-b">
             <div className="max-w-6xl mx-auto px-4">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex-1 w-full md:w-auto">
-                  <SearchInput
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Search inventory..."
-                    onSearch={() => console.log('Search:', searchTerm)}
-                    onFilter={() => console.log('Filter clicked')}
+              <div className="flex flex-col gap-6">
+                {/* Search Row */}
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                  <div className="flex-1 w-full md:w-auto">
+                    <SearchInput
+                      value={searchTerm}
+                      onChange={setSearchTerm}
+                      placeholder="Search inventory..."
+                      onSearch={() => console.log('Search:', searchTerm)}
+                      onFilter={() => console.log('Filter clicked')}
+                    />
+                  </div>
+                </div>
+
+                {/* Logistics Calendar Row */}
+                <div className="w-full">
+                  <LogisticsCalendar
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    onDateSelect={setSelectedDate}
+                    onTimeSelect={setSelectedTime}
+                    calendarData={logisticsCalendarData}
                   />
                 </div>
               </div>
