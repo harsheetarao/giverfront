@@ -1,12 +1,8 @@
 'use client';
 
 import React from 'react';
-import dynamic from 'next/dynamic';
+import { Modal } from '@/components/Modal';
 import styles from './TermsOfService.module.css';
-
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal), {
-  ssr: false
-});
 
 interface TermsOfServiceProps {
   isVisible: boolean;
@@ -14,14 +10,10 @@ interface TermsOfServiceProps {
 }
 
 const TermsOfService: React.FC<TermsOfServiceProps> = ({ isVisible, onClose }) => {
+  if (!isVisible) return null;
+  
   return (
-    <Modal
-     
-      open={isVisible}
-      onCancel={onClose}
-      footer={null}
-      width={700}
-    >
+    <Modal onClose={onClose} className="p-6">
       <div className="terms-content">
         <h2>Gone Technologies Inc. Terms of Service</h2>
         

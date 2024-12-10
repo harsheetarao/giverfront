@@ -14,3 +14,56 @@ body {
 .rockwell {
   font-family: 'Rockwell', sans-serif;
 }
+
+/* Modal Content Styling */
+.terms-content,
+.privacy-content {
+  @apply space-y-6 text-gray-700;
+}
+
+.terms-content h2,
+.privacy-content h2 {
+  @apply text-2xl font-bold mb-6 text-[#4B7163];
+}
+
+.terms-content h3,
+.privacy-content h3 {
+  @apply text-xl font-semibold mb-4 text-[#4B7163];
+}
+
+.terms-content h4,
+.privacy-content h4 {
+  @apply text-lg font-semibold mb-3 text-[#4B7163];
+}
+
+.terms-content p,
+.privacy-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.terms-content section,
+.privacy-content section {
+  @apply mb-8;
+}
+
+.terms-content ul,
+.privacy-content ul,
+.terms-content ol,
+.privacy-content ol {
+  @apply ml-6 mb-4 space-y-2;
+}
+
+.terms-content li,
+.privacy-content li {
+  @apply list-disc leading-relaxed;
+}
+
+.terms-content ol > li,
+.privacy-content ol > li {
+  @apply list-decimal;
+}
+
+.warranty-disclaimer,
+.liability-disclaimer {
+  @apply uppercase font-semibold;
+}

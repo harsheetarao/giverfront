@@ -1,11 +1,7 @@
 'use client';
 
 import React from 'react';
-import dynamic from 'next/dynamic';
-
-const Modal = dynamic(() => import('antd').then((mod) => mod.Modal), {
-  ssr: false
-});
+import { Modal } from '@/components/Modal';
 
 interface PrivacyProps {
   isVisible: boolean;
@@ -13,13 +9,10 @@ interface PrivacyProps {
 }
 
 const Privacy: React.FC<PrivacyProps> = ({ isVisible, onClose }) => {
+  if (!isVisible) return null;
+  
   return (
-    <Modal
-      open={isVisible}
-      onCancel={onClose}
-      footer={null}
-      width={700}
-    >
+    <Modal onClose={onClose} className="p-6">
       <div className="privacy-content">
         <h2>Privacy Policy</h2>
 

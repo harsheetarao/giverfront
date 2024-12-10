@@ -66,11 +66,6 @@ type StepType = {
   icon: LucideIcon;
 };
 
-interface SuccessModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
 interface UploadResponse {
   fileUrls: string[];
 }
@@ -212,28 +207,6 @@ const getMinDate = () => {
   return today.toISOString().split('T')[0];
 };
 
-const SuccessModal = ({ isOpen, onClose }: SuccessModalProps) => {
-  if (!isOpen) return null;
-  
-  return (
-    <Modal onClose={onClose}>
-      <div className="text-center p-6">
-        <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
-        <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">
-          Thank You for Your Request!
-        </h2>
-        <p className="text-[#5A7C6F] mb-6">
-          We'll review your request and get back to you via text or email shortly. 
-          Thank you for being a sustainable citizen and giving your items a second life!
-        </p>
-        <CustomButton onClick={onClose}>
-          Close
-        </CustomButton>
-      </div>
-    </Modal>
-  );
-};
-
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -265,7 +238,6 @@ export const PickupRequestForm = ({
     liability: false,
     marketing: false,
   });
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [isTermsVisible, setIsTermsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -632,12 +604,35 @@ export const PickupRequestForm = ({
                 How was your experience?
               </h4>
               <textarea
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B7163]"
-                placeholder="Tell us about your experience with our pickup request process..."
-                rows={4}
+                placeholder="How was your experience?"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                className="w-full p-3 border-2 rounded-lg border-[#5A7C6F] focus:outline-none focus:ring-2"
               />
+              {formMessage && (
+                <p className="text-center text-sm text-[#4B7163] mt-2">{formMessage}</p>
+              )}
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <CustomButton 
+                onClick={handleNewRequest}
+                variant="secondary"
+              >
+                Start New Request
+              </CustomButton>
+              <CustomButton
+                onClick={() => {
+                  if (feedback.trim()) {
+                    setFormMessage('Thank you for your feedback!');
+                    setFeedback('');
+                  }
+                }}
+                disabled={!feedback.trim()}
+              >
+                Submit Feedback
+              </CustomButton>
             </div>
           </div>
         );
@@ -686,16 +681,29 @@ export const PickupRequestForm = ({
           address: address
         };
         
-        console.log('Submitting form data:', formData);
-        await onSubmit(formData); // Wait for submission to complete
-        setCurrentStep(4); // Move to thank you page after successful submission
+        await onSubmit(formData);
+        setCurrentStep(4); // Move to thank you page
+        // Reset form data
+        setUploadedItems([]);
+        setAvailableTimes([]);
+        setAddress('');
+        setContactInfo({ fullName: '', contact: '' });
+        setConfirmations({
+          ownership: false,
+          terms: false,
+          liability: false,
+          marketing: false,
+        });
       } catch (error) {
         console.error('Error submitting form:', error);
-        // Optionally handle error state here
       }
     } else {
       setCurrentStep(prev => prev + 1);
     }
+  };
+
+  const handleNewRequest = () => {
+    setCurrentStep(1);
   };
 
   const defaultSteps: ProgressStep[] = [
@@ -724,23 +732,24 @@ export const PickupRequestForm = ({
   // Use provided steps or fall back to defaults
   const formSteps = steps || defaultSteps;
 
+  const isLastStep = currentStep === (steps?.length || defaultSteps.length);
+  
   return (
     <div className={cn(
       'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
-      {/* Progress Indicator with Icons */}
-      <div className="mb-8">
-        <Progress 
-          steps={formSteps.map(step => ({
-            label: step.label,
-            description: step.description,
-            icon: step.icon
-          })) || []} 
-          currentStep={currentStep} 
-          onStepClick={setCurrentStep}
+      {!isLastStep && ( // Only show progress when not on the last step
+        <Progress
+          steps={steps || defaultSteps}
+          currentStep={currentStep}
+          onStepClick={(step) => {
+            if (step < currentStep && !isLastStep) { // Prevent going back if on last step
+              setCurrentStep(step);
+            }
+          }}
         />
-      </div>
+      )}
 
       {/* Step Content with Icon Headers */}
       <div className="mb-8">
@@ -761,17 +770,16 @@ export const PickupRequestForm = ({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between">
-        {currentStep > 1 && (
+      <div className="mt-8 flex justify-between">
+        {currentStep > 1 && !isLastStep && ( // Hide back button on last step
           <CustomButton
+            onClick={() => setCurrentStep(currentStep - 1)}
             variant="secondary"
-            onClick={() => setCurrentStep(prev => prev - 1)}
-            className="flex items-center gap-2"
           >
-            <ChevronLeft className="h-4 w-4" />
             Back
           </CustomButton>
         )}
+        
         <CustomButton 
           variant="primary"
           className="next-button"
@@ -785,11 +793,6 @@ export const PickupRequestForm = ({
               : 'Continue'}
         </CustomButton>
       </div>
-
-      <SuccessModal 
-        isOpen={showSuccessModal} 
-        onClose={() => setShowSuccessModal(false)} 
-      />
 
       <TermsOfService 
         isVisible={isTermsVisible} 
