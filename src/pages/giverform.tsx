@@ -7,15 +7,18 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Logo from '@/styles/ui/logos/gone.svg';
 import Script from 'next/script';
-import { db } from '@/firebaseConfig';  // Update import path as needed
+import { db } from '@/firebaseConfig';  
 import { addDoc, collection } from 'firebase/firestore';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const GiverForm = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [formMessage, setFormMessage] = useState('');
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -23,68 +26,93 @@ const GiverForm = () => {
     { label: 'Contact', href: '#contact' }
   ];
 
+
+  const handleFeedbackSubmit = async (feedbackText: string, userInfo: { name: string, contact: string }) => {
+    try {
+      const feedbackData = {
+        name: userInfo.name,
+        contact: userInfo.contact,
+        feedback: feedbackText,
+        createdAt: new Date().toISOString(),
+        pickupRequestId: null as string | null
+      };
+
+      const docRef = await addDoc(collection(db, 'feedback'), feedbackData);
+      console.log('Feedback submitted with ID:', docRef.id);
+      
+   
+      setFormMessage('Thank you for your feedback!');
+      setFeedback('');
+      
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      setFormMessage('Failed to submit feedback. Please try again.');
+    }
+  };
+
   const handleSubmit = async (data: any) => {
     console.log('handleSubmit called with data:', data);
     setIsSubmitting(true);
     try {
-      // 1. Upload files first
-      const fileUploadPromises = data.items
-        .filter((item: any) => item.selectedFiles && item.selectedFiles.length > 0)
-        .map(async (item: any) => {
-          const formData = new FormData();
-          Array.from(item.selectedFiles as FileList).forEach((file: File) => {
-            formData.append('files', file);
-          });
+      const processedItems = await Promise.all(
+        data.items.map(async (item: any) => {
+          if (item.fileUrls) {
+            return {
+              description: item.description || '',
+              fileUrls: item.fileUrls,
+              status: 'pending',
+            };
+          }
+          
+          if (item.selectedFiles && item.selectedFiles.length > 0) {
+            const formData = new FormData();
+            item.selectedFiles.forEach((file: File) => {
+              formData.append('files', file);
+            });
 
-          // Log the FormData contents
-          console.log('Uploading files for item:', {
-            description: item.description,
-            files: Array.from(formData.getAll('files')).map(f => (f as File).name)
-          });
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+              method: 'POST',
+              body: formData,
+            });
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-            method: 'POST',
-            body: formData,
-          });
+            if (!response.ok) {
+              throw new Error(`Failed to upload files: ${await response.text()}`);
+            }
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Upload failed:', errorText);
-            throw new Error(`Failed to upload files: ${errorText}`);
+            const { fileUrls } = await response.json();
+            return {
+              description: item.description || '',
+              fileUrls: fileUrls || [],
+              status: 'pending',
+            };
           }
 
-          const { fileUrls } = await response.json();
-          console.log('Received fileUrls:', fileUrls);
-          
           return {
-            description: item.description,
-            fileUrls: fileUrls,
+            description: item.description || '',
+            fileUrls: [],
             status: 'pending',
           };
-        });
+        })
+      );
 
-      console.log('Starting file uploads...');
-      const processedItems = await Promise.all(fileUploadPromises);
-      console.log('File uploads completed:', processedItems);
+      console.log('All processed items:', processedItems);
 
-      // 2. Create Firestore document
       const pickupData = {
         name: data.fullName,
         phoneNumber: data.contact.includes('@') ? '' : data.contact,
         email: data.contact.includes('@') ? data.contact : '',
         createdAt: new Date().toISOString(),
         status: 'pending',
-        items: processedItems,
+        items: processedItems,  
         availableTimes: data.availableTimes,
         address: data.address,
-        messages: [] // Initialize empty messages array
+        messages: []
       };
 
-      console.log('Submitting to Firestore:', pickupData);
+      console.log('Final pickupData:', pickupData);
       const docRef = await addDoc(collection(db, 'pickupRequests'), pickupData);
-      console.log('Document written with ID:', docRef.id);
+      console.log('Firestore document written:', docRef.id);
 
-      // 3. Send notification
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notify-user`, {
         method: 'POST',
         headers: {
@@ -98,6 +126,8 @@ const GiverForm = () => {
         }),
       });
 
+      localStorage.removeItem('formData');
+      
     } catch (error) {
       console.error('Error submitting form:', error);
       throw error;
@@ -110,7 +140,8 @@ const GiverForm = () => {
     <Page>
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`}
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
+        onLoad={() => setIsLoaded(true)}
       />
       <Header 
         menuItems={menuItems}
@@ -125,7 +156,6 @@ const GiverForm = () => {
 
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-12">
         <div className="max-w-4xl mx-auto px-4">
-          {/* Header Section */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold mb-4 text-gray-900">
               Let's Find Your Items a New Home
@@ -142,7 +172,7 @@ const GiverForm = () => {
                 if we think we can find a home, in a sustainable way we'll schedule a free pickup. 
               </p>
           </div>
-          {/* Accepted Items Info */}
+       
           <div className="mb-8 space-y-6">
 
             <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#E67C45]">
@@ -174,103 +204,103 @@ const GiverForm = () => {
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Form Column */}
-            <div className="flex-1 bg-white p-6 rounded-xl shadow-sm">
-              
-              <PickupRequestForm 
-                onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-                className="border-none shadow-none p-0"
-                selectedDate={selectedDate}
-                selectedTime={selectedTime}
-                onDateSelect={setSelectedDate}
-                onTimeSelect={setSelectedTime}
-                availableDates={[
-                  { date: '2024-03-20', requestCount: 2 },
-                  { date: '2024-03-21', requestCount: 1 },
-                  { date: '2024-03-22', requestCount: 3 },
-                ]}
-              />
+          {isLoaded ? (
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1 bg-white p-6 rounded-xl shadow-sm">
+                <PickupRequestForm 
+                  onSubmit={handleSubmit}
+                  isSubmitting={isSubmitting}
+                  className="border-none shadow-none p-0"
+                  selectedDate={selectedDate}
+                  selectedTime={selectedTime}
+                  onDateSelect={setSelectedDate}
+                  onTimeSelect={setSelectedTime}
+                  availableDates={[
+                    { date: '2024-03-20', requestCount: 2 },
+                    { date: '2024-03-21', requestCount: 1 },
+                    { date: '2024-03-22', requestCount: 3 },
+                  ]}
+                />
 
-              <div className="mt-4 flex items-start gap-3 text-sm text-gray-500">
-                <Clock className="w-4 h-4 mt-1 flex-shrink-0" />
-                <p>
-                  Most submissions take less than 2 minutes. We'll review your photos 
-                  and get back to you within one business day.
-                </p>
-              </div>
-            </div>
-
-            {/* Impact Column */}
-            <div className="lg:w-80 space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Your Impact Today
-                </h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 bg-green-100 rounded-full">
-                      <Leaf className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">
-                        Every item you submit helps build a more sustainable future by 
-                        extending its useful life
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 bg-green-100 rounded-full">
-                      <ArrowRight className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">
-                        We carefully evaluate each item to find its ideal next purpose - 
-                        whether through donation, reuse, or recycling
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Social Proof */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  What Others Say
-                </h3>
-                <div className="space-y-4">
-                  <blockquote className="text-sm text-gray-600">
-                    "I was amazed at how easy the entire process was. They picked everything 
-                    up the next day and I finally got my garage back!"
-                    <footer className="mt-2 text-gray-500">
-                      — Michelle R.
-                    </footer>
-                  </blockquote>
-                  <blockquote className="text-sm text-gray-600">
-                    "Such a weight off my shoulders knowing my things would be used by 
-                    someone who needs them instead of ending up in a landfill."
-                    <footer className="mt-2 text-gray-500">
-                      — James T.
-                    </footer>
-                  </blockquote>
+                <div className="mt-4 flex items-start gap-3 text-sm text-gray-500">
+                  <Clock className="w-4 h-4 mt-1 flex-shrink-0" />
+                  <p>
+                    Most submissions take less than 2 minutes. We'll review your photos 
+                    and get back to you within one business day.
+                  </p>
                 </div>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="bg-green-50 p-6 rounded-xl">
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Our Promise
-                </h3>
-                <p className="text-sm text-gray-600">
-                  We handle everything with care and consideration. Your items will 
-                  be thoughtfully placed where they can have the greatest positive impact.
-                </p>
+              <div className="lg:w-80 space-y-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-gray-900 mb-4">
+                    Your Impact Today
+                  </h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 p-1.5 bg-green-100 rounded-full">
+                        <Leaf className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm">
+                          Every item you submit helps build a more sustainable future by 
+                          extending its useful life
+                        </p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 p-1.5 bg-green-100 rounded-full">
+                        <ArrowRight className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm">
+                          We carefully evaluate each item to find its ideal next purpose - 
+                          whether through donation, reuse, or recycling
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-gray-900 mb-4">
+                    What Others Say
+                  </h3>
+                  <div className="space-y-4">
+                    <blockquote className="text-sm text-gray-600">
+                      "I was amazed at how easy the entire process was. They picked everything 
+                      up the next day and I finally got my garage back!"
+                      <footer className="mt-2 text-gray-500">
+                        — Michelle R.
+                      </footer>
+                    </blockquote>
+                    <blockquote className="text-sm text-gray-600">
+                      "Such a weight off my shoulders knowing my things would be used by 
+                      someone who needs them instead of ending up in a landfill."
+                      <footer className="mt-2 text-gray-500">
+                        — James T.
+                      </footer>
+                    </blockquote>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 p-6 rounded-xl">
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    Our Promise
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    We handle everything with care and consideration. Your items will 
+                    be thoughtfully placed where they can have the greatest positive impact.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex justify-center items-center min-h-[200px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          )}
 
-          {/* Bottom Note */}
           <div className="mt-8 text-center text-sm text-gray-500">
             Questions? Our team is here to help guide you through the process.
             <button className="text-green-600 font-medium ml-2 hover:text-green-700">

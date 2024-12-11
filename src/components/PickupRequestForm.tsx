@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { Progress } from './Progress';
 import { CustomButton } from './CustomButton';
 import { FormInput } from './FormInput';
@@ -81,6 +81,47 @@ interface FormData {
   address: string;
 }
 
+const STORAGE_KEY = 'giver_form_data';
+
+const saveToLocalStorage = (data: any) => {
+  try {
+    const dataToSave = {
+      ...data,
+      currentStep: data.currentStep,
+      availableTimes: data.availableTimes,
+      address: data.address,
+      contactInfo: data.contactInfo,
+    };
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return null;
+    
+    const data = JSON.parse(saved);
+    
+    return {
+      currentStep: data.currentStep || 1,
+      availableTimes: data.availableTimes || [],
+      address: data.address || '',
+      contactInfo: data.contactInfo || { fullName: '', contact: '' },
+    };
+  } catch (error) {
+    console.error('Error loading from localStorage:', error);
+    return null;
+  }
+};
+
+const clearLocalStorage = () => {
+  localStorage.removeItem(STORAGE_KEY);
+};
+
 const PlacesAutocomplete = ({
   value,
   onChange,
@@ -145,7 +186,6 @@ const handlePhotoUpload = async (
   
   if (photos.length > 0) {
     try {
-      // Immediately show previews with temporary IDs
       newItems = photos.map((photoUrl) => ({
         id: `${instanceId}-${Math.random().toString(36).substr(2, 9)}`,
         imageUrl: photoUrl,
@@ -156,14 +196,12 @@ const handlePhotoUpload = async (
       
       setUploadedItems(prevItems => [...prevItems, ...newItems]);
 
-      // Convert base64 strings to Files in the background
       const files = await Promise.all(photos.map(async (photo, index) => {
         const response = await fetch(photo);
         const blob = await response.blob();
         return new File([blob], `photo-${index}.jpg`, { type: 'image/jpeg' });
       }));
 
-      // Update items with actual files
       setUploadedItems(prevItems => 
         prevItems.map(item => {
           const matchingNewItem = newItems.find(newItem => newItem.id === item.id);
@@ -178,11 +216,9 @@ const handlePhotoUpload = async (
         })
       );
       
-      // Note: Actual upload to backend will happen during form submission
       
     } catch (error) {
       console.error('Error processing files:', error);
-      // Update status to error for failed items
       setUploadedItems(prevItems =>
         prevItems.map(item => ({
           ...item,
@@ -208,14 +244,11 @@ const getMinDate = () => {
 };
 
 const formatPhoneNumber = (value: string) => {
-  // Remove all non-digits
   const digits = value.replace(/\D/g, '');
   
-  // Format as (XXX) XXX-XXXX
   if (digits.length >= 10) {
     return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
   }
-  // Partial formatting as user types
   else if (digits.length > 6) {
     return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
   }
@@ -265,6 +298,28 @@ export const PickupRequestForm = ({
   const [formMessage, setFormMessage] = useState('');
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
 
+
+  useEffect(() => {
+    const dataToSave = {
+      currentStep,
+      availableTimes,
+      address,
+      contactInfo,
+    };
+    saveToLocalStorage(dataToSave);
+  }, [currentStep, availableTimes, address, contactInfo]); 
+
+
+  useEffect(() => {
+    const savedData = loadFromLocalStorage();
+    if (savedData) {
+      setCurrentStep(savedData.currentStep || 1);
+      setAvailableTimes(savedData.availableTimes || []);
+      setAddress(savedData.address || '');
+      setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
+    }
+  }, []);
+
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
       items.map(item => 
@@ -289,8 +344,36 @@ export const PickupRequestForm = ({
     );
   };
 
+  const isSuccessStep = () => currentStep === 4;
+
+  const handleItemRemove = (itemId: string) => {
+    setUploadedItems(items => items.filter(item => item.id !== itemId));
+  };
+
+  const handleFeedbackSubmit = async (feedbackText: string) => {
+    try {
+ 
+      const feedbackData = {
+        name: contactInfo.fullName,
+        contact: contactInfo.contact,
+        feedback: feedbackText,
+        createdAt: new Date().toISOString(),
+        pickupRequestId: null 
+      };
+
+      const docRef = await addDoc(collection(db, 'feedback'), feedbackData);
+      console.log('Feedback submitted with ID:', docRef.id);
+      
+      setFormMessage('Thank you for your feedback!');
+      setFeedback('');
+      
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      setFormMessage('Failed to submit feedback. Please try again.');
+    }
+  };
+
   const renderStepContent = () => {
-    // If there's a custom step renderer, use it first
     if (renderCustomStep) {
       const customContent = renderCustomStep(currentStep);
       if (customContent !== null) {
@@ -298,12 +381,10 @@ export const PickupRequestForm = ({
       }
     }
 
-    // Fall back to default step content
     switch (currentStep) {
-      case 1: // What
+      case 1: 
         return (
           <div className="space-y-6">
-            {/* Info Message Box */}
             <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
               <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
                 Looking to rehome your items? Just upload a photo of each item you would like to rehome.
@@ -320,6 +401,14 @@ export const PickupRequestForm = ({
                 {uploadedItems.map((item) => (
                   <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
                     <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 relative">
+                      <button
+                        type="button"
+                        onClick={() => handleItemRemove(item.id)}
+                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-white text-[#E67C45] hover:text-[#D15E25] shadow-sm"
+                      >
+                        ×
+                      </button>
+                      
                       <img 
                         src={item.imageUrl} 
                         alt="Item" 
@@ -351,7 +440,7 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 2: // When
+      case 2: 
         if (renderDetailsStep) {
           return renderDetailsStep(
             uploadedItems,
@@ -362,7 +451,7 @@ export const PickupRequestForm = ({
         }
         return (
           <div className="space-y-6">
-            {/* Info Message Box */}
+      
             <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
               <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
                 Schedule Your Pickup
@@ -415,7 +504,6 @@ export const PickupRequestForm = ({
                 Add This Time Slot
               </button>
 
-              {/* Selected Time Slots Display */}
               <div className="mt-8">
                 <h4 className="font-medium text-[#4B7163] mb-4">
                   Your Selected Time Slots {availableTimes.length < 2 && 
@@ -476,7 +564,7 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 3: // Where
+      case 3: 
         if (skipConfirmationStep) return null;
         return (
           <div className="space-y-6">
@@ -492,7 +580,7 @@ export const PickupRequestForm = ({
                   label="Email or Mobile Number"
                   value={contactInfo.contact}
                   onChange={(value: string) => {
-                    // If it looks like a phone number (starts with number or parenthesis)
+       
                     if (/^[\d(]/.test(value)) {
                       setContactInfo(prev => ({ 
                         ...prev, 
@@ -616,7 +704,7 @@ export const PickupRequestForm = ({
           </div>
         );
 
-      case 4: // Success & Summary
+      case 4: 
         return (
           <div className="space-y-6">
             <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
@@ -630,14 +718,14 @@ export const PickupRequestForm = ({
               </p>
             </div>
 
-            {/* Request Summary */}
+    
             <div className="bg-[#F8FAF9] rounded-xl p-6">
               <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 Your Pickup Request Details
               </h4>
               
               <div className="space-y-4">
-                {/* Contact Info */}
+      
                 <div className="border-b border-[#4B7163]/10 pb-4">
                   <p className="text-sm text-[#5A7C6F] font-medium mb-2">Contact Information</p>
                   <div className="space-y-1">
@@ -647,7 +735,7 @@ export const PickupRequestForm = ({
                   </div>
                 </div>
 
-                {/* Items */}
+         
                 <div className="border-b border-[#4B7163]/10 pb-4">
                   <p className="text-sm text-[#5A7C6F] font-medium mb-2">Items for Pickup ({uploadedItems.length})</p>
                   <div className="grid gap-3">
@@ -669,7 +757,7 @@ export const PickupRequestForm = ({
                   </div>
                 </div>
 
-                {/* Pickup Times */}
+           
                 <div>
                   <p className="text-sm text-[#5A7C6F] font-medium mb-2">Preferred Pickup Times</p>
                   <div className="flex flex-wrap gap-2">
@@ -683,7 +771,6 @@ export const PickupRequestForm = ({
               </div>
             </div>
 
-            {/* Feedback Section */}
             <div className="bg-[#F8FAF9] rounded-xl p-6">
               <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 How was your experience?
@@ -708,10 +795,27 @@ export const PickupRequestForm = ({
                 Submit Another Request
               </CustomButton>
               <CustomButton
-                onClick={() => {
+                onClick={async () => {
                   if (feedback.trim()) {
-                    setFormMessage('Thank you for your feedback!');
-                    setFeedback('');
+                    try {
+                      const feedbackData = {
+                        name: contactInfo.fullName,
+                        contact: contactInfo.contact,
+                        address: address,
+                        feedback: feedback.trim(),
+                        createdAt: new Date().toISOString(),
+                      };
+
+
+                      const docRef = await addDoc(collection(db, 'feedBack'), feedbackData);
+                      console.log('Feedback submitted with ID:', docRef.id);
+                      
+                      setFormMessage('Thank you for your feedback!');
+                      setFeedback('');
+                    } catch (error) {
+                      console.error('Error submitting feedback:', error);
+                      setFormMessage('Failed to submit feedback. Please try again.');
+                    }
                   }
                 }}
                 disabled={!feedback.trim()}
@@ -733,7 +837,7 @@ export const PickupRequestForm = ({
     }
 
     switch (currentStep) {
-      case 1: // What
+      case 1: // W
         return uploadedItems.length > 0;
       case 2: // When
         if (renderDetailsStep) {
@@ -753,27 +857,67 @@ export const PickupRequestForm = ({
 
   const handleNext = async () => {
     if (currentStep === 3) { // When on the contact/confirmation step
+      // Set loading state immediately before any async operations
+      setLoading(true);
       try {
+        // 1. Upload files first
+        const fileUploadPromises = uploadedItems
+          .filter(item => item.selectedFiles && item.selectedFiles.length > 0)
+          .map(async (item) => {
+            const formData = new FormData();
+            (item.selectedFiles || []).forEach((file: File) => {
+              formData.append('files', file);
+            });
+
+            console.log('Uploading files for item:', {
+              description: item.description,
+              files: Array.from(formData.getAll('files')).map(f => (f as File).name)
+            });
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('Upload failed:', errorText);
+              throw new Error(`Failed to upload files: ${errorText}`);
+            }
+
+            const { fileUrls } = await response.json();
+            console.log('Received fileUrls:', fileUrls);
+            
+            return {
+              description: item.description,
+              fileUrls: fileUrls,
+              status: 'pending',
+            };
+          });
+
+        console.log('Starting file uploads...');
+        const processedItems = await Promise.all(fileUploadPromises);
+        console.log('File uploads completed:', processedItems);
+
+        // 2. Prepare and submit form data
         const formData = {
           fullName: contactInfo.fullName,
           contact: contactInfo.contact,
-          items: uploadedItems.map(item => ({
-            description: item.description || '',
-            imageUrl: item.imageUrl,
-            status: 'pending',
-          })),
+          items: processedItems, // uploaded file URLs
           availableTimes: availableTimes,
           address: address
         };
         
         await onSubmit(formData);
-        setCurrentStep(4); // Move to thank you page
-        // Don't reset form data here - move it to handleNewRequest
+        clearLocalStorage(); 
+        setCurrentStep(4); 
       } catch (error) {
         console.error('Error submitting form:', error);
+      } finally {
+        setLoading(false);
       }
     } else {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev: number) => prev + 1);
     }
   };
 
@@ -813,20 +957,18 @@ export const PickupRequestForm = ({
   // Use provided steps or fall back to defaults
   const formSteps = steps || defaultSteps;
 
-  const isLastStep = currentStep === 4 || currentStep === (steps?.length || defaultSteps.length);
-  
   return (
     <div className={cn(
       'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
-      {!isLastStep && (
+      {!isSuccessStep() && (
         <div className="mb-12">
           <Progress
             steps={steps || defaultSteps}
             currentStep={currentStep}
             onStepClick={(step) => {
-              if (step < currentStep && !isLastStep) {
+              if (step < currentStep && !isSuccessStep()) {
                 setCurrentStep(step);
               }
             }}
@@ -867,7 +1009,7 @@ export const PickupRequestForm = ({
 
       {/* Navigation Buttons */}
       <div className="mt-8 flex justify-end">
-        {currentStep > 1 && !isLastStep && (
+        {currentStep > 1 && !isSuccessStep() && (
           <CustomButton
             onClick={() => setCurrentStep(currentStep - 1)}
             variant="secondary"
@@ -880,10 +1022,10 @@ export const PickupRequestForm = ({
         <CustomButton 
           variant="primary"
           className="next-button"
-          disabled={!canProceed() || isSubmitting}
+          disabled={!canProceed() || isSubmitting || loading}
           onClick={handleNext}
         >
-          {isSubmitting 
+          {(isSubmitting || loading) 
             ? 'Submitting...' 
             : currentStep === 3 
               ? 'Submit Request'
