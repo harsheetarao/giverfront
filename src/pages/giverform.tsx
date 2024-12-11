@@ -9,6 +9,8 @@ import Logo from '@/styles/ui/logos/gone.svg';
 import Script from 'next/script';
 import { db } from '@/firebaseConfig';  
 import { addDoc, collection } from 'firebase/firestore';
+import TermsOfService from '@/components/TermsOfService';
+import Privacy from '@/components/Privacy';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -19,6 +21,8 @@ const GiverForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [formMessage, setFormMessage] = useState('');
+  const [isTermsVisible, setIsTermsVisible] = useState(false);
+  const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -314,10 +318,29 @@ const GiverForm = () => {
         copyrightText="© 2024 gone.com. All rights reserved."
         additionalContent={
           <div className="text-center text-sm mt-2">
-            <a href="/privacy" className="hover:underline mx-2">Privacy Policy</a>
-            <a href="/terms" className="hover:underline mx-2">Terms of Service</a>
+            <button 
+              onClick={() => setIsPrivacyVisible(true)} 
+              className="hover:underline mx-2"
+            >
+              Privacy Policy
+            </button>
+            <button 
+              onClick={() => setIsTermsVisible(true)} 
+              className="hover:underline mx-2"
+            >
+              Terms of Service
+            </button>
           </div>
         }
+      />
+
+      <TermsOfService 
+        isVisible={isTermsVisible} 
+        onClose={() => setIsTermsVisible(false)} 
+      />
+      <Privacy 
+        isVisible={isPrivacyVisible} 
+        onClose={() => setIsPrivacyVisible(false)} 
       />
     </Page>
   );
