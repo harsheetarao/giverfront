@@ -58,48 +58,11 @@ const GiverForm = () => {
     console.log('handleSubmit called with data:', data);
     setIsSubmitting(true);
     try {
-      const processedItems = await Promise.all(
-        data.items.map(async (item: any) => {
-          if (item.fileUrls) {
-            return {
-              description: item.description || '',
-              fileUrls: item.fileUrls,
-              status: 'pending',
-            };
-          }
-          
-          if (item.selectedFiles && item.selectedFiles.length > 0) {
-            const formData = new FormData();
-            item.selectedFiles.forEach((file: File) => {
-              formData.append('files', file);
-            });
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-              method: 'POST',
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to upload files: ${await response.text()}`);
-            }
-
-            const { fileUrls } = await response.json();
-            return {
-              description: item.description || '',
-              fileUrls: fileUrls || [],
-              status: 'pending',
-            };
-          }
-
-          return {
-            description: item.description || '',
-            fileUrls: [],
-            status: 'pending',
-          };
-        })
-      );
-
-      console.log('All processed items:', processedItems);
+      const processedItems = data.items.map((item: any) => ({
+        description: item.description || '',
+        fileUrls: item.fileUrls || [],
+        status: 'pending',
+      }));
 
       const pickupData = {
         name: data.fullName,
@@ -107,15 +70,13 @@ const GiverForm = () => {
         email: data.contact.includes('@') ? data.contact : '',
         createdAt: new Date().toISOString(),
         status: 'pending',
-        items: processedItems,  
+        items: processedItems,
         availableTimes: data.availableTimes,
         address: data.address,
         messages: []
       };
 
-      console.log('Final pickupData:', pickupData);
       const docRef = await addDoc(collection(db, 'pickupRequests'), pickupData);
-      console.log('Firestore document written:', docRef.id);
 
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notify-user`, {
         method: 'POST',
@@ -131,7 +92,6 @@ const GiverForm = () => {
       });
 
       localStorage.removeItem('formData');
-      
     } catch (error) {
       console.error('Error submitting form:', error);
       throw error;

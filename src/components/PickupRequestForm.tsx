@@ -108,6 +108,7 @@ const loadFromLocalStorage = () => {
     
     return {
       currentStep: data.currentStep || 1,
+      uploadedItems: data.uploadedItems || [],
       availableTimes: data.availableTimes || [],
       address: data.address || '',
       contactInfo: data.contactInfo || { fullName: '', contact: '' },
@@ -302,18 +303,20 @@ export const PickupRequestForm = ({
   useEffect(() => {
     const dataToSave = {
       currentStep,
+      uploadedItems,
       availableTimes,
       address,
       contactInfo,
     };
     saveToLocalStorage(dataToSave);
-  }, [currentStep, availableTimes, address, contactInfo]); 
+  }, [currentStep, uploadedItems, availableTimes, address, contactInfo]); 
 
 
   useEffect(() => {
     const savedData = loadFromLocalStorage();
     if (savedData) {
       setCurrentStep(savedData.currentStep || 1);
+      setUploadedItems(savedData.uploadedItems || []);
       setAvailableTimes(savedData.availableTimes || []);
       setAddress(savedData.address || '');
       setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
