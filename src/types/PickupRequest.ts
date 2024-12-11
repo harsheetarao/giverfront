@@ -26,4 +26,15 @@ export interface AcceptedRequest extends BasePickupRequest {
   phone?: string;
 }
 
-export type RequestStatus = 'completed' | 'in_inventory' | 'ready_for_sale'; 
+export type RequestStatus = 
+  | 'pending'
+  | 'completed'
+  | 'rejected'  // Add rejected status
+  | 'verified'
+  | 'incorrect'
+  | 'picked_up'
+  | 'in_progress'
+  | 'cancelled'
+  | 'scheduled'
+  | 'in_inventory'
+  | 'ready_for_sale';

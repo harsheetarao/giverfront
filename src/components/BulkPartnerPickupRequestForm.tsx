@@ -25,19 +25,14 @@ export const BulkPartnerPickupRequestForm = (props: any) => {
   // Custom steps for partner form
   const steps: ProgressStep[] = [
     {
-      label: 'Upload Method',
-      description: 'Choose how to upload your items',
-      icon: Upload
+      label: 'Upload Files',
+      description: 'Upload your inventory spreadsheet',
+      icon: FolderUp
     },
     {
-      label: 'Schedule Drop-off',
-      description: 'Choose a drop-off time',
+      label: 'Drop-off Time',
+      description: 'Choose your preferred drop-off time',
       icon: Calendar
-    },
-    {
-      label: 'Thank You',
-      description: 'Your drop-off request has been submitted',
-      icon: CheckCircle2
     }
   ];
 

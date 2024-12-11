@@ -11,7 +11,7 @@ export interface PickupItem {
   name: string;
   description: string;
   imageUrl: string;
-  status: RequestStatus;
+  status: 'pending' | 'completed' | 'rejected' | 'verified' | 'incorrect';
   pickupPhoto: string;
   pickupDate: Date;
   pickupAddress: string;

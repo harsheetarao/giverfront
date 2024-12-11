@@ -5,6 +5,7 @@ import { PickupRequestForm } from './PickupRequestForm';
 import { FormInput } from './FormInput';
 import { Camera, Calendar, CheckCircle2 } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
+import { ProgressStep } from './Progress';
 
 // Extend the UploadedItem interface
 interface PartnerUploadedItem {
@@ -52,7 +53,7 @@ export const PartnerPickupRequestForm = (props: any) => {
   };
 
   // Define steps
-  const partnerSteps = [
+  const defaultSteps: ProgressStep[] = [
     {
       label: 'Item Photos',
       description: 'Upload photos of items you plan to drop off',
@@ -60,13 +61,8 @@ export const PartnerPickupRequestForm = (props: any) => {
     },
     {
       label: 'Drop-off Time',
-      description: 'Schedule your drop-off time',
+      description: 'Choose your preferred drop-off time',
       icon: Calendar
-    },
-    {
-      label: 'Thank You',
-      description: 'Your drop-off request has been submitted',
-      icon: CheckCircle2
     }
   ];
 
@@ -167,7 +163,7 @@ export const PartnerPickupRequestForm = (props: any) => {
       skipContactStep={true}
       skipAddressStep={true}
       skipConfirmationStep={true}
-      steps={partnerSteps}
+      steps={defaultSteps}
       renderCustomStep={renderCustomStep}
       uploadedItems={uploadedItems}
       setUploadedItems={setUploadedItems}

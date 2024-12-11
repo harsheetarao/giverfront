@@ -5,7 +5,6 @@ import { Package, FileSpreadsheet, Plus, Minus, Search } from 'lucide-react';
 import { CustomButton } from './CustomButton';
 import { cn } from '@/lib/utils';
 import { MessageThread } from './MessageThread';
-import { SearchInput } from './SearchInput';
 
 interface DropoffItem {
   id: string;
@@ -55,17 +54,12 @@ export const DropoffRequestManager = ({
   className
 }: DropoffRequestManagerProps) => {
   const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof DropoffItem>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const currentRequest = dropoffRequests[currentRequestIndex];
-  const filteredItems = currentRequest?.items.filter(item => 
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
-  const sortedItems = [...(filteredItems || [])].sort((a, b) => {
+  const sortedItems = [...(currentRequest?.items || [])].sort((a, b) => {
     if (sortDirection === 'asc') {
       return a[sortField] > b[sortField] ? 1 : -1;
     }
@@ -127,11 +121,6 @@ export const DropoffRequestManager = ({
               Items ({currentRequest?.items.length})
             </h3>
             <div className="flex gap-2">
-              <SearchInput
-                value={searchTerm}
-                onChange={setSearchTerm}
-                placeholder="Search items..."
-              />
               <CustomButton
                 variant="secondary"
                 onClick={() => window.open('/path-to-spreadsheet')}
