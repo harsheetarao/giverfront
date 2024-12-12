@@ -337,27 +337,16 @@ export const PickupRequestForm = ({
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(() => {
     if (typeof window !== 'undefined') {
-      // Check if this is a fresh visit or a refresh
       const isRefresh = performance.navigation?.type === 1 || 
         (window.performance?.getEntriesByType('navigation')[0] as PerformanceNavigationTiming)?.type === 'reload';
       
       if (isRefresh) {
-        // On refresh, get the stored step
         return parseInt(localStorage.getItem('formData_currentStep') || '1');
-      } else {
-        // On fresh visit/reopen, always start at step 1
-        localStorage.removeItem('formData_currentStep'); // Clear stored step
-        return 1;
       }
+      localStorage.removeItem('formData_currentStep');
     }
     return 1;
   });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('formData_currentStep', currentStep.toString());
-    }
-  }, [currentStep]);
 
   const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>(() => {
     if (typeof window !== 'undefined') {
@@ -385,13 +374,6 @@ export const PickupRequestForm = ({
       return saved ? JSON.parse(saved) : { fullName: '', contact: '' };
     }
     return { fullName: '', contact: '' };
-  const [currentStep, setCurrentStep] = useState(1);
-  const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [address, setAddress] = useState('');
-  const [contactInfo, setContactInfo] = useState({
-    fullName: '',
-    contact: ''
   });
   const [showTerms, setShowTerms] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({
@@ -434,16 +416,6 @@ export const PickupRequestForm = ({
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
-    const dataToSave = {
-      currentStep,
-      uploadedItems,
-      availableTimes,
-      address,
-      contactInfo,
-    };
-    saveToLocalStorage(dataToSave);
-  }, [currentStep, uploadedItems, availableTimes, address, contactInfo]); 
-
 
   useEffect(() => {
     const savedData = loadFromLocalStorage();
@@ -455,6 +427,13 @@ export const PickupRequestForm = ({
       setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
     }
   }, []);
+
+  useEffect(() => {
+    // Notify parent component when steps are completed
+    if (onCompletedStepsChange && completedSteps) {
+      onCompletedStepsChange(completedSteps);
+    }
+  }, [completedSteps, onCompletedStepsChange]);
 
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
@@ -727,7 +706,10 @@ export const PickupRequestForm = ({
               <FormInput
                 label="First and Last Name"
                 value={contactInfo.fullName}
-                onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
+                onChange={(value: string) => setContactInfo((prev: { fullName: string; contact: string }) => ({ 
+                  ...prev, 
+                  fullName: value 
+                }))}
               />
               
               <div className="mt-6">
@@ -737,12 +719,15 @@ export const PickupRequestForm = ({
                   onChange={(value: string) => {
        
                     if (/^[\d(]/.test(value)) {
-                      setContactInfo(prev => ({ 
+                      setContactInfo((prev: { fullName: string; contact: string }) => ({ 
                         ...prev, 
                         contact: formatPhoneNumber(value)
                       }));
                     } else {
-                      setContactInfo(prev => ({ ...prev, contact: value }));
+                      setContactInfo((prev: { fullName: string; contact: string }) => ({ 
+                        ...prev, 
+                        contact: value 
+                      }));
                     }
                   }}
                   hint="Choose the contact method you check most frequently for convenient updates."
@@ -1015,39 +1000,26 @@ export const PickupRequestForm = ({
   };
 
   const handleNext = async () => {
-    if (currentStep === 3) {
-      setLoading(true);
-      try {
-        // 1. Upload files first
-        const fileUploadPromises = uploadedItems
-          .filter(item => item.selectedFiles && item.selectedFiles.length > 0)
-          .map(async (item) => {
-            const formData = new FormData();
-            (item.selectedFiles || []).forEach((file: File) => {
-              formData.append('files', file);
-            });
     if (canProceed()) {
+      // Add current step to completed steps if not already included
       if (!completedSteps.includes(currentStep)) {
         const newCompletedSteps = [...completedSteps, currentStep];
         setCompletedSteps(newCompletedSteps);
-        onCompletedStepsChange?.(newCompletedSteps);
+        // Notify parent component
+        if (onCompletedStepsChange) {
+          onCompletedStepsChange(newCompletedSteps);
+        }
       }
 
       if (currentStep === 3) {
         setLoading(true);
         try {
-          // 1. Upload files first
           const fileUploadPromises = uploadedItems
             .filter(item => item.selectedFiles && item.selectedFiles.length > 0)
             .map(async (item) => {
               const formData = new FormData();
-              (item.selectedFiles || []).forEach((file: File) => {
+              (item.selectedFiles || []).forEach(file => {
                 formData.append('files', file);
-              });
-
-              console.log('Uploading files for item:', {
-                description: item.description,
-                files: Array.from(formData.getAll('files')).map(f => (f as File).name)
               });
 
               const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
@@ -1055,66 +1027,30 @@ export const PickupRequestForm = ({
                 body: formData,
               });
 
-              if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Upload failed:', errorText);
-                throw new Error(`Failed to upload files: ${errorText}`);
-              }
-
+              if (!response.ok) throw new Error('Upload failed');
               const { fileUrls } = await response.json();
-              console.log('Received fileUrls:', fileUrls);
               
               return {
                 description: item.description,
-                fileUrls: fileUrls,
+                fileUrls,
                 status: 'pending',
               };
             });
 
-          console.log('Starting file uploads...');
           const processedItems = await Promise.all(fileUploadPromises);
-          console.log('File uploads completed:', processedItems);
-
-        // 2. Prepare and submit form data
-        const formData = {
-          fullName: contactInfo.fullName,
-          contact: contactInfo.contact,
-          items: processedItems, // uploaded file URLs
-          availableTimes: availableTimes,
-          address: address
-        };
-        
-        await onSubmit(formData);
-        
-        // Only clear localStorage after successful submission
-        localStorage.removeItem('formData_items');
-        localStorage.removeItem('formData_times');
-        localStorage.removeItem('formData_address');
-        localStorage.removeItem('formData_contact');
-        localStorage.removeItem('formData_currentStep');
-        
-        setCurrentStep(4);
-      } catch (error) {
-        console.error('Error submitting form:', error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setCurrentStep((prev: number) => prev + 1);
-          // 2. Prepare and submit form data
-          const formData = {
+          
+          await onSubmit({
             fullName: contactInfo.fullName,
             contact: contactInfo.contact,
-            items: processedItems, // uploaded file URLs
-            availableTimes: availableTimes,
-            address: address
-          };
-          
-          await onSubmit(formData);
-          clearLocalStorage(); 
-          setCurrentStep(4); 
+            items: processedItems,
+            availableTimes,
+            address
+          });
+
+          clearLocalStorage();
+          setCurrentStep(4);
         } catch (error) {
-          console.error('Error submitting form:', error);
+          console.error('Error:', error);
         } finally {
           setLoading(false);
         }
@@ -1125,7 +1061,6 @@ export const PickupRequestForm = ({
   };
 
   const handleNewRequest = () => {
-    // Reset form data when starting a new request
     setUploadedItems([]);
     setAvailableTimes([]);
     setAddress('');
@@ -1137,6 +1072,8 @@ export const PickupRequestForm = ({
       marketing: false,
     });
     setCurrentStep(1);
+    setCompletedSteps([]);
+    clearLocalStorage();
   };
 
   const defaultSteps: ProgressStep[] = [
@@ -1214,8 +1151,6 @@ export const PickupRequestForm = ({
       </div>
 
    
-      <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
-      {/* Navigation Buttons */}
       <div className="mt-8 flex justify-end">
         {currentStep > 1 && !isSuccessStep() && (
           <CustomButton

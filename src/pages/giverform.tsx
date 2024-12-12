@@ -151,10 +151,13 @@ const GiverForm = () => {
                   onStepChange={(step) => {
                     setCurrentFormStep(step);
                   }}
-                  onCompletedStepsChange={setCompletedFormSteps}
+                  onCompletedStepsChange={(steps) => {
+                    setCompletedFormSteps(steps);
+                    setCurrentFormStep(prev => prev);
+                  }}
                 />
 
-                {currentFormStep === 1 && !completedFormSteps?.includes(1) && (
+                {currentFormStep === 1 && !completedFormSteps.includes(1) && (
                   <div className="mt-8 space-y-6">
                     <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#E67C45]">
                       <div className="mt-3">
