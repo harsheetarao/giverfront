@@ -24,13 +24,6 @@ const GiverForm = () => {
   const [isTermsVisible, setIsTermsVisible] = useState(false);
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
 
-  const menuItems = [
-    { label: 'Home', href: '/' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Contact', href: '#contact' }
-  ];
-
-
   const handleFeedbackSubmit = async (feedbackText: string, userInfo: { name: string, contact: string }) => {
     try {
       const feedbackData = {
@@ -108,7 +101,7 @@ const GiverForm = () => {
         onLoad={() => setIsLoaded(true)}
       />
       <Header 
-        menuItems={menuItems}
+        menuItems={[]}
         logo={{
           src: Logo,
           alt: "Gone Logo",

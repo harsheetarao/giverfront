@@ -688,7 +688,7 @@ export const PickupRequestForm = ({
             <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
               <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
               <h3 className="font-rockwell text-2xl text-[#4B7163] mb-4">
-                Request Submitted Successfully!
+                Thank you for your request!
               </h3>
               <p className="text-[#5A7C6F] mb-6">
                 We'll review your request and get back to you via {contactInfo.contact.includes('@') ? 'email' : 'text'} shortly.
@@ -941,11 +941,11 @@ export const PickupRequestForm = ({
 
   return (
     <div className={cn(
-      'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
+      'bg-white rounded-2xl border-2 border-[#4B7163] p-4 sm:p-6 pt-6 sm:pt-8 w-full',
       className
     )}>
       {!isSuccessStep() && (
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12 overflow-x-hidden">
           <Progress
             steps={steps || defaultSteps}
             currentStep={currentStep}
@@ -962,10 +962,10 @@ export const PickupRequestForm = ({
       <div className="mb-8">
         {currentStep === 4 ? (
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-6 h-6 text-[#4B7163]">
+            <div className="w-6 h-6 text-[#4B7163] flex-shrink-0">
               <CheckCircle2 />
             </div>
-            <h2 className="font-rockwell text-2xl text-[#4B7163]">
+            <h2 className="font-rockwell text-xl sm:text-2xl text-[#4B7163] break-words">
               Request Summary
             </h2>
           </div>
@@ -973,15 +973,15 @@ export const PickupRequestForm = ({
           <>
             <div className="flex items-center gap-3 mb-6">
               {formSteps[currentStep - 1].icon && (
-                <div className="w-6 h-6 text-[#4B7163]">
+                <div className="w-6 h-6 text-[#4B7163] flex-shrink-0">
                   {React.createElement(formSteps[currentStep - 1].icon)}
                 </div>
               )}
-              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+              <h2 className="font-rockwell text-xl sm:text-2xl text-[#4B7163] break-words">
                 {formSteps[currentStep - 1].label}
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-6 break-words">
               {formSteps[currentStep - 1].description}
             </p>
           </>
@@ -990,12 +990,12 @@ export const PickupRequestForm = ({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
         {currentStep > 1 && !isSuccessStep() && (
           <CustomButton
             onClick={() => setCurrentStep(currentStep - 1)}
             variant="secondary"
-            className="mr-auto"
+            className="w-full sm:w-auto sm:mr-auto"
           >
             Back
           </CustomButton>
@@ -1003,7 +1003,7 @@ export const PickupRequestForm = ({
         
         <CustomButton 
           variant="primary"
-          className="next-button"
+          className="w-full sm:w-auto next-button"
           disabled={!canProceed() || isSubmitting || loading}
           onClick={handleNext}
         >

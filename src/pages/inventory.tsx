@@ -13,6 +13,10 @@ import { PickupRequestManager } from '@/components/PickupRequestManager';
 import { LogisticsCalendar, type DayDetails } from '@/components/LogisticsCalendar';
 import { ReceivingWorkflow } from '@/components/ReceivingWorkflow';
 import { DropoffRequestManager } from '@/components/DropoffRequestManager';
+import { Card } from '@/components/Card';
+import { ImageUpload } from '@/components/ImageUpload';
+import { FormDropdown } from '@/components/FormDropdown';
+import { Tag as CustomTag } from '@/components/Tag';
 
 interface CartItem {
   id: string;
@@ -157,6 +161,55 @@ const getFutureDates = (startDate: Date = new Date(), count: number = 5) => {
   return dates;
 };
 
+// Update interface for inventory items
+interface InventoryItem {
+  id: string;
+  title: string;
+  imageUrl: string;
+  cost: number;
+  price: number;
+  sku: string;
+  status: string;
+  dateAdded: Date;
+  lastModified: Date;
+  description?: string;
+  category?: string;
+  processingPhotos?: string[];
+  attributes?: string[];
+}
+
+// Update mock data
+const mockInventoryItems: InventoryItem[] = [
+  {
+    id: '1',
+    title: 'Vintage Chair',
+    imageUrl: 'https://example.com/chair.jpg',
+    cost: 50,
+    price: 150,
+    sku: 'VC001',
+    status: 'active',
+    dateAdded: new Date(),
+    lastModified: new Date(),
+    description: 'Beautiful vintage chair',
+    category: 'furniture',
+    processingPhotos: []
+  },
+  {
+    id: '2',
+    title: 'Modern Sofa',
+    imageUrl: 'https://example.com/sofa.jpg',
+    cost: 300,
+    price: 899,
+    sku: 'MS002',
+    status: 'active',
+    dateAdded: new Date(),
+    lastModified: new Date(),
+    description: 'Contemporary sofa in excellent condition',
+    category: 'furniture',
+    processingPhotos: []
+  }
+];
+
 const InventoryPage = () => {
   // Group all state declarations together
   const [searchTerm, setSearchTerm] = useState('');
@@ -201,6 +254,14 @@ const InventoryPage = () => {
     '9:00 AM', '10:00 AM', '11:00 AM', 
     '1:00 PM', '2:00 PM', '3:00 PM'
   ]);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [newAttribute, setNewAttribute] = useState('');
+  const [viewingHistoryDetails, setViewingHistoryDetails] = useState<string | null>(null);
+  const [reprocessingRequest, setReprocessingRequest] = useState<string | null>(null);
+  const [viewingDropoffDetails, setViewingDropoffDetails] = useState<string | null>(null);
+  const [reprocessingDropoff, setReprocessingDropoff] = useState<string | null>(null);
+  const [viewingReceivingDetails, setViewingReceivingDetails] = useState<string | null>(null);
+  const [reprocessingReceiving, setReprocessingReceiving] = useState<string | null>(null);
 
   // Calculate derived values after state declarations
   const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
@@ -469,7 +530,20 @@ const InventoryPage = () => {
     id: '1',
     customerName: 'John Smith',
     address: '123 Main St, Seattle, WA',
-    items: [{ name: 'Vintage Chair', quantity: 1 }],
+    items: [
+      { 
+        id: 'item1',
+        name: 'Vintage Chair',
+        quantity: 1,
+        imageUrl: 'https://example.com/chair.jpg'
+      },
+      {
+        id: 'item2',
+        name: 'Coffee Table',
+        quantity: 1,
+        imageUrl: 'https://example.com/table.jpg'
+      }
+    ],
     status: historyFilter,
     processedDate: new Date(),
     processedBy: 'Jane Operator'
@@ -479,8 +553,22 @@ const InventoryPage = () => {
     id: '1',
     partnerName: 'Goodwill Seattle',
     items: [
-      { name: 'Dining Table', quantity: 1 },
-      { name: 'Chairs', quantity: 4 }
+      { 
+        id: 'item1',
+        name: 'Dining Table',
+        quantity: 1,
+        imageUrl: 'https://example.com/table.jpg',
+        condition: 'Good',
+        category: 'Furniture'
+      },
+      { 
+        id: 'item2',
+        name: 'Chairs',
+        quantity: 4,
+        imageUrl: 'https://example.com/chair.jpg',
+        condition: 'Excellent',
+        category: 'Furniture'
+      }
     ],
     status: historyFilter,
     processedDate: new Date(),
@@ -533,29 +621,38 @@ const InventoryPage = () => {
 
   // Add handler functions
   const handleViewDetails = (id: string) => {
-    console.log('View details:', id);
+    setViewingReceivingDetails(id);
   };
 
   const handleReprocess = (id: string) => {
-    console.log('Reprocess item:', id);
+    const item = mockReceivingItems.find(item => item.id === id);
+    if (item) {
+      setReprocessingReceiving(id);
+    }
   };
 
   // Add handler functions for pickups
   const handleViewPickupDetails = (id: string) => {
-    console.log('View pickup details:', id);
+    setViewingHistoryDetails(id);
   };
 
   const handleReprocessPickup = (id: string) => {
-    console.log('Reprocess pickup:', id);
+    const request = mockPickupRequests.find(r => r.id === id);
+    if (request) {
+      setReprocessingRequest(id);
+    }
   };
 
   // Add handler functions for dropoffs
   const handleViewDropoffDetails = (id: string) => {
-    console.log('View dropoff details:', id);
+    setViewingDropoffDetails(id);
   };
 
   const handleReprocessDropoff = (id: string) => {
-    console.log('Reprocess dropoff:', id);
+    const request = mockDropoffRequests.find(r => r.id === id);
+    if (request) {
+      setReprocessingDropoff(id);
+    }
   };
 
   // Add handler functions for listing
@@ -568,7 +665,34 @@ const InventoryPage = () => {
   };
 
   const handleEditProduct = (id: string) => {
-    console.log('Edit product:', id);
+    console.log('Editing product:', id);
+    const item = mockInventoryItems.find(item => item.id === id);
+    if (item) {
+      setEditingItem({
+        ...item
+      });
+    }
+  };
+
+  // Add handler for saving edits
+  const handleSaveEdit = (details: {
+    description: string;
+    category: string;
+    processingPhotos: string[];
+  }) => {
+    if (!editingItem) return;
+    
+    // Update the item in mockInventoryItems
+    const updatedItems = mockInventoryItems.map(item => 
+      item.id === editingItem.id 
+        ? { ...item, ...details, lastModified: new Date() }
+        : item
+    );
+    
+    // Here you would typically update your database
+    console.log('Saving edits:', updatedItems);
+    
+    setEditingItem(null);
   };
 
   // Add sales handlers
@@ -714,7 +838,7 @@ const InventoryPage = () => {
           <div className="bg-[#4B7163] text-white py-16">
             <div className="max-w-6xl mx-auto px-4">
               <h1 className="text-4xl font-bold mb-4">
-                Inventory Management
+                Operations Management
               </h1>
               <p className="text-green-100 text-lg">
                 Process, track, and manage your inventory efficiently
@@ -815,7 +939,6 @@ const InventoryPage = () => {
 
                   {/* Pickup History */}
                   <section>
-                    <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Pickup History</h2>
                     <div className="bg-white shadow-xl rounded-xl p-6">
                       <div className="flex gap-4 mb-6">
                         <button 
@@ -876,7 +999,6 @@ const InventoryPage = () => {
                 <div className="space-y-8">
                   {/* Active Dropoffs */}
                   <section>
-                    <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Active Drop-off Requests</h2>
                     <DropoffRequestManager
                       dropoffRequests={mockDropoffRequests.filter(r => r.status === 'pending')}
                       onApproveRequest={(id) => console.log('Approve:', id)}
@@ -890,7 +1012,6 @@ const InventoryPage = () => {
 
                   {/* Dropoff History */}
                   <section>
-                    <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Drop-off History</h2>
                     <div className="bg-white shadow-xl rounded-xl p-6">
                       <div className="flex gap-4 mb-6">
                         <button 
@@ -965,7 +1086,6 @@ const InventoryPage = () => {
 
                   {/* History Section */}
                   <section>
-                    <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Processing History</h2>
                     <div className="bg-white shadow-xl rounded-xl p-6">
                       <div className="flex gap-4 mb-6">
                         <button 
@@ -1051,7 +1171,6 @@ const InventoryPage = () => {
 
                   {/* History Section */}
                   <section>
-                    <h2 className="font-rockwell text-2xl text-[#4B7163] mb-4">Listing History</h2>
                     <div className="bg-white shadow-xl rounded-xl p-6">
                       <div className="flex gap-4 mb-6">
                         <button 
@@ -1179,8 +1298,8 @@ const InventoryPage = () => {
                                 <td className="p-4 text-right">
                                   <CustomButton
                                     variant="secondary"
+                                    size="sm"
                                     onClick={() => handleEditProduct(item.id)}
-                                    className="text-sm"
                                   >
                                     Edit
                                   </CustomButton>
@@ -1529,6 +1648,410 @@ const InventoryPage = () => {
           </div>
         }
       />
+
+      {editingItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[800px] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Edit Item: {editingItem.title}
+              </h2>
+              <button 
+                onClick={() => setEditingItem(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <Card imageUrl={editingItem.imageUrl} alt={editingItem.title}>
+                <h3 className="heading-3">Item Processing</h3>
+                <ImageUpload
+                  onUpload={(photos) => {
+                    if (editingItem) {
+                      setEditingItem({
+                        ...editingItem,
+                        processingPhotos: photos
+                      });
+                    }
+                  }}
+                  maxFiles={5}
+                  className="mb-4"
+                />
+                <FormDropdown
+                  label="Item Category"
+                  hint="Select the primary category for this item"
+                  state="required"
+                  value={editingItem.category}
+                  onChange={(value) => {
+                    if (editingItem) {
+                      setEditingItem({
+                        ...editingItem,
+                        category: value
+                      });
+                    }
+                  }}
+                  options={[
+                    { value: '', label: 'Select a category' },
+                    { value: 'furniture', label: 'Furniture' },
+                    { value: 'decor', label: 'Home Decor' },
+                    { value: 'lighting', label: 'Lighting' },
+                  ]}
+                />
+                <FormInput
+                  label="Item Description"
+                  placeholder="Enter full product description"
+                  value={editingItem.description || ''}
+                  onChange={(value) => {
+                    if (editingItem) {
+                      setEditingItem({
+                        ...editingItem,
+                        description: value
+                      });
+                    }
+                  }}
+                  state={editingItem.description ? "completed" : "required"}
+                  hint="Provide a detailed description of the item"
+                  className="mt-4"
+                />
+                <div className="mt-6 mb-8">
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Attributes
+                  </label>
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {editingItem.attributes?.map((attr, index) => (
+                      <CustomTag
+                        key={index}
+                        text={attr}
+                        variant="secondary"
+                        onDelete={() => {
+                          if (editingItem) {
+                            setEditingItem({
+                              ...editingItem,
+                              attributes: editingItem.attributes?.filter((_, i) => i !== index)
+                            });
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-end gap-4">
+                    <FormInput
+                      label="Add Attribute"
+                      placeholder="Add attribute"
+                      value={newAttribute}
+                      onChange={(value: string) => setNewAttribute(value)}
+                      state="normal"
+                      type="text"
+                      hint="Enter custom attributes"
+                      className="flex-grow"
+                    />
+                    <CustomButton
+                      variant="secondary"
+                      onClick={() => {
+                        if (editingItem && newAttribute) {
+                          setEditingItem({
+                            ...editingItem,
+                            attributes: [...(editingItem.attributes || []), newAttribute]
+                          });
+                          setNewAttribute('');
+                        }
+                      }}
+                      disabled={!newAttribute}
+                      className="mb-6"
+                    >
+                      Add
+                    </CustomButton>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <FormInput
+                    label="Set Price ($)"
+                    type="number"
+                    placeholder="Enter selling price"
+                    value={editingItem.price.toString()}
+                    onChange={(value) => {
+                      if (editingItem) {
+                        setEditingItem({
+                          ...editingItem,
+                          price: Number(value) || 0
+                        });
+                      }
+                    }}
+                    state={editingItem.price > 0 ? "completed" : "required"}
+                    hint="Set the selling price"
+                  />
+                  <FormInput
+                    label="Cost to Acquire ($)"
+                    type="number"
+                    placeholder="Enter acquisition cost"
+                    value={editingItem.cost.toString()}
+                    onChange={(value) => {
+                      if (editingItem) {
+                        setEditingItem({
+                          ...editingItem,
+                          cost: Number(value) || 0
+                        });
+                      }
+                    }}
+                    state={editingItem.cost > 0 ? "completed" : "required"}
+                    hint="Enter the cost to acquire this item"
+                  />
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <CustomButton 
+                    variant="secondary"
+                    onClick={() => setEditingItem(null)}
+                  >
+                    Cancel
+                  </CustomButton>
+                  <CustomButton 
+                    variant="cta"
+                    onClick={() => handleSaveEdit({
+                      description: editingItem.description || '',
+                      category: editingItem.category || '',
+                      processingPhotos: editingItem.processingPhotos || []
+                    })}
+                    disabled={!editingItem.description || !editingItem.category}
+                  >
+                    Save Changes
+                  </CustomButton>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pickup Details Modal */}
+      {viewingHistoryDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[800px] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Pickup Details
+              </h2>
+              <button 
+                onClick={() => setViewingHistoryDetails(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {mockPickupHistory
+                .find(request => request.id === viewingHistoryDetails)
+                ?.items.map(item => (
+                  <div 
+                    key={item.id}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
+                  >
+                    <img 
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">{item.name}</h3>
+                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reprocess Pickup Modal */}
+      {reprocessingRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[90vw] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Reprocess Pickup Request
+              </h2>
+              <button 
+                onClick={() => setReprocessingRequest(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <PickupRequestManager
+              pickupRequests={mockPickupRequests.filter(r => r.id === reprocessingRequest)}
+              onAcceptRequest={(id) => {
+                console.log('Accept:', id);
+                setReprocessingRequest(null);
+              }}
+              onRejectRequest={(id) => {
+                console.log('Reject:', id);
+                setReprocessingRequest(null);
+              }}
+              onUpdateStatus={(id, status) => console.log('Update status:', id, status)}
+              onSendMessage={(id, message) => console.log('Send message:', id, message)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Dropoff Details Modal */}
+      {viewingDropoffDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[800px] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Drop-off Details
+              </h2>
+              <button 
+                onClick={() => setViewingDropoffDetails(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {mockDropoffHistory
+                .find(request => request.id === viewingDropoffDetails)
+                ?.items.map(item => (
+                  <div 
+                    key={item.id}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
+                  >
+                    <img 
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">{item.name}</h3>
+                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reprocess Dropoff Modal */}
+      {reprocessingDropoff && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[90vw] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Reprocess Drop-off Request
+              </h2>
+              <button 
+                onClick={() => setReprocessingDropoff(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <DropoffRequestManager
+              dropoffRequests={mockDropoffRequests.filter(r => r.id === reprocessingDropoff)}
+              onApproveRequest={(id) => {
+                console.log('Approve:', id);
+                setReprocessingDropoff(null);
+              }}
+              onRejectRequest={(id) => {
+                console.log('Reject:', id);
+                setReprocessingDropoff(null);
+              }}
+              onUpdateStatus={(id, status) => console.log('Update status:', id, status)}
+              onSendMessage={(id, message) => console.log('Send message:', id, message)}
+              onUpdateQuantity={(requestId, itemId, quantity) => 
+                console.log('Update quantity:', requestId, itemId, quantity)
+              }
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Receiving Details Modal */}
+      {viewingReceivingDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[800px] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Receiving Details
+              </h2>
+              <button 
+                onClick={() => setViewingReceivingDetails(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {mockHistoryItems
+                .find(item => item.id === viewingReceivingDetails)
+                && (
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                    <img 
+                      src={mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.imageUrl}
+                      alt={mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.description}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Processed on {mockHistoryItems.find(item => 
+                          item.id === viewingReceivingDetails
+                        )?.processedDate.toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reprocess Receiving Modal */}
+      {reprocessingReceiving && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-[90vw] max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
+                Reprocess Item
+              </h2>
+              <button 
+                onClick={() => setReprocessingReceiving(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <ReceivingWorkflow
+              items={mockReceivingItems.filter(item => item.id === reprocessingReceiving)}
+              onReceiveItem={(id) => {
+                console.log('Received item:', id);
+                setReprocessingReceiving(null);
+              }}
+              onRejectItem={(id) => {
+                console.log('Rejected item:', id);
+                setReprocessingReceiving(null);
+              }}
+              onUpdateStatus={(id, status) => console.log('Updated status:', id, status)}
+              onUpdateDetails={(id, details) => console.log('Updated details:', id, details)}
+              onAddProcessingPhotos={(id, photos) => console.log('Added photos:', id, photos)}
+            />
+          </div>
+        </div>
+      )}
     </Page>
   );
 };

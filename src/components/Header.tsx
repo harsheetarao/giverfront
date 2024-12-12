@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ menuItems, logo }) => {
           {/* Logo with Link */}
           <div className="flex shrink-0 items-center">
             {logo && (
-              <a href={logo.href} className="flex items-center">
+              <a href={logo.href} className="flex items-center cursor-pointer">
                 <NextImage
                   src={logo.src}
                   alt={logo.alt}
