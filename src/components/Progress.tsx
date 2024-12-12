@@ -12,9 +12,10 @@ interface ProgressProps {
   steps: ProgressStep[];
   currentStep: number;
   onStepClick: (step: number) => void;
+  completedSteps?: number[];
 }
 
-export const Progress = ({ steps, currentStep, onStepClick }: ProgressProps) => {
+export const Progress = ({ steps, currentStep, onStepClick, completedSteps = [] }: ProgressProps) => {
   return (
     <div className="flex justify-between relative mb-16">
       {/* Make line thicker and more visible */}
@@ -28,16 +29,20 @@ export const Progress = ({ steps, currentStep, onStepClick }: ProgressProps) => 
         const StepIcon = step.icon;
         const isCompleted = index + 1 < currentStep;
         const isCurrent = index + 1 === currentStep;
+        const canClick = index + 1 < currentStep || 
+                        (completedSteps.includes(currentStep) && 
+                         completedSteps.includes(index));
 
         return (
           <div 
             key={index}
             className={cn(
-              "flex flex-col items-center cursor-pointer group relative",
+              "flex flex-col items-center relative",
+              canClick ? "cursor-pointer" : "cursor-not-allowed",
               isCurrent ? "text-[#4B7163]" : 
               isCompleted ? "text-[#4B7163]" : "text-gray-400"
             )}
-            onClick={() => onStepClick(index + 1)}
+            onClick={() => canClick && onStepClick(index + 1)}
           >
             {/* Make circle background more visible */}
             <div 

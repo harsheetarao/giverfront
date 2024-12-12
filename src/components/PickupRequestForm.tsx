@@ -51,6 +51,8 @@ interface PickupRequestFormProps {
   renderCustomStep?: (currentStep: number) => React.ReactNode;
   validateStep?: (step: number) => boolean;
   isSubmitting?: boolean;
+  onStepChange?: (step: number) => void;
+  onCompletedStepsChange?: (steps: number[]) => void;
 }
 
 interface ConfirmationState {
@@ -80,6 +82,48 @@ interface FormData {
   availableTimes: string[];
   address: string;
 }
+
+const STORAGE_KEY = 'giver_form_data';
+
+const saveToLocalStorage = (data: any) => {
+  try {
+    const dataToSave = {
+      ...data,
+      currentStep: data.currentStep,
+      availableTimes: data.availableTimes,
+      address: data.address,
+      contactInfo: data.contactInfo,
+    };
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return null;
+    
+    const data = JSON.parse(saved);
+    
+    return {
+      currentStep: data.currentStep || 1,
+      uploadedItems: data.uploadedItems || [],
+      availableTimes: data.availableTimes || [],
+      address: data.address || '',
+      contactInfo: data.contactInfo || { fullName: '', contact: '' },
+    };
+  } catch (error) {
+    console.error('Error loading from localStorage:', error);
+    return null;
+  }
+};
+
+const clearLocalStorage = () => {
+  localStorage.removeItem(STORAGE_KEY);
+};
 
 const PlacesAutocomplete = ({
   value,
@@ -220,6 +264,59 @@ const formatPhoneNumber = (value: string) => {
   return '';
 };
 
+const isValidDate = (date: string) => {
+  if (!date) return false;
+  
+  // Handle both YYYY-MM-DD and MM/DD/YYYY formats
+  const normalizedDate = date.includes('/') 
+    ? date.split('/').reverse().join('-')
+    : date;
+    
+  const selectedDate = new Date(normalizedDate);
+  const minDate = new Date();
+  minDate.setHours(minDate.getHours() + 72); // 3 days from now
+  
+  return selectedDate >= minDate;
+};
+
+const formatTimeForDisplay = (hour: number, minute: number) => {
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minute === 0 ? '00' : minute} ${ampm}`;
+};
+
+const generateTimeSlots = () => {
+  const slots = [];
+  // 9 AM to 5 PM (17:00)
+  for (let hour = 9; hour <= 17; hour++) {
+    slots.push(formatTimeForDisplay(hour, 0));  // XX:00
+    if (hour !== 17) { // Don't add 5:30 PM
+      slots.push(formatTimeForDisplay(hour, 30)); // XX:30
+    }
+  }
+  return slots;
+};
+
+const isWeekday = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDay();
+  return day !== 0 && day !== 6; // 0 is Sunday, 6 is Saturday
+};
+
+// Add this helper function to generate valid time options
+const generateTimeOptions = () => {
+  const options = [];
+  for (let hour = 9; hour <= 17; hour++) {
+    // Add hour
+    options.push(`${hour.toString().padStart(2, '0')}:00`);
+    // Add half hour except for 5 PM
+    if (hour !== 17) {
+      options.push(`${hour.toString().padStart(2, '0')}:30`);
+    }
+  }
+  return options;
+};
+
 export const PickupRequestForm = ({
   onSubmit,
   className,
@@ -235,6 +332,8 @@ export const PickupRequestForm = ({
   renderCustomStep,
   validateStep,
   isSubmitting,
+  onStepChange,
+  onCompletedStepsChange,
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -286,6 +385,13 @@ export const PickupRequestForm = ({
       return saved ? JSON.parse(saved) : { fullName: '', contact: '' };
     }
     return { fullName: '', contact: '' };
+  const [currentStep, setCurrentStep] = useState(1);
+  const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [address, setAddress] = useState('');
+  const [contactInfo, setContactInfo] = useState({
+    fullName: '',
+    contact: ''
   });
   const [showTerms, setShowTerms] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({
@@ -299,6 +405,11 @@ export const PickupRequestForm = ({
   const [loading, setLoading] = useState(false);
   const [formMessage, setFormMessage] = useState('');
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+
+  const isStepCompleted = (step: number) => {
+    return completedSteps.includes(step);
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -322,6 +433,27 @@ export const PickupRequestForm = ({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
+  }, []);
+    const dataToSave = {
+      currentStep,
+      uploadedItems,
+      availableTimes,
+      address,
+      contactInfo,
+    };
+    saveToLocalStorage(dataToSave);
+  }, [currentStep, uploadedItems, availableTimes, address, contactInfo]); 
+
+
+  useEffect(() => {
+    const savedData = loadFromLocalStorage();
+    if (savedData) {
+      setCurrentStep(savedData.currentStep || 1);
+      setUploadedItems(savedData.uploadedItems || []);
+      setAvailableTimes(savedData.availableTimes || []);
+      setAddress(savedData.address || '');
+      setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
+    }
   }, []);
 
   const handleItemDescription = (itemId: string, description: string) => {
@@ -389,58 +521,68 @@ export const PickupRequestForm = ({
       case 1: 
         return (
           <div className="space-y-6">
-            <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
-              <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
-                Looking to rehome your items? Just upload a photo of each item you would like to rehome.
-              </h3>
-            </div>
-
-            <ImageUpload
-              onUpload={(photos) => handlePhotoUpload(photos, setUploadedItems, skipContactStep)}
-              maxFiles={50}
-            />
-
-            {uploadedItems.length > 0 && (
-              <div className="space-y-6">
-                {uploadedItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
-                    <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 relative">
-                      <button
-                        type="button"
-                        onClick={() => handleItemRemove(item.id)}
-                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-white text-[#E67C45] hover:text-[#D15E25] shadow-sm"
-                      >
-                        ×
-                      </button>
-                      
-                      <img 
-                        src={item.imageUrl} 
-                        alt="Item" 
-                        className="w-full h-full object-cover"
-                      />
-                      {item.status === 'uploading' && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                        </div>
-                      )}
-                      {item.status === 'error' && (
-                        <div className="absolute inset-0 bg-red-500 bg-opacity-50 flex items-center justify-center">
-                          <span className="text-white text-sm">Error</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-grow">
-                      <FormInput
-                        label="Item Description"
-                        placeholder="Describe the item, including condition and any relevant details"
-                        value={item.description || ''}
-                        onChange={(value: string) => handleItemDescription(item.id, value)}
-                      />
-                    </div>
-                  </div>
-                ))}
+            {!isStepCompleted(1) && (
+              <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#4B7163]">
+                <h3 className="font-rockwell text-lg text-[#4B7163] mb-2">
+                  Items We Accept
+                </h3>
+                <p className="text-[#5A7C6F]">
+                  We accept gently used furniture and home goods. All items must be in good condition, 
+                  clean, and free from damage. Please ensure items are ready for pickup and easily accessible.
+                </p>
               </div>
             )}
+
+            <div className="bg-[#F8FAF9] rounded-xl p-6">
+              <ImageUpload
+                onUpload={async (photos) => {
+                  await handlePhotoUpload(photos, setUploadedItems, skipContactStep);
+                }}
+                maxFiles={50}
+              />
+
+              {uploadedItems.length > 0 && (
+                <div className="space-y-6">
+                  {uploadedItems.map((item) => (
+                    <div key={item.id} className="flex gap-4 p-4 bg-[#F8FAF9] rounded-xl">
+                      <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 relative">
+                        <button
+                          type="button"
+                          onClick={() => handleItemRemove(item.id)}
+                          className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-white text-[#E67C45] hover:text-[#D15E25] shadow-sm"
+                        >
+                          ×
+                        </button>
+                        
+                        <img 
+                          src={item.imageUrl} 
+                          alt="Item" 
+                          className="w-full h-full object-cover"
+                        />
+                        {item.status === 'uploading' && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                          </div>
+                        )}
+                        {item.status === 'error' && (
+                          <div className="absolute inset-0 bg-red-500 bg-opacity-50 flex items-center justify-center">
+                            <span className="text-white text-sm">Error</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-grow">
+                        <FormInput
+                          label="Item Description"
+                          placeholder="Describe the item, including condition and any relevant details"
+                          value={item.description || ''}
+                          onChange={(value: string) => handleItemDescription(item.id, value)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -484,7 +626,16 @@ export const PickupRequestForm = ({
                   onChange={(value: string) => {
                     if (onTimeSelect) onTimeSelect(value);
                   }}
+                  min="09:00"
+                  max="17:00"
+                  step="1800"
+                  list="time-options"
                 />
+                <datalist id="time-options">
+                  {generateTimeOptions().map(time => (
+                    <option key={time} value={time} />
+                  ))}
+                </datalist>
               </div>
 
               <button
@@ -576,7 +727,7 @@ export const PickupRequestForm = ({
               <FormInput
                 label="First and Last Name"
                 value={contactInfo.fullName}
-                onChange={(value: string) => setContactInfo((prev: { fullName: string; contact: string }) => ({ ...prev, fullName: value }))}
+                onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
               />
               
               <div className="mt-6">
@@ -586,12 +737,12 @@ export const PickupRequestForm = ({
                   onChange={(value: string) => {
        
                     if (/^[\d(]/.test(value)) {
-                      setContactInfo((prev: { fullName: string; contact: string }) => ({ 
+                      setContactInfo(prev => ({ 
                         ...prev, 
                         contact: formatPhoneNumber(value)
                       }));
                     } else {
-                      setContactInfo((prev: { fullName: string; contact: string }) => ({ ...prev, contact: value }));
+                      setContactInfo(prev => ({ ...prev, contact: value }));
                     }
                   }}
                   hint="Choose the contact method you check most frequently for convenient updates."
@@ -714,7 +865,7 @@ export const PickupRequestForm = ({
             <div className="bg-[#F8FAF9] rounded-xl p-6 text-center">
               <CheckCircle2 className="w-16 h-16 text-[#4B7163] mx-auto mb-4" />
               <h3 className="font-rockwell text-2xl text-[#4B7163] mb-4">
-                Thank you for your request!
+                Request Submitted Successfully!
               </h3>
               <p className="text-[#5A7C6F] mb-6">
                 We'll review your request and get back to you via {contactInfo.contact.includes('@') ? 'email' : 'text'} shortly.
@@ -836,18 +987,22 @@ export const PickupRequestForm = ({
   };
 
   const canProceed = () => {
+    if (completedSteps.includes(currentStep)) {
+      return true;
+    }
+
     if (validateStep) {
       return validateStep(currentStep);
     }
 
     switch (currentStep) {
-      case 1: // W
+      case 1: // What
         return uploadedItems.length > 0;
       case 2: // When
         if (renderDetailsStep) {
           return selectedDate && selectedTime;
         }
-        return availableTimes.length > 0;
+        return availableTimes.length >= 2; // Require at least 2 time slots
       case 3: // Where
         if (skipConfirmationStep) return false;
         return contactInfo.fullName.trim().length > 0 && 
@@ -871,36 +1026,54 @@ export const PickupRequestForm = ({
             (item.selectedFiles || []).forEach((file: File) => {
               formData.append('files', file);
             });
+    if (canProceed()) {
+      if (!completedSteps.includes(currentStep)) {
+        const newCompletedSteps = [...completedSteps, currentStep];
+        setCompletedSteps(newCompletedSteps);
+        onCompletedStepsChange?.(newCompletedSteps);
+      }
 
-            console.log('Uploading files for item:', {
-              description: item.description,
-              files: Array.from(formData.getAll('files')).map(f => (f as File).name)
+      if (currentStep === 3) {
+        setLoading(true);
+        try {
+          // 1. Upload files first
+          const fileUploadPromises = uploadedItems
+            .filter(item => item.selectedFiles && item.selectedFiles.length > 0)
+            .map(async (item) => {
+              const formData = new FormData();
+              (item.selectedFiles || []).forEach((file: File) => {
+                formData.append('files', file);
+              });
+
+              console.log('Uploading files for item:', {
+                description: item.description,
+                files: Array.from(formData.getAll('files')).map(f => (f as File).name)
+              });
+
+              const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Upload failed:', errorText);
+                throw new Error(`Failed to upload files: ${errorText}`);
+              }
+
+              const { fileUrls } = await response.json();
+              console.log('Received fileUrls:', fileUrls);
+              
+              return {
+                description: item.description,
+                fileUrls: fileUrls,
+                status: 'pending',
+              };
             });
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-              method: 'POST',
-              body: formData,
-            });
-
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.error('Upload failed:', errorText);
-              throw new Error(`Failed to upload files: ${errorText}`);
-            }
-
-            const { fileUrls } = await response.json();
-            console.log('Received fileUrls:', fileUrls);
-            
-            return {
-              description: item.description,
-              fileUrls: fileUrls,
-              status: 'pending',
-            };
-          });
-
-        console.log('Starting file uploads...');
-        const processedItems = await Promise.all(fileUploadPromises);
-        console.log('File uploads completed:', processedItems);
+          console.log('Starting file uploads...');
+          const processedItems = await Promise.all(fileUploadPromises);
+          console.log('File uploads completed:', processedItems);
 
         // 2. Prepare and submit form data
         const formData = {
@@ -928,15 +1101,30 @@ export const PickupRequestForm = ({
       }
     } else {
       setCurrentStep((prev: number) => prev + 1);
+          // 2. Prepare and submit form data
+          const formData = {
+            fullName: contactInfo.fullName,
+            contact: contactInfo.contact,
+            items: processedItems, // uploaded file URLs
+            availableTimes: availableTimes,
+            address: address
+          };
+          
+          await onSubmit(formData);
+          clearLocalStorage(); 
+          setCurrentStep(4); 
+        } catch (error) {
+          console.error('Error submitting form:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setCurrentStep(prev => prev + 1);
+      }
     }
   };
 
   const handleNewRequest = () => {
-    localStorage.removeItem('formData_items');
-    localStorage.removeItem('formData_times');
-    localStorage.removeItem('formData_address');
-    localStorage.removeItem('formData_contact');
-    
     // Reset form data when starting a new request
     setUploadedItems([]);
     setAvailableTimes([]);
@@ -974,16 +1162,19 @@ export const PickupRequestForm = ({
 
   return (
     <div className={cn(
-      'bg-white rounded-2xl border-2 border-[#4B7163] p-4 sm:p-6 pt-6 sm:pt-8 w-full',
+      'bg-white rounded-2xl border-2 border-[#4B7163] p-6 pt-8',
       className
     )}>
       {!isSuccessStep() && (
-        <div className="mb-8 sm:mb-12 overflow-x-hidden">
+        <div className="mb-12">
           <Progress
             steps={steps || defaultSteps}
             currentStep={currentStep}
+            completedSteps={completedSteps}
             onStepClick={(step) => {
-              if (step < currentStep && !isSuccessStep()) {
+              if (step < currentStep || 
+                  (step > currentStep && completedSteps.includes(currentStep) && 
+                   completedSteps.includes(step - 1))) {
                 setCurrentStep(step);
               }
             }}
@@ -995,10 +1186,10 @@ export const PickupRequestForm = ({
       <div className="mb-8">
         {currentStep === 4 ? (
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-6 h-6 text-[#4B7163] flex-shrink-0">
+            <div className="w-6 h-6 text-[#4B7163]">
               <CheckCircle2 />
             </div>
-            <h2 className="font-rockwell text-xl sm:text-2xl text-[#4B7163] break-words">
+            <h2 className="font-rockwell text-2xl text-[#4B7163]">
               Request Summary
             </h2>
           </div>
@@ -1006,15 +1197,15 @@ export const PickupRequestForm = ({
           <>
             <div className="flex items-center gap-3 mb-6">
               {formSteps[currentStep - 1].icon && (
-                <div className="w-6 h-6 text-[#4B7163] flex-shrink-0">
+                <div className="w-6 h-6 text-[#4B7163]">
                   {React.createElement(formSteps[currentStep - 1].icon)}
                 </div>
               )}
-              <h2 className="font-rockwell text-xl sm:text-2xl text-[#4B7163] break-words">
+              <h2 className="font-rockwell text-2xl text-[#4B7163]">
                 {formSteps[currentStep - 1].label}
               </h2>
             </div>
-            <p className="text-gray-600 mb-6 break-words">
+            <p className="text-gray-600 mb-6">
               {formSteps[currentStep - 1].description}
             </p>
           </>
@@ -1024,11 +1215,13 @@ export const PickupRequestForm = ({
 
    
       <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
+      {/* Navigation Buttons */}
+      <div className="mt-8 flex justify-end">
         {currentStep > 1 && !isSuccessStep() && (
           <CustomButton
             onClick={() => setCurrentStep(currentStep - 1)}
             variant="secondary"
-            className="w-full sm:w-auto sm:mr-auto"
+            className="mr-auto"
           >
             Back
           </CustomButton>
@@ -1036,7 +1229,7 @@ export const PickupRequestForm = ({
         
         <CustomButton 
           variant="primary"
-          className="w-full sm:w-auto next-button"
+          className="next-button"
           disabled={!canProceed() || isSubmitting || loading}
           onClick={handleNext}
         >

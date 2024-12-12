@@ -260,8 +260,6 @@ const InventoryPage = () => {
   const [reprocessingRequest, setReprocessingRequest] = useState<string | null>(null);
   const [viewingDropoffDetails, setViewingDropoffDetails] = useState<string | null>(null);
   const [reprocessingDropoff, setReprocessingDropoff] = useState<string | null>(null);
-  const [viewingReceivingDetails, setViewingReceivingDetails] = useState<string | null>(null);
-  const [reprocessingReceiving, setReprocessingReceiving] = useState<string | null>(null);
 
   // Calculate derived values after state declarations
   const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
@@ -621,14 +619,11 @@ const InventoryPage = () => {
 
   // Add handler functions
   const handleViewDetails = (id: string) => {
-    setViewingReceivingDetails(id);
+    console.log('View details:', id);
   };
 
   const handleReprocess = (id: string) => {
-    const item = mockReceivingItems.find(item => item.id === id);
-    if (item) {
-      setReprocessingReceiving(id);
-    }
+    console.log('Reprocess item:', id);
   };
 
   // Add handler functions for pickups
@@ -1929,6 +1924,8 @@ const InventoryPage = () => {
                     <div>
                       <h3 className="font-medium text-gray-900">{item.name}</h3>
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      <p className="text-sm text-gray-600">Condition: {item.condition}</p>
+                      <p className="text-sm text-gray-600">Category: {item.category}</p>
                     </div>
                   </div>
                 ))}
@@ -1968,86 +1965,6 @@ const InventoryPage = () => {
               onUpdateQuantity={(requestId, itemId, quantity) => 
                 console.log('Update quantity:', requestId, itemId, quantity)
               }
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Receiving Details Modal */}
-      {viewingReceivingDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-[800px] max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-rockwell text-2xl text-[#4B7163]">
-                Receiving Details
-              </h2>
-              <button 
-                onClick={() => setViewingReceivingDetails(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {mockHistoryItems
-                .find(item => item.id === viewingReceivingDetails)
-                && (
-                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                    <img 
-                      src={mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.imageUrl}
-                      alt={mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {mockHistoryItems.find(item => item.id === viewingReceivingDetails)?.description}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Processed on {mockHistoryItems.find(item => 
-                          item.id === viewingReceivingDetails
-                        )?.processedDate.toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reprocess Receiving Modal */}
-      {reprocessingReceiving && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-[90vw] max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-rockwell text-2xl text-[#4B7163]">
-                Reprocess Item
-              </h2>
-              <button 
-                onClick={() => setReprocessingReceiving(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <ReceivingWorkflow
-              items={mockReceivingItems.filter(item => item.id === reprocessingReceiving)}
-              onReceiveItem={(id) => {
-                console.log('Received item:', id);
-                setReprocessingReceiving(null);
-              }}
-              onRejectItem={(id) => {
-                console.log('Rejected item:', id);
-                setReprocessingReceiving(null);
-              }}
-              onUpdateStatus={(id, status) => console.log('Updated status:', id, status)}
-              onUpdateDetails={(id, details) => console.log('Updated details:', id, details)}
-              onAddProcessingPhotos={(id, photos) => console.log('Added photos:', id, photos)}
             />
           </div>
         </div>

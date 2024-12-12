@@ -23,6 +23,8 @@ const GiverForm = () => {
   const [formMessage, setFormMessage] = useState('');
   const [isTermsVisible, setIsTermsVisible] = useState(false);
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
+  const [currentFormStep, setCurrentFormStep] = useState(1);
+  const [completedFormSteps, setCompletedFormSteps] = useState<number[]>([]);
 
   const handleFeedbackSubmit = async (feedbackText: string, userInfo: { name: string, contact: string }) => {
     try {
@@ -48,9 +50,9 @@ const GiverForm = () => {
   };
 
   const handleSubmit = async (data: any) => {
-    console.log('handleSubmit called with data:', data);
     setIsSubmitting(true);
     try {
+      console.log('handleSubmit called with data:', data);
       const processedItems = data.items.map((item: any) => ({
         description: item.description || '',
         fileUrls: item.fileUrls || [],
@@ -130,37 +132,6 @@ const GiverForm = () => {
               </p>
           </div>
        
-          <div className="mb-8 space-y-6">
-
-            <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#E67C45]">
-              <h3 className="font-rockwell text-lg text-[#E67C45] mb-2">
-                Items We Accept
-              </h3>
-              <p className="text-gray-700 mb-2">
-                We accept reusable and working household items.
-              </p>
-              <div className="mt-3">
-                <h4 className="font-semibold text-[#E67C45] mb-2">IMPORTANT:</h4>
-                <p className="text-gray-700">
-                  We do not take:
-                </p>
-                <ul className="list-disc list-inside text-gray-700 ml-2 mt-1 space-y-1">
-                  <li>Pianos</li>
-                  <li>Mattresses</li>
-                  <li>Construction materials</li>
-                  <li>Hazardous or flammable materials</li>
-                  <li>Damaged or malodorous furniture</li>
-                  <li>Food</li>
-                  <li>Infant products</li>
-                  <li>Personal hygiene/care products</li>
-                  <li>Swimming pools</li>
-                  <li>Firearms</li>
-                  <li>Anything that is damaged, incomplete or not readily reusable by another</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           {isLoaded ? (
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white p-6 rounded-xl shadow-sm">
@@ -177,7 +148,37 @@ const GiverForm = () => {
                     { date: '2024-03-21', requestCount: 1 },
                     { date: '2024-03-22', requestCount: 3 },
                   ]}
+                  onStepChange={(step) => {
+                    setCurrentFormStep(step);
+                  }}
+                  onCompletedStepsChange={setCompletedFormSteps}
                 />
+
+                {currentFormStep === 1 && !completedFormSteps?.includes(1) && (
+                  <div className="mt-8 space-y-6">
+                    <div className="bg-[#F8FAF9] rounded-xl p-6 border-l-4 border-[#E67C45]">
+                      <div className="mt-3">
+                        <h4 className="font-semibold text-[#E67C45] mb-2">IMPORTANT:</h4>
+                        <p className="text-gray-700">
+                          We do not take:
+                        </p>
+                        <ul className="list-disc list-inside text-gray-700 ml-2 mt-1 space-y-1">
+                          <li>Pianos</li>
+                          <li>Mattresses</li>
+                          <li>Construction materials</li>
+                          <li>Hazardous or flammable materials</li>
+                          <li>Damaged or malodorous furniture</li>
+                          <li>Food</li>
+                          <li>Infant products</li>
+                          <li>Personal hygiene/care products</li>
+                          <li>Swimming pools</li>
+                          <li>Firearms</li>
+                          <li>Anything that is damaged, incomplete or not readily reusable by another</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-4 flex items-start gap-3 text-sm text-gray-500">
                   <Clock className="w-4 h-4 mt-1 flex-shrink-0" />
