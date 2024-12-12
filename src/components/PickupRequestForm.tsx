@@ -81,48 +81,6 @@ interface FormData {
   address: string;
 }
 
-const STORAGE_KEY = 'giver_form_data';
-
-const saveToLocalStorage = (data: any) => {
-  try {
-    const dataToSave = {
-      ...data,
-      currentStep: data.currentStep,
-      availableTimes: data.availableTimes,
-      address: data.address,
-      contactInfo: data.contactInfo,
-    };
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-  } catch (error) {
-    console.error('Error saving to localStorage:', error);
-  }
-};
-
-const loadFromLocalStorage = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return null;
-    
-    const data = JSON.parse(saved);
-    
-    return {
-      currentStep: data.currentStep || 1,
-      uploadedItems: data.uploadedItems || [],
-      availableTimes: data.availableTimes || [],
-      address: data.address || '',
-      contactInfo: data.contactInfo || { fullName: '', contact: '' },
-    };
-  } catch (error) {
-    console.error('Error loading from localStorage:', error);
-    return null;
-  }
-};
-
-const clearLocalStorage = () => {
-  localStorage.removeItem(STORAGE_KEY);
-};
-
 const PlacesAutocomplete = ({
   value,
   onChange,
@@ -278,13 +236,45 @@ export const PickupRequestForm = ({
   validateStep,
   isSubmitting,
 }: PickupRequestFormProps) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [address, setAddress] = useState('');
-  const [contactInfo, setContactInfo] = useState({
-    fullName: '',
-    contact: ''
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem('formData_currentStep') || '1');
+    }
+    return 1;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('formData_currentStep', currentStep.toString());
+    }
+  }, [currentStep]);
+
+  const [uploadedItems, setUploadedItems] = useState<UploadedItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('formData_items');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [availableTimes, setAvailableTimes] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('formData_times');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [address, setAddress] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('formData_address') || '';
+    }
+    return '';
+  });
+  const [contactInfo, setContactInfo] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('formData_contact');
+      return saved ? JSON.parse(saved) : { fullName: '', contact: '' };
+    }
+    return { fullName: '', contact: '' };
   });
   const [showTerms, setShowTerms] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({
@@ -299,29 +289,14 @@ export const PickupRequestForm = ({
   const [formMessage, setFormMessage] = useState('');
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
 
-
   useEffect(() => {
-    const dataToSave = {
-      currentStep,
-      uploadedItems,
-      availableTimes,
-      address,
-      contactInfo,
-    };
-    saveToLocalStorage(dataToSave);
-  }, [currentStep, uploadedItems, availableTimes, address, contactInfo]); 
-
-
-  useEffect(() => {
-    const savedData = loadFromLocalStorage();
-    if (savedData) {
-      setCurrentStep(savedData.currentStep || 1);
-      setUploadedItems(savedData.uploadedItems || []);
-      setAvailableTimes(savedData.availableTimes || []);
-      setAddress(savedData.address || '');
-      setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('formData_items', JSON.stringify(uploadedItems));
+      localStorage.setItem('formData_times', JSON.stringify(availableTimes));
+      localStorage.setItem('formData_address', address);
+      localStorage.setItem('formData_contact', JSON.stringify(contactInfo));
     }
-  }, []);
+  }, [uploadedItems, availableTimes, address, contactInfo]);
 
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
@@ -575,7 +550,7 @@ export const PickupRequestForm = ({
               <FormInput
                 label="First and Last Name"
                 value={contactInfo.fullName}
-                onChange={(value: string) => setContactInfo(prev => ({ ...prev, fullName: value }))}
+                onChange={(value: string) => setContactInfo((prev: { fullName: string; contact: string }) => ({ ...prev, fullName: value }))}
               />
               
               <div className="mt-6">
@@ -585,12 +560,12 @@ export const PickupRequestForm = ({
                   onChange={(value: string) => {
        
                     if (/^[\d(]/.test(value)) {
-                      setContactInfo(prev => ({ 
+                      setContactInfo((prev: { fullName: string; contact: string }) => ({ 
                         ...prev, 
                         contact: formatPhoneNumber(value)
                       }));
                     } else {
-                      setContactInfo(prev => ({ ...prev, contact: value }));
+                      setContactInfo((prev: { fullName: string; contact: string }) => ({ ...prev, contact: value }));
                     }
                   }}
                   hint="Choose the contact method you check most frequently for convenient updates."
@@ -912,7 +887,6 @@ export const PickupRequestForm = ({
         };
         
         await onSubmit(formData);
-        clearLocalStorage(); 
         setCurrentStep(4); 
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -925,6 +899,11 @@ export const PickupRequestForm = ({
   };
 
   const handleNewRequest = () => {
+    localStorage.removeItem('formData_items');
+    localStorage.removeItem('formData_times');
+    localStorage.removeItem('formData_address');
+    localStorage.removeItem('formData_contact');
+    
     // Reset form data when starting a new request
     setUploadedItems([]);
     setAvailableTimes([]);
