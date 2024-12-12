@@ -238,7 +238,18 @@ export const PickupRequestForm = ({
 }: PickupRequestFormProps) => {
   const [currentStep, setCurrentStep] = useState(() => {
     if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem('formData_currentStep') || '1');
+      // Check if this is a fresh visit or a refresh
+      const isRefresh = performance.navigation?.type === 1 || 
+        (window.performance?.getEntriesByType('navigation')[0] as PerformanceNavigationTiming)?.type === 'reload';
+      
+      if (isRefresh) {
+        // On refresh, get the stored step
+        return parseInt(localStorage.getItem('formData_currentStep') || '1');
+      } else {
+        // On fresh visit/reopen, always start at step 1
+        localStorage.removeItem('formData_currentStep'); // Clear stored step
+        return 1;
+      }
     }
     return 1;
   });
@@ -297,6 +308,21 @@ export const PickupRequestForm = ({
       localStorage.setItem('formData_contact', JSON.stringify(contactInfo));
     }
   }, [uploadedItems, availableTimes, address, contactInfo]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (uploadedItems.length > 0) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const handleItemDescription = (itemId: string, description: string) => {
     setUploadedItems(items => 
@@ -834,8 +860,7 @@ export const PickupRequestForm = ({
   };
 
   const handleNext = async () => {
-    if (currentStep === 3) { // When on the contact/confirmation step
-      // Set loading state immediately before any async operations
+    if (currentStep === 3) {
       setLoading(true);
       try {
         // 1. Upload files first
@@ -887,7 +912,15 @@ export const PickupRequestForm = ({
         };
         
         await onSubmit(formData);
-        setCurrentStep(4); 
+        
+        // Only clear localStorage after successful submission
+        localStorage.removeItem('formData_items');
+        localStorage.removeItem('formData_times');
+        localStorage.removeItem('formData_address');
+        localStorage.removeItem('formData_contact');
+        localStorage.removeItem('formData_currentStep');
+        
+        setCurrentStep(4);
       } catch (error) {
         console.error('Error submitting form:', error);
       } finally {
@@ -958,7 +991,7 @@ export const PickupRequestForm = ({
         </div>
       )}
 
-      {/* Step Content with Icon Headers */}
+    
       <div className="mb-8">
         {currentStep === 4 ? (
           <div className="flex items-center gap-3 mb-6">
@@ -989,7 +1022,7 @@ export const PickupRequestForm = ({
         {renderStepContent()}
       </div>
 
-      {/* Navigation Buttons */}
+   
       <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
         {currentStep > 1 && !isSuccessStep() && (
           <CustomButton

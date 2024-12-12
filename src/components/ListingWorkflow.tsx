@@ -269,7 +269,7 @@ export const ListingWorkflow = ({
                 costToAcquire: value ? parseFloat(value) : 0 
               })}
               state={formData.costToAcquire ? "completed" : "required"}
-              min={0}
+              min="0"
               step={0.01}
             />
           </div>

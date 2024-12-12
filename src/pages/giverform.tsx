@@ -260,9 +260,12 @@ const GiverForm = () => {
 
           <div className="mt-8 text-center text-sm text-gray-500">
             Questions? Our team is here to help guide you through the process.
-            <button className="text-green-600 font-medium ml-2 hover:text-green-700">
+            <a 
+              href="mailto:help@gone.com" 
+              className="text-green-600 font-medium ml-2 hover:text-green-700"
+            >
               Contact us
-            </button>
+            </a>
           </div>
         </div>
       </div>
