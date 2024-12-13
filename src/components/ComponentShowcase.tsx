@@ -1267,7 +1267,10 @@ const [currentStep, setCurrentStep] = useState(1);
         <div className="space-y-4">
           <h3 className="heading-3">Pickup Request Form</h3>
           <PickupRequestForm
-            onSubmit={(data) => console.log('Form submitted:', data)}
+            onSubmit={async (data) => {
+              console.log('Form submitted:', data);
+              return { id: 'mock-id' };
+            }}
             availableDates={[
               { date: '2024-03-19', requestCount: 0 },
               { date: '2024-03-20', requestCount: 1 },
@@ -1281,7 +1284,10 @@ const [currentStep, setCurrentStep] = useState(1);
 ];
 
 <PickupRequestForm
-  onSubmit={(data) => handleFormSubmit(data)}
+  onSubmit={async (data) => {
+    console.log('Form submitted:', data);
+    return { id: 'mock-id' };
+  }}
   availableDates={availableDates}
 />`} />
         </div>

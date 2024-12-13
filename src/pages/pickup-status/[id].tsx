@@ -37,19 +37,19 @@ const PickupStatus = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Check if user has admin role (you'll need to implement this based on your auth setup)
         setIsAuthenticated(true);
-        // Example: check if user email is an admin email
         setIsAdmin(user.email?.endsWith('@gone.com') || false);
       } else {
         setIsAuthenticated(false);
         setIsAdmin(false);
       }
+      setAuthChecked(true);
     });
 
     return () => unsubscribe();
@@ -125,6 +125,22 @@ const PickupStatus = () => {
   };
 
   const renderContactInfo = () => {
+    console.log('Auth state:', { isAuthenticated, isAdmin, authChecked });
+    
+    if (!authChecked) {
+      return (
+        <div className="border-b pb-4">
+          <div className="animate-pulse bg-gray-200 h-4 w-3/4 rounded mb-2"></div>
+          <button
+            onClick={() => router.push('/login')}
+            className="mt-2 text-[#4B7163] hover:underline"
+          >
+            Click here to log in
+          </button>
+        </div>
+      );
+    }
+
     if (!isAuthenticated) {
       return (
         <div className="border-b pb-4">
@@ -141,7 +157,7 @@ const PickupStatus = () => {
         </div>
       );
     }
-
+    
     return (
       <div className="border-b pb-4">
         <h2 className="font-semibold text-gray-900 mb-3">Contact Information</h2>
@@ -155,7 +171,7 @@ const PickupStatus = () => {
         </div>
       </div>
     );
-  };
+  }
 
   if (loading) {
     return (

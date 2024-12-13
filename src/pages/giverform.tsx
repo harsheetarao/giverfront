@@ -49,10 +49,9 @@ const GiverForm = () => {
     }
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: any): Promise<{ id: string }> => {
     setIsSubmitting(true);
     try {
-      console.log('handleSubmit called with data:', data);
       const processedItems = data.items.map((item: any) => ({
         description: item.description || '',
         fileUrls: item.fileUrls || [],
@@ -72,22 +71,8 @@ const GiverForm = () => {
       };
 
       const docRef = await addDoc(collection(db, 'pickupRequests'), pickupData);
-
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notify-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestId: docRef.id,
-          phoneNumber: data.contact,
-          name: data.fullName,
-          email: data.contact.includes('@') ? data.contact : ''
-        }),
-      });
-
       localStorage.removeItem('formData');
-
+      
       return { id: docRef.id };
     } catch (error) {
       console.error('Error submitting form:', error);

@@ -7,6 +7,8 @@ import { CustomButton } from './CustomButton';
 import { Upload, FolderUp, Calendar, CheckCircle2 } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
 import { ProgressStep } from './Progress';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 interface PartnerUploadedItem {
   id: string;
@@ -48,7 +50,7 @@ export const BulkPartnerPickupRequestForm = (props: any) => {
     }
   };
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = async (data: any): Promise<{ id: string }> => {
     const formData = {
       ...data,
       uploadMethod,
@@ -58,6 +60,9 @@ export const BulkPartnerPickupRequestForm = (props: any) => {
       dropOffTime
     };
     console.log('Form submitted:', formData);
+    
+    const docRef = await addDoc(collection(db, 'pickupRequests'), formData);
+    return { id: docRef.id };
   };
 
   // Custom render function for both steps
