@@ -8,7 +8,7 @@ interface PrivacyProps {
   onClose: () => void;
 }
 
-const Privacy: React.FC<PrivacyProps> = ({ isVisible, onClose }) => {
+export const Privacy: React.FC<PrivacyProps> = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
   
   return (
