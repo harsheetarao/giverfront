@@ -108,9 +108,15 @@ const loadFromLocalStorage = () => {
     
     const data = JSON.parse(saved);
     
+    // Filter out items with broken images
+    const validItems = data.uploadedItems?.filter((item: UploadedItem) => {
+      // Check if the image URL is still valid
+      return item.imageUrl && item.imageUrl.startsWith('data:image/');
+    }) || [];
+    
     return {
       currentStep: data.currentStep || 1,
-      uploadedItems: data.uploadedItems || [],
+      uploadedItems: validItems,
       availableTimes: data.availableTimes || [],
       address: data.address || '',
       contactInfo: data.contactInfo || { fullName: '', contact: '' },
@@ -421,8 +427,13 @@ export const PickupRequestForm = ({
   useEffect(() => {
     const savedData = loadFromLocalStorage();
     if (savedData) {
+      // Only restore items that have valid base64 images
+      const validItems = savedData.uploadedItems.filter((item: UploadedItem) => 
+        item.imageUrl && item.imageUrl.startsWith('data:image/')
+      );
+      
       setCurrentStep(savedData.currentStep || 1);
-      setUploadedItems(savedData.uploadedItems || []);
+      setUploadedItems(validItems);
       setAvailableTimes(savedData.availableTimes || []);
       setAddress(savedData.address || '');
       setContactInfo(savedData.contactInfo || { fullName: '', contact: '' });
@@ -865,21 +876,23 @@ export const PickupRequestForm = ({
                   Track Your Request Status
                 </h4>
                 <p className="text-[#5A7C6F] mb-4">
-                  You can check the status of your pickup request at any time using this link:
+                  You can check the status of your pickup request at any time:
                 </p>
                 <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-[#4B7163]">
-                  <input
-                    type="text"
-                    value={`${window.location.origin}/pickup-status/${requestId}`}
-                    readOnly
-                    className="flex-grow bg-transparent outline-none"
-                  />
+                  <a
+                    href={`${window.location.origin}/pickup-status/${requestId}`}
+                    className="flex-grow truncate text-[#4B7163] hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {`${window.location.origin}/pickup-status/${requestId}`}
+                  </a>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`${window.location.origin}/pickup-status/${requestId}`);
                       // Add a toast or some visual feedback that the URL was copied
                     }}
-                    className="text-[#4B7163] hover:text-[#3D5B51] px-3 py-1 rounded-md"
+                    className="text-[#4B7163] hover:text-[#3D5B51] px-3 py-1 rounded-md border-l border-[#4B7163]/20"
                   >
                     Copy Link
                   </button>
