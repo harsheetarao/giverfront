@@ -200,5 +200,3 @@ export const TermsOfService = ({
     </Modal>
   );
 };
-
-export default TermsOfService; 
