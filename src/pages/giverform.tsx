@@ -9,8 +9,8 @@ import Logo from '@/styles/ui/logos/gone.svg';
 import Script from 'next/script';
 import { db } from '@/firebaseConfig';  
 import { addDoc, collection } from 'firebase/firestore';
-import TermsOfService from '@/components/TermsOfService';
-import Privacy from '@/components/Privacy';
+import { TermsOfService } from '@/components/TermsOfService';
+import { Privacy } from '@/components/Privacy';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
