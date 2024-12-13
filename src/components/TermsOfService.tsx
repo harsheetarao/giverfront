@@ -2,18 +2,23 @@
 
 import React from 'react';
 import { Modal } from '@/components/Modal';
-import styles from './TermsOfService.module.css';
+import { cn } from '@/lib/utils';
 
 interface TermsOfServiceProps {
   isVisible: boolean;
   onClose: () => void;
+  className?: string;
 }
 
-export const TermsOfService: React.FC<TermsOfServiceProps> = ({ isVisible, onClose }) => {
+export const TermsOfService = ({ 
+  isVisible, 
+  onClose,
+  className 
+}: TermsOfServiceProps) => {
   if (!isVisible) return null;
   
   return (
-    <Modal onClose={onClose} className="p-6">
+    <Modal onClose={onClose} className={cn("p-6", className)}>
       <div className="terms-content">
         <h2>Gone Technologies Inc. Terms of Service</h2>
         

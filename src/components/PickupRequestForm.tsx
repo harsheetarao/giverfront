@@ -14,7 +14,7 @@ import TermsOfService from './TermsOfService';
 import axios from 'axios';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebaseConfig'; 
-import Privacy from './Privacy';
+import { Privacy } from './Privacy';
 
 interface UploadedItem {
   id: string;

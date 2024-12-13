@@ -2,17 +2,23 @@
 
 import React from 'react';
 import { Modal } from '@/components/Modal';
+import { cn } from '@/lib/utils';
 
 interface PrivacyProps {
   isVisible: boolean;
   onClose: () => void;
+  className?: string;
 }
 
-export const Privacy: React.FC<PrivacyProps> = ({ isVisible, onClose }) => {
+export const Privacy = ({ 
+  isVisible, 
+  onClose,
+  className 
+}: PrivacyProps) => {
   if (!isVisible) return null;
-  
+
   return (
-    <Modal onClose={onClose} className="p-6">
+    <Modal onClose={onClose} className={cn("p-6", className)}>
       <div className="privacy-content">
         <h2>Privacy Policy</h2>
 
@@ -150,5 +156,3 @@ export const Privacy: React.FC<PrivacyProps> = ({ isVisible, onClose }) => {
     </Modal>
   );
 };
-
-export default Privacy;
