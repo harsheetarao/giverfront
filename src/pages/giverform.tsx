@@ -87,6 +87,8 @@ const GiverForm = () => {
       });
 
       localStorage.removeItem('formData');
+
+      return { id: docRef.id };
     } catch (error) {
       console.error('Error submitting form:', error);
       throw error;

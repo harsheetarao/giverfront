@@ -26,7 +26,7 @@ interface UploadedItem {
 }
 
 interface PickupRequestFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any) => Promise<{ id: string }>;
   className?: string;
   skipContactStep?: boolean;
   renderDetailsStep?: (
@@ -388,6 +388,7 @@ export const PickupRequestForm = ({
   const [formMessage, setFormMessage] = useState('');
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   const isStepCompleted = (step: number) => {
     return completedSteps.includes(step);
@@ -858,7 +859,34 @@ export const PickupRequestForm = ({
               </p>
             </div>
 
-    
+            {requestId && (
+              <div className="bg-[#F8FAF9] rounded-xl p-6">
+                <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
+                  Track Your Request Status
+                </h4>
+                <p className="text-[#5A7C6F] mb-4">
+                  You can check the status of your pickup request at any time using this link:
+                </p>
+                <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-[#4B7163]">
+                  <input
+                    type="text"
+                    value={`${window.location.origin}/pickup-status/${requestId}`}
+                    readOnly
+                    className="flex-grow bg-transparent outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/pickup-status/${requestId}`);
+                      // Add a toast or some visual feedback that the URL was copied
+                    }}
+                    className="text-[#4B7163] hover:text-[#3D5B51] px-3 py-1 rounded-md"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="bg-[#F8FAF9] rounded-xl p-6">
               <h4 className="font-rockwell text-lg text-[#4B7163] mb-4">
                 Your Pickup Request Details
@@ -1001,11 +1029,9 @@ export const PickupRequestForm = ({
 
   const handleNext = async () => {
     if (canProceed()) {
-      // Add current step to completed steps if not already included
       if (!completedSteps.includes(currentStep)) {
         const newCompletedSteps = [...completedSteps, currentStep];
         setCompletedSteps(newCompletedSteps);
-        // Notify parent component
         if (onCompletedStepsChange) {
           onCompletedStepsChange(newCompletedSteps);
         }
@@ -1039,7 +1065,7 @@ export const PickupRequestForm = ({
 
           const processedItems = await Promise.all(fileUploadPromises);
           
-          await onSubmit({
+          const result = await onSubmit({
             fullName: contactInfo.fullName,
             contact: contactInfo.contact,
             items: processedItems,
@@ -1047,6 +1073,7 @@ export const PickupRequestForm = ({
             address
           });
 
+          setRequestId(result.id);
           clearLocalStorage();
           setCurrentStep(4);
         } catch (error) {
