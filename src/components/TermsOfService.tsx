@@ -9,7 +9,7 @@ interface TermsOfServiceProps {
   onClose: () => void;
 }
 
-const TermsOfService: React.FC<TermsOfServiceProps> = ({ isVisible, onClose }) => {
+export const TermsOfService: React.FC<TermsOfServiceProps> = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
   
   return (
