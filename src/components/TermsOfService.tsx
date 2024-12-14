@@ -1,6 +1,7 @@
-import * as React from "react"
+import * as React from 'react';
 import { Modal } from '@/components/Modal';
 import { cn } from '@/lib/utils';
+import styles from './TermsOfService.module.css';
 
 interface TermsOfServiceProps {
   isVisible: boolean;
