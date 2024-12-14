@@ -1,3 +1,7 @@
+'use client';
+
+import React from 'react';
+
 // UI Components
 export { Button } from './button';
 export { Card } from './Card';
@@ -37,6 +41,9 @@ export { SearchInput } from './SearchInput';
 export { Header } from './Header';
 export { Footer } from './Footer';
 export { Page } from './page';
+
+// Make React available
+export { React };
 
 // Types
 export type { MenuItem } from './Header';
