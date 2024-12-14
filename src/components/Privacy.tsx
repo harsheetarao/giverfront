@@ -8,11 +8,11 @@ interface PrivacyProps {
   className?: string;
 }
 
-export const Privacy = ({ 
+export default function Privacy({ 
   isVisible, 
   onClose,
   className 
-}: PrivacyProps) => {
+}: PrivacyProps) {
   if (!isVisible) return null;
 
   return (

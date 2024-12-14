@@ -9,11 +9,11 @@ interface TermsOfServiceProps {
   className?: string;
 }
 
-export const TermsOfService = ({ 
+export default function TermsOfService({ 
   isVisible, 
   onClose,
   className 
-}: TermsOfServiceProps) => {
+}: TermsOfServiceProps) {
   if (!isVisible) return null;
   
   return (
@@ -198,4 +198,4 @@ export const TermsOfService = ({
       </div>
     </Modal>
   );
-};
+}
