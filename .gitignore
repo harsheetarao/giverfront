@@ -70,3 +70,6 @@ logs
 *.backup
 *.bak
 *.tmp
+
+# Environment Variables
+.env*
