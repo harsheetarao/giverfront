@@ -1,0 +1,663 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import SwipeCard from './SwipeCard';
+import CustomButton from './CustomButton';
+import { Mail, Phone, Calendar, MapPin, X, Check, MessageCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import SimpleMessageThread from '../../../src/components/SimpleMessageThread';
+import { PickupRequest } from '@/types/PickupRequest';
+import { PickupItem } from '@/types/PickupItem';
+import { Message } from '@/types/Message';
+import { db } from '../firebaseConfig';
+import { collection, getDocs, updateDoc, doc, query, where, onSnapshot, getDoc, getFirestore } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import Image from 'next/image';
+import SwipeCardDeck from './SwipeCardDeck';
+console.log('DB instance:', db);
+
+interface PickupRequestManagerProps {
+  statusFilter?: 'pending' | 'accepted' | 'rejected';
+  onAcceptRequest: (id: string) => void;
+  onRejectRequest: (id: string) => void;
+  onUpdateStatus: (id: string, status: string) => void;
+  onMessageRead?: (requestId: string, messageId: string) => void;
+  onHideRequest?: (id: string) => void;
+  className?: string;
+  pickupRequests?: PickupRequestType[];
+}
+
+type PickupRequestType = {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  email?: string;
+  createdAt: string;
+  status: string;
+  address: string;
+  unit?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  selectedDates?: {
+    date: string;
+    timeRange?: string;
+  }[];
+  items: {
+    id?: string;
+    description: string;
+    condition: string;
+    fileUrls?: string[];
+    status?: string;
+    driverStatus?: string;
+    previousStatus?: string;
+    imageUrl?: string;
+  }[];
+  messages?: {
+    text: string;
+    timestamp: Timestamp;
+    sender: 'user' | 'system' | 'admin';
+    type?: 'confirmation';
+    id?: string;
+    isRead?: boolean;
+    requestId?: string;
+  }[];
+  availableTimes?: string[];
+};
+
+export default function PickupRequestManager({
+  statusFilter,
+  onAcceptRequest,
+  onRejectRequest,
+  onUpdateStatus,
+  onMessageRead,
+  onHideRequest,
+  className,
+  pickupRequests: initialRequests
+}: PickupRequestManagerProps) {
+  const [requests, setRequests] = useState<PickupRequestType[]>(initialRequests || []);
+  const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isMessagesExpanded, setIsMessagesExpanded] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [messageStatus, setMessageStatus] = useState<{ [key: string]: boolean }>({});
+  const [selectedTimes, setSelectedTimes] = useState<{ [key: string]: string }>({});
+  const [sendingNotification, setSendingNotification] = useState<{ [key: string]: boolean }>({});
+  const [selectedRequests, setSelectedRequests] = useState<Set<string>>(new Set());
+  const [isProcessingSwipe, setIsProcessingSwipe] = useState(false);
+  const [isProcessingUndo, setIsProcessingUndo] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string;
+    description?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (initialRequests) {
+      setRequests(initialRequests);
+    }
+  }, [initialRequests]);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setLoading(true);
+      try {
+        console.log('1. Starting fetchRequests...');
+        
+        // Use the initialized db instance
+        console.log('2. Using initialized Firestore instance:', db);
+        
+        // Step 2: Create collection reference
+        console.log('3. Creating collection reference...');
+        const pickupRequestsRef = collection(db, 'pickupRequests');
+        console.log('4. Collection reference created:', pickupRequestsRef);
+        
+        // Step 3: Set up snapshot listener
+        console.log('5. Setting up snapshot listener...');
+        const unsubscribe = onSnapshot(pickupRequestsRef, 
+          (querySnapshot) => {
+            console.log('6. Snapshot received:', querySnapshot.size, 'documents');
+            const requestData = querySnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })) as PickupRequestType[];
+            
+            console.log('7. Processed request data:', requestData.length, 'requests');
+            
+            const uniqueRequests = new Map<string, PickupRequestType>();
+            
+            requestData.forEach(request => {
+              if (!uniqueRequests.has(request.id)) {
+                uniqueRequests.set(request.id, request);
+              }
+            });
+            
+            let filteredRequests = Array.from(uniqueRequests.values());
+            
+            // Sort by createdAt timestamp in descending order (newest first)
+            filteredRequests.sort((a, b) => {
+              const dateA = new Date(a.createdAt).getTime();
+              const dateB = new Date(b.createdAt).getTime();
+              return dateB - dateA; // Changed to descending order (newest first)
+            });
+            
+            if (statusFilter === 'pending') {
+              filteredRequests = filteredRequests.filter(request => {
+                const hasPendingItems = Array.isArray(request.items) && 
+                  request.items.some(item => !item.status || item.status === 'pending');
+                
+                if (hasPendingItems) {
+                  console.log('Found pending request:', {
+                    id: request.id,
+                    name: request.name,
+                    email: request.email,
+                    phoneNumber: request.phoneNumber,
+                    address: `${request.address}${request.unit ? `, Unit ${request.unit}` : ''}, ${request.city}, ${request.state} ${request.zipCode}`,
+                    availableTimes: request.availableTimes,
+                    items: request.items.map(item => ({
+                      description: item.description,
+                      status: item.status,
+                      photoUrls: item.fileUrls,
+                      condition: item.condition
+                    }))
+                  });
+                }
+                
+                return hasPendingItems;
+              });
+            } else if (statusFilter === 'accepted') {
+              filteredRequests = filteredRequests.filter(request => 
+                Array.isArray(request.items) && 
+                request.items.some(item => 
+                  item.status === 'accepted' || 
+                  item.status === 'completed' ||
+                  item.status === 'scheduled' ||
+                  item.status === 'rejected'
+                )
+              );
+            }
+            
+            setRequests(filteredRequests);
+            setLoading(false);
+          }, 
+          (error) => {
+            console.error(' Error in Firestore snapshot:', error);
+            console.error('Error details:', {
+              code: error.code,
+              message: error.message,
+              stack: error.stack
+            });
+            setLoading(false);
+          }
+        );
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error(' Error in fetchRequests:', error);
+        console.error('Error details:', {
+          name: (error as Error).name,
+          message: (error as Error).message,
+          stack: (error as Error).stack
+        });
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, [statusFilter]);
+
+  useEffect(() => {
+    if (statusFilter === 'pending' && !isProcessingSwipe && requests[currentRequestIndex]) {
+      const currentRequest = requests[currentRequestIndex];
+      console.log('Debug - Current Request State:', {
+        requestId: currentRequest.id,
+        totalItems: currentRequest.items?.length || 0,
+        pendingItems: currentRequest.items?.filter(item => !item.status || item.status === 'pending').length || 0,
+        itemDetails: currentRequest.items?.map(item => ({
+          description: item.description || 'No description',
+          status: item.status || 'No status',
+          hasPhotos: Boolean(item.fileUrls?.length)
+        }))
+      });
+    }
+  }, [statusFilter, isProcessingSwipe, currentRequestIndex, requests]);
+
+  // Add validation helper
+  const isValidItem = (item: any) => {
+    console.log('Validating item:', item);
+    return item && (item.fileUrls?.length > 0 || item.description);
+  };
+
+  const handleSwipe = async (direction: 'left' | 'right', item: any) => {
+    if (isProcessingSwipe) return;
+    
+    try {
+      setIsProcessingSwipe(true);
+      const currentRequest = requests[currentRequestIndex];
+      const itemIndex = currentRequest.items.findIndex((i) => i === item);
+
+      // Create updated items array
+      const updatedItems = [...currentRequest.items];
+      updatedItems[itemIndex] = {
+        ...updatedItems[itemIndex],
+        status: direction === 'right' ? 'accepted' : 'rejected',
+        previousStatus: updatedItems[itemIndex].status // Store previous status for undo
+      };
+
+      // Update Firestore
+      await updateDoc(doc(db, 'pickupRequests', currentRequest.id), {
+        items: updatedItems,
+        ...(updatedItems.every(item => 
+          item.status === 'accepted' || item.status === 'rejected'
+        ) && { status: 'processed' })
+      });
+
+      // Update local state
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === currentRequest.id 
+            ? { ...req, items: updatedItems }
+            : req
+        )
+      );
+
+      // Handle notifications if needed
+      const allItemsRejected = updatedItems.every(item => item.status === 'rejected');
+      if (direction === 'left' && allItemsRejected) {
+        try {
+          const requestDoc = await getDoc(doc(db, 'pickupRequests', currentRequest.id));
+          const requestData = requestDoc.data();
+
+          const response = await fetch('https://gone-backend-990800642935.us-west1.run.app/notify-rejection', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await getAuth().currentUser?.getIdToken()}`
+            },
+            body: JSON.stringify({
+              contactInfo: currentRequest.email || currentRequest.phoneNumber,
+              requestId: currentRequest.id,
+              itemCount: updatedItems.length
+            })
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Rejection notification failed:', errorText);
+          }
+        } catch (error) {
+          console.error('Error sending rejection notification:', error);
+        }
+      }
+
+      // Call appropriate callback
+      if (direction === 'right') {
+        onAcceptRequest(currentRequest.id);
+      } else {
+        onRejectRequest(currentRequest.id);
+      }
+
+      // Check if all items in current request are processed
+      const remainingItems = updatedItems.filter(
+        item => !item.status || item.status === 'pending'
+      );
+
+      if (remainingItems.length === 0 && currentRequestIndex < requests.length - 1) {
+        setCurrentRequestIndex(prev => prev + 1);
+      }
+
+    } catch (error) {
+      console.error('Error processing swipe:', error);
+    } finally {
+      setIsProcessingSwipe(false);
+    }
+  };
+
+  const handleUndo = async (card: any) => {
+    if (isProcessingUndo) return;
+
+    try {
+      setIsProcessingUndo(true);
+      const currentRequest = requests[currentRequestIndex];
+      const itemIndex = currentRequest.items.findIndex((i) => i === card.originalItem);
+
+      if (itemIndex === -1) return;
+
+      // Get the current document state
+      const requestRef = doc(db, 'pickupRequests', currentRequest.id);
+      const requestDoc = await getDoc(requestRef);
+      
+      if (!requestDoc.exists()) return;
+
+      const currentData = requestDoc.data();
+      const items = [...currentData.items];
+
+      // Restore the previous status or set to pending
+      items[itemIndex] = {
+        ...items[itemIndex],
+        status: items[itemIndex].previousStatus || 'pending',
+        previousStatus: undefined // Clear the previous status
+      };
+
+      // Update Firestore with restored state
+      await updateDoc(requestRef, {
+        items: items,
+        // Update overall status if needed
+        status: items.some(item => !item.status || item.status === 'pending') 
+          ? 'pending' 
+          : 'processed'
+      });
+
+      // Update local state
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === currentRequest.id 
+            ? { ...req, items: items }
+            : req
+        )
+      );
+
+    } catch (error) {
+      console.error('Error undoing action:', error);
+    } finally {
+      setIsProcessingUndo(false);
+    }
+  };
+
+  const handleHide = (requestId: string) => {
+    setRequests(prev => prev.filter(req => req.id !== requestId));
+    
+    if (currentRequestIndex >= requests.length - 1) {
+      setCurrentRequestIndex(Math.max(0, requests.length - 2));
+    }
+
+    if (onHideRequest) {
+      onHideRequest(requestId);
+    }
+  };
+
+  // Add this function to handle undo from modal
+  const handleModalUndo = async (imageUrl: string) => {
+    try {
+      const currentRequest = requests[currentRequestIndex];
+      const itemIndex = currentRequest.items.findIndex(item => item.fileUrls?.[0] === imageUrl);
+      
+      if (itemIndex === -1) return;
+
+      // Get the current document state
+      const requestRef = doc(db, 'pickupRequests', currentRequest.id);
+      const requestDoc = await getDoc(requestRef);
+      
+      if (!requestDoc.exists()) return;
+
+      const currentData = requestDoc.data();
+      const items = [...currentData.items];
+
+      // Reset the item status to pending
+      items[itemIndex] = {
+        ...items[itemIndex],
+        status: 'pending',
+        previousStatus: items[itemIndex].status // Store the previous status
+      };
+
+      // Update Firestore
+      await updateDoc(requestRef, {
+        items: items,
+        status: 'pending'
+      });
+
+      // Update local state
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === currentRequest.id 
+            ? { ...req, items: items }
+            : req
+        )
+      );
+
+      // Close the modal
+      setSelectedImage(null);
+    } catch (error) {
+      console.error('Error undoing from modal:', error);
+    }
+  };
+
+  // Add this function to calculate counts for each request
+  const getRequestCounts = (request: PickupRequestType) => {
+    const total = request.items.length;
+    const accepted = request.items.filter(item => item.status === 'accepted').length;
+    const rejected = request.items.filter(item => item.status === 'rejected').length;
+    return { total, accepted, rejected };
+  };
+
+  let content = null;
+
+  if (loading) {
+    content = (
+      <div className="flex justify-center items-center h-[400px]">
+        <div className="text-[#4B7163] text-lg">Loading requests...</div>
+      </div>
+    );
+  } else if (requests.length === 0) {
+    content = <div className="text-center text-gray-600">No pending requests found</div>;
+  } else if (!requests[currentRequestIndex]) {
+    content = <div className="text-center text-gray-600">No more requests to process</div>;
+  } else if (currentRequestIndex >= requests.length) {
+    setCurrentRequestIndex(requests.length - 1);
+    content = <div className="text-center text-gray-600">End of requests reached</div>;
+  } else {
+    content = (
+      <>
+        <div className="flex justify-between items-center px-3 max-w-[600px] mx-auto">
+          <CustomButton
+            onClick={() => setCurrentRequestIndex(prev => Math.max(0, prev - 1))}
+            disabled={currentRequestIndex === 0}
+            className="bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+          >
+            &lt;
+          </CustomButton>
+          
+          <h2 className="font-rockwell text-2xl text-[#4B7163]">
+            {currentRequestIndex + 1} of {requests.length}
+          </h2>
+          
+          <CustomButton
+            onClick={() => setCurrentRequestIndex(prev => Math.min(requests.length - 1, prev + 1))}
+            disabled={currentRequestIndex === requests.length - 1}
+            className="bg-[#4B7163] text-white px-4 py-2 rounded-lg"
+          >
+            &gt;
+          </CustomButton>
+        </div>
+
+        <div className="bg-white rounded-2xl border-2 border-[#4B7163] p-6">
+          <h3 className="font-rockwell text-xl text-[#4B7163] mb-4">
+            Items to Review ({
+              requests[currentRequestIndex].items.filter(
+                item => !item.status || item.status === 'pending'
+              ).length
+            } of {requests[currentRequestIndex].items.length})
+          </h3>
+
+          {/* SwipeCardDeck */}
+          <div className="w-full">
+            {statusFilter === 'pending' && !isProcessingSwipe && requests[currentRequestIndex] && (
+              <SwipeCardDeck
+                key={`${requests[currentRequestIndex].id}-deck`}
+                cards={requests[currentRequestIndex].items
+                  .filter(item => {
+                    const isPending = !item.status || item.status === 'pending';
+                    const isValid = isValidItem(item);
+                    console.log('Item filter check:', { isPending, isValid, item });
+                    return isPending && isValid;
+                  })
+                  .map((item, index) => ({
+                    id: `${requests[currentRequestIndex].id}-${index}`,
+                    imageUrl: item.fileUrls?.[0] || item.imageUrl || '/placeholder-image.jpg',
+                    alt: item.description || 'Pickup request item',
+                    content: (
+                      <div className="space-y-4">
+                        {(item.fileUrls?.[0] || item.imageUrl) ? (
+                          <div className="relative w-full aspect-square">
+                            <img
+                              src={item.fileUrls?.[0] || item.imageUrl}
+                              alt={item.description || 'Pickup request item'}
+                              className="w-full h-full object-cover rounded-lg"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/placeholder-image.jpg';
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                            <span className="text-gray-400">No image available</span>
+                          </div>
+                        )}
+                        <p className="font-sourceSans text-gray-600">
+                          {item.description}
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-[#5A7C6F]">
+                            <span className="text-sm font-medium">
+                              {requests[currentRequestIndex].name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[#5A7C6F]">
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm">
+                              {requests[currentRequestIndex].address}
+                              {requests[currentRequestIndex].unit && `, Unit ${requests[currentRequestIndex].unit}`}
+                              {requests[currentRequestIndex].city && `, ${requests[currentRequestIndex].city}`}
+                              {requests[currentRequestIndex].state && `, ${requests[currentRequestIndex].state}`}
+                              {requests[currentRequestIndex].zipCode && `, ${requests[currentRequestIndex].zipCode}`}
+                            </span>
+                          </div>
+                          {requests[currentRequestIndex].phoneNumber && (
+                            <div className="flex items-center gap-2 text-[#5A7C6F]">
+                              <Phone className="h-4 w-4" />
+                              <span className="text-sm">
+                                {requests[currentRequestIndex].phoneNumber}
+                              </span>
+                            </div>
+                          )}
+                          {requests[currentRequestIndex].email && (
+                            <div className="flex items-center gap-2 text-[#5A7C6F]">
+                              <Mail className="h-4 w-4" />
+                              <span className="text-sm">
+                                {requests[currentRequestIndex].email}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 text-[#5A7C6F]">
+                            <Calendar className="h-4 w-4" />
+                            <div className="text-sm">
+                              Available: {' '}
+                              {Object.entries(requests[currentRequestIndex].availableTimes?.reduce((acc: Record<string, string[]>, time: string) => {
+                                if (!time) return acc;
+                                const parts = time.split('T');
+                                if (parts.length !== 2) return acc;
+                                
+                                const [date, timeStr] = parts;
+                                if (!date || !timeStr) return acc;
+                                
+                                if (!acc[date]) {
+                                  acc[date] = [];
+                                }
+                                acc[date].push(timeStr.substring(0, 5));
+                                return acc;
+                              }, {}) || {}).map(([date, times], idx) => (
+                                <span key={date}>
+                                  {idx > 0 && ', '}
+                                  {date}: {times.sort().join(', ')}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                    originalItem: item
+                  }))}
+                onSwipeLeft={(card) => handleSwipe('left', card.originalItem)}
+                onSwipeRight={(card) => handleSwipe('right', card.originalItem)}
+                onUndo={handleUndo}
+                onEmpty={() => {
+                  const currentRequest = requests[currentRequestIndex];
+                  const allItemsProcessed = currentRequest.items.every(
+                    item => item.status === 'accepted' || item.status === 'rejected'
+                  );
+                  
+                  if (allItemsProcessed && currentRequestIndex < requests.length - 1) {
+                    setCurrentRequestIndex(prev => prev + 1);
+                  }
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        {requests[currentRequestIndex] && (
+          <SimpleMessageThread
+            key={requests[currentRequestIndex].id}
+            requestId={requests[currentRequestIndex].id}
+            messages={(requests[currentRequestIndex].messages || [])
+              .map(msg => ({
+                id: msg.id || `msg-${Date.now()}-${Math.random()}`,
+                text: msg.text,
+                timestamp: msg.timestamp,
+                sender: msg.sender,
+                isRead: msg.isRead || false,
+                type: msg.type
+              }))}
+          />
+        )}
+      </>
+    );
+  }
+
+  return (
+    <div className={cn("max-w-4xl mx-auto space-y-3", className)}>
+      {content}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            className="bg-white rounded-xl w-[400px] max-h-[60vh] overflow-hidden shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="relative">
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-1 hover:bg-opacity-70 transition-colors z-10"
+              >
+                <X className="h-6 w-6" />
+              </button>
+              <img
+                src={selectedImage.url}
+                alt={selectedImage.description || 'Item image'}
+                className="w-full h-full object-contain max-h-[45vh]"
+              />
+            </div>
+            <div className="p-4 bg-white flex flex-col gap-2">
+              {selectedImage.description && (
+                <p className="text-gray-700">{selectedImage.description}</p>
+              )}
+              {/* Add undo button */}
+              <button
+                onClick={() => handleModalUndo(selectedImage.url)}
+                className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center"
+              >
+                Undo Decision
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
